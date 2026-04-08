@@ -227,7 +227,7 @@ export default function GKPage() {
           </div>
           <div>
             <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: 'var(--green-deepest)', lineHeight: 1 }}>Gyaanpravaha</p>
-            <span className="hindi">ज्ञानप्रवाह</span>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: 'var(--green-mid)', lineHeight: 1, marginTop: '2px' }}>ज्ञानप्रवाह</p>
           </div>
         </Link>
         <div style={{ display: 'flex', gap: '10px' }}>
