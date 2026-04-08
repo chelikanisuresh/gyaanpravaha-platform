@@ -79,7 +79,7 @@ export default function LoginPage() {
         </div>
         <div>
           <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '18px', color: 'var(--green-deepest)', lineHeight: 1 }}>Gyaanpravaha</p>
-          <p style={{ fontFamily: "'Noto Sans Devanagari', 'Mangal', 'Arial Unicode MS', serif", fontSize: '11px', color: 'var(--green-mid)', lineHeight: 1, marginTop: '2px' }}>ज्ञानप्रवाह</p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: 'var(--green-mid)', lineHeight: 1, marginTop: '2px' }}>ज्ञानप्रवाह</p>
         </div>
       </Link>
 
