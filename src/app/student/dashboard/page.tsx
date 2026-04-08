@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Navbar from '@/components/Navbar'
 
 const CHAPTERS = [
   { id: 1, title: 'Whistles and Shaving Bristles', type: 'Prose',     minutes: 15, completed: true,  score: 88, sectionsRead: 7 },
@@ -112,34 +113,17 @@ export default function StudentDashboard() {
         .flame { animation: shimmer 2s ease-in-out infinite; }
       `}</style>
 
-      {/* ── TOP NAV ── */}
-      <nav style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 5%', height: '60px',
-        background: 'white', borderBottom: '1px solid #E5E7EB',
-        position: 'sticky', top: 0, zIndex: 100,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '32px', height: '32px', background: '#2D6A4F', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-              <path d="M6 8h8M10 4v8" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-              <circle cx="10" cy="8" r="1.2" fill="#74C69D"/>
-            </svg>
-          </div>
-          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: '#1B4332' }}>Gyaanpravaha</p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* Streak badge */}
+      <Navbar rightContent={
+        <>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#FEF3C7', borderRadius: '20px', padding: '5px 12px', border: '1px solid #FDE68A' }}>
             <span style={{ fontSize: '16px' }}>🔥</span>
             <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#92400E' }}>{STREAK} day streak!</span>
           </div>
-          {/* Avatar */}
           <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#2D6A4F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: 'white' }}>
             {STUDENT_NAME[0]}
           </div>
-        </div>
-      </nav>
+        </>
+      }/>
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '28px 5% 60px' }}>
 
