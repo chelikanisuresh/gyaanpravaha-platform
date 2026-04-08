@@ -1,24 +1,6 @@
 import Link from 'next/link'
 
 export default function HomePage() {
-  const chapters = [
-    { number: 1, title: 'Whistles and Shaving Bristles', type: 'Prose', minutes: 15 },
-    { number: 2, title: 'If I Were Lord of Tartary', type: 'Poetry', minutes: 12 },
-    { number: 3, title: 'The Fun They Had', type: 'Story', minutes: 16 },
-    { number: 4, title: 'In Morning Dew', type: 'Poetry', minutes: 11 },
-    { number: 5, title: 'The Boy Who Outran the Wind', type: 'Biography', minutes: 18 },
-    { number: 6, title: 'The Blind Boy', type: 'Poetry', minutes: 12 },
-    { number: 7, title: 'Three Questions', type: 'Story', minutes: 20 },
-    { number: 8, title: 'From a Railway Carriage', type: 'Poetry', minutes: 10 },
-  ]
-
-  const typeColors: Record<string, string> = {
-    Prose:     'badge-green',
-    Poetry:    'badge-amber',
-    Story:     'badge-emerald',
-    Biography: 'badge-gray',
-  }
-
   return (
     <div style={{ minHeight: '100vh', background: 'var(--white)' }}>
 
@@ -67,43 +49,39 @@ export default function HomePage() {
       {/* ── HERO ── */}
       <section style={{
         background: 'linear-gradient(135deg, var(--green-deepest) 0%, var(--green-dark) 60%, var(--green-mid) 100%)',
-        padding: '80px 5% 90px',
+        padding: '90px 5% 100px',
         position: 'relative',
         overflow: 'hidden',
       }}>
-        {/* decorative circles */}
         <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '300px', height: '300px', borderRadius: '50%', background: 'rgba(116,198,157,0.1)' }} />
         <div style={{ position: 'absolute', bottom: '-40px', left: '10%', width: '200px', height: '200px', borderRadius: '50%', background: 'rgba(216,243,220,0.08)' }} />
 
         <div style={{ maxWidth: '720px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-          <div className="badge badge-green" style={{ marginBottom: '20px', background: 'rgba(216,243,220,0.15)', color: '#74C69D', border: '1px solid rgba(116,198,157,0.3)' }}>
-            Singhania School · Grade 6 · English
-          </div>
           <h1 style={{
             fontFamily: 'var(--font-heading)',
             fontWeight: 900,
-            fontSize: 'clamp(36px, 6vw, 58px)',
+            fontSize: 'clamp(38px, 6vw, 60px)',
             color: 'white',
             lineHeight: 1.15,
             marginBottom: '20px',
           }}>
-            Learn it.<br/>Know it.<br/>
+            Learn it.<br />Know it.<br />
             <span style={{ color: '#74C69D' }}>Flow with it.</span>
           </h1>
           <p style={{
             fontFamily: 'var(--font-body)',
             fontSize: '17px',
             color: 'rgba(255,255,255,0.8)',
-            marginBottom: '36px',
             lineHeight: 1.7,
+            maxWidth: '560px',
+            margin: '0 auto 40px',
           }}>
-            Gyaanpravaha is your school's own digital learning companion —
-            built chapter by chapter from your Connexion textbook.
-            No generic content. Just your syllabus, explained beautifully.
+            Gyaanpravaha is a digital learning platform that brings your syllabus to life —
+            explained simply, practised smartly, and tracked closely.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/signup" className="btn-primary" style={{ background: '#74C69D', color: 'var(--green-deepest)', fontSize: '16px', padding: '14px 32px' }}>
-              Start learning free
+              Start learning today
             </Link>
             <Link href="/login" className="btn-outline" style={{ borderColor: 'rgba(255,255,255,0.4)', color: 'white', fontSize: '16px', padding: '14px 32px' }}>
               I have an account
@@ -113,7 +91,7 @@ export default function HomePage() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section style={{ padding: '72px 5%', background: 'var(--green-pale)' }}>
+      <section style={{ padding: '80px 5%', background: 'var(--green-pale)' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <p style={{ textAlign: 'center', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: 'var(--green-mid)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>How it works</p>
           <h2 style={{ textAlign: 'center', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 'clamp(24px, 4vw, 36px)', color: 'var(--green-deepest)', marginBottom: '48px' }}>
@@ -121,11 +99,23 @@ export default function HomePage() {
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
             {[
-              { step: '01', title: 'Learn it', desc: 'Read each chapter explained in simple, friendly language — just like your tuition teacher would explain it. Confirm each section as you go.' },
-              { step: '02', title: 'Know it', desc: 'Unlock the quiz after reading. Answer MCQs, fill in the blanks, and long answer questions. Wrong answer? We re-explain the concept immediately.' },
-              { step: '03', title: 'Flow with it', desc: 'Track your progress, earn streaks, and let your parents see how well you are doing. Knowledge flows — and so do you.' },
+              {
+                step: '01',
+                title: 'Learn it',
+                desc: 'Every chapter is explained in simple, friendly language — just like a tuition teacher. Read through each section and confirm as you go.',
+              },
+              {
+                step: '02',
+                title: 'Know it',
+                desc: 'Unlock the quiz after reading. Answer questions across different formats. Got something wrong? We re-explain that concept immediately.',
+              },
+              {
+                step: '03',
+                title: 'Flow with it',
+                desc: 'Track your progress, earn streaks, and let your parents see how well you are doing. Knowledge that flows stays with you.',
+              },
             ].map(({ step, title, desc }) => (
-              <div key={step} className="card" style={{ textAlign: 'center', padding: '32px 24px' }}>
+              <div key={step} className="card" style={{ textAlign: 'center', padding: '36px 24px' }}>
                 <div style={{
                   width: '52px', height: '52px',
                   background: 'var(--green-dark)',
@@ -145,28 +135,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── CHAPTERS ── */}
-      <section style={{ padding: '72px 5%' }}>
-        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: 'var(--green-mid)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>English — Connexion Class 6</p>
-          <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 'clamp(22px, 4vw, 32px)', color: 'var(--green-deepest)', marginBottom: '8px' }}>
-            All 8 chapters, fully explained
+      {/* ── FEATURES ── */}
+      <section style={{ padding: '80px 5%' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: 'var(--green-mid)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px', textAlign: 'center' }}>What you get</p>
+          <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 'clamp(24px, 4vw, 36px)', color: 'var(--green-deepest)', marginBottom: '48px', textAlign: 'center' }}>
+            Everything a student needs to excel
           </h2>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: '15px', color: 'var(--gray-600)', marginBottom: '36px' }}>
-            Every chapter from your school textbook — broken into 7 easy sections with a quiz at the end.
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-            {chapters.map((ch) => (
-              <div key={ch.number} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <span className={`badge ${typeColors[ch.type]}`}>{ch.type}</span>
-                  <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: 'var(--gray-400)' }}>Ch. {ch.number}</span>
-                </div>
-                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '15px', color: 'var(--green-deepest)', lineHeight: 1.4 }}>{ch.title}</p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-                  <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--gray-400)' }}>{ch.minutes} min read</span>
-                  <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--gray-400)' }}>7 sections + quiz</span>
-                </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
+            {[
+              { icon: '📖', title: 'Chapter-by-chapter lessons', desc: 'Every chapter broken into 7 easy sections. Read at your own pace. Confirm each section before moving on.' },
+              { icon: '✅', title: 'Smart assessments', desc: 'MCQs, fill in the blanks, sentence forming, and long answers — all in one quiz per chapter.' },
+              { icon: '💡', title: 'Instant re-explanation', desc: 'Answer a question wrong and we immediately re-explain that exact concept before you try again.' },
+              { icon: '✍️', title: 'Writing practice', desc: 'Writing prompts assigned by your teacher, evaluated by AI, reviewed before your score is released.' },
+              { icon: '📊', title: 'Parent dashboard', desc: 'Parents can track progress, scores, time spent, and writing submissions — all in one place.' },
+              { icon: '🔥', title: 'Streak tracking', desc: 'Study every day and build your streak. A small habit that builds big results over time.' },
+            ].map(({ icon, title, desc }) => (
+              <div key={title} className="card" style={{ padding: '24px' }}>
+                <p style={{ fontSize: '28px', marginBottom: '12px' }}>{icon}</p>
+                <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '16px', color: 'var(--green-deepest)', marginBottom: '8px' }}>{title}</h3>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--gray-600)', lineHeight: 1.7 }}>{desc}</p>
               </div>
             ))}
           </div>
@@ -174,7 +162,7 @@ export default function HomePage() {
       </section>
 
       {/* ── FOR PARENTS ── */}
-      <section style={{ padding: '72px 5%', background: 'var(--green-pale)' }}>
+      <section style={{ padding: '80px 5%', background: 'var(--green-pale)' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '48px', alignItems: 'center' }}>
           <div>
             <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: 'var(--green-mid)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>For parents</p>
@@ -182,17 +170,25 @@ export default function HomePage() {
               Stay close to your child's learning
             </h2>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '15px', color: 'var(--gray-600)', lineHeight: 1.7, marginBottom: '24px' }}>
-              Your parent dashboard shows exactly what your child is studying, how they scored, which chapters need more attention, and how much time they spend learning every day.
+              Your parent dashboard shows exactly what your child is studying, how they scored,
+              which chapters need more attention, and how much time they spend learning every day.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[
                 'Chapter-wise scores and progress',
                 'Time spent studying per subject',
-                'Weak chapters highlighted',
+                'Weak chapters highlighted clearly',
                 'Writing prompt submissions and scores',
+                'Subscription status and renewal date',
               ].map((item) => (
                 <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--green-mint)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{
+                    width: '20px', height: '20px',
+                    borderRadius: '50%',
+                    background: 'var(--green-mint)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                       <path d="M2 5l2.5 2.5L8 3" stroke="#2D6A4F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -202,64 +198,95 @@ export default function HomePage() {
               ))}
             </div>
           </div>
+
           <div className="card" style={{ padding: '28px', background: 'white' }}>
-            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: 'var(--gray-400)', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Parent dashboard preview</p>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: 'var(--gray-400)', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Progress overview</p>
             {[
-              { subject: 'English', progress: 75, score: '88%' },
-              { subject: 'Maths', progress: 0, score: 'Coming soon' },
-              { subject: 'Science', progress: 0, score: 'Coming soon' },
-            ].map(({ subject, progress, score }) => (
-              <div key={subject} style={{ marginBottom: '16px' }}>
+              { subject: 'English', progress: 75, score: '88%', color: 'var(--green-dark)' },
+              { subject: 'Mathematics', progress: 40, score: '72%', color: 'var(--green-mid)' },
+              { subject: 'Science', progress: 20, score: '65%', color: 'var(--amber)' },
+            ].map(({ subject, progress, score, color }) => (
+              <div key={subject} style={{ marginBottom: '18px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                   <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: 'var(--green-deepest)' }}>{subject}</p>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: progress > 0 ? 'var(--green-dark)' : 'var(--gray-400)' }}>{score}</p>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color }}>{score}</p>
                 </div>
                 <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: `${progress}%` }} />
+                  <div className="progress-fill" style={{ width: `${progress}%`, background: color }} />
                 </div>
               </div>
             ))}
+            <div style={{ marginTop: '20px', padding: '12px', background: 'var(--green-pale)', borderRadius: 'var(--radius-md)' }}>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: 'var(--green-dark)' }}>🔥 7 day study streak!</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── PRICING ── */}
-      <section style={{ padding: '72px 5%' }}>
+      <section style={{ padding: '80px 5%' }}>
         <div style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
           <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: 'var(--green-mid)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Pricing</p>
           <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 'clamp(22px, 4vw, 32px)', color: 'var(--green-deepest)', marginBottom: '36px' }}>
-            One annual subscription.<br/>Full year of learning.
+            One annual subscription.<br />Full year of learning.
           </h2>
           <div className="card" style={{ padding: '40px 32px', textAlign: 'center', border: '2px solid var(--green-dark)' }}>
             <div className="badge badge-green" style={{ marginBottom: '16px' }}>Annual plan</div>
-            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '48px', color: 'var(--green-deepest)', lineHeight: 1 }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '52px', color: 'var(--green-deepest)', lineHeight: 1 }}>
               ₹2,499
             </p>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--gray-400)', marginBottom: '28px' }}>per student · per academic year</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--gray-400)', marginBottom: '28px' }}>
+              per student · per academic year
+            </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px', textAlign: 'left' }}>
               {[
-                'All 8 English chapters — fully explained',
-                '7 sections + quiz per chapter',
-                'Writing prompt assignments',
+                'All subjects — fully explained chapter by chapter',
+                '7 sections with confirmation gates per chapter',
+                'Smart quizzes with instant feedback',
+                'Writing prompt assignments and evaluation',
                 'Parent progress dashboard',
-                'AI doubt solver',
-                'Access till end of academic year',
+                'AI doubt solver — bounded to your syllabus',
+                'Access for the full academic year',
               ].map((item) => (
-                <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'var(--green-mint)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <div style={{
+                    width: '18px', height: '18px',
+                    borderRadius: '50%',
+                    background: 'var(--green-mint)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px',
+                  }}>
                     <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
                       <path d="M1.5 4.5l2 2L7.5 2" stroke="#2D6A4F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--gray-700)' }}>{item}</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--gray-700)', lineHeight: 1.5 }}>{item}</p>
                 </div>
               ))}
             </div>
-            <Link href="/signup" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+            <Link href="/signup" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '14px' }}>
               Get started today
             </Link>
           </div>
         </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section style={{
+        padding: '72px 5%',
+        background: 'linear-gradient(135deg, var(--green-deepest) 0%, var(--green-dark) 100%)',
+        textAlign: 'center',
+      }}>
+        <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 'clamp(24px, 4vw, 36px)', color: 'white', marginBottom: '16px' }}>
+          Ready to start learning?
+        </h2>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '16px', color: 'rgba(255,255,255,0.75)', marginBottom: '32px' }}>
+          Join Gyaanpravaha and experience learning that truly flows.
+        </p>
+        <Link href="/signup" className="btn-primary" style={{ background: '#74C69D', color: 'var(--green-deepest)', fontSize: '16px', padding: '14px 36px' }}>
+          Create your account
+        </Link>
       </section>
 
       {/* ── FOOTER ── */}

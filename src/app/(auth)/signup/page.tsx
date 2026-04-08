@@ -296,7 +296,6 @@ export default function SignupPage() {
       </div>
 
       <p style={{ marginTop: '24px', fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--gray-400)', textAlign: 'center' }}>
-        For students and parents of Singhania School, Thane
       </p>
 
     </div>
