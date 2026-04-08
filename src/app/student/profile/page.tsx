@@ -15,12 +15,7 @@ export default function StudentProfile() {
   const router = useRouter()
   const [profile, setProfile] = useState<{ full_name: string; email: string } | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showPasswordForm, setShowPasswordForm] = useState(false)
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [pwMessage, setPwMessage] = useState('')
-  const [pwError, setPwError] = useState('')
-  const [saving, setSaving] = useState(false)
+
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -38,19 +33,6 @@ export default function StudentProfile() {
     fetchProfile()
   }, [router])
 
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setPwError('')
-    setPwMessage('')
-    if (newPassword !== confirmPassword) { setPwError('Passwords do not match.'); return }
-    if (newPassword.length < 8) { setPwError('Password must be at least 8 characters.'); return }
-    setSaving(true)
-    const supabase = createClient()
-    const { error } = await supabase.auth.updateUser({ password: newPassword })
-    if (error) { setPwError('Could not update password. Please try again.') }
-    else { setPwMessage('Password updated successfully!'); setNewPassword(''); setConfirmPassword(''); setShowPasswordForm(false) }
-    setSaving(false)
-  }
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -127,50 +109,14 @@ export default function StudentProfile() {
           ))}
         </div>
 
-        {/* Password section */}
-        <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', overflow: 'hidden', marginBottom: '14px' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid #F3F4F6' }}>
-            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Security</p>
-          </div>
-          <div style={{ padding: '16px 20px' }}>
-            {!showPasswordForm ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <span style={{ fontSize: '18px' }}>🔑</span>
-                  <div>
-                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#9CA3AF', marginBottom: '2px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Password</p>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '14px', color: '#1B4332' }}>••••••••</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowPasswordForm(true)}
-                  style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#2D6A4F', background: '#D8F3DC', border: 'none', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer' }}
-                >
-                  Change
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handlePasswordChange} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <div>
-                  <label className="label" htmlFor="newPw">New password</label>
-                  <input id="newPw" type="password" className="input" placeholder="Minimum 8 characters" value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength={8}/>
-                </div>
-                <div>
-                  <label className="label" htmlFor="confirmPw">Confirm new password</label>
-                  <input id="confirmPw" type="password" className="input" placeholder="Re-enter new password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required/>
-                </div>
-                {pwError && <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#EF4444' }}>{pwError}</p>}
-                {pwMessage && <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#10B981' }}>{pwMessage}</p>}
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <button type="submit" disabled={saving} className="btn-primary" style={{ flex: 1, justifyContent: 'center', padding: '11px', fontSize: '14px', opacity: saving ? 0.7 : 1 }}>
-                    {saving ? 'Saving...' : 'Update password'}
-                  </button>
-                  <button type="button" onClick={() => { setShowPasswordForm(false); setPwError(''); setNewPassword(''); setConfirmPassword('') }} className="btn-outline" style={{ padding: '11px 18px', fontSize: '14px' }}>
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            )}
+        {/* Password — parent controlled */}
+        <div style={{ background: '#FEF3C7', borderRadius: '16px', border: '1px solid #FDE68A', padding: '16px 20px', marginBottom: '14px', display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+          <span style={{ fontSize: '20px', flexShrink: 0 }}>🔑</span>
+          <div>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#92400E', marginBottom: '4px' }}>Password is managed by your parent</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#B45309', lineHeight: 1.6 }}>
+              If you need to change your password, ask your parent to update it from their account. Your parent set the password during registration and controls it.
+            </p>
           </div>
         </div>
 
