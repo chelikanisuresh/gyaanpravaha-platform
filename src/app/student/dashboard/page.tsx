@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 
@@ -73,7 +75,26 @@ function StreakFlame({ count }: { count: number }) {
 }
 
 export default function StudentDashboard() {
+  const router = useRouter()
   const [activeSubject, setActiveSubject] = useState('English')
+  const [showDropdown, setShowDropdown] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/')
+  }
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
   const [greeting, setGreeting] = useState('')
   const [hoveredChapter, setHoveredChapter] = useState<number | null>(null)
   const [showConfetti, setShowConfetti] = useState(false)
@@ -119,8 +140,32 @@ export default function StudentDashboard() {
             <span style={{ fontSize: '16px' }}>🔥</span>
             <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#92400E' }}>{STREAK} day streak!</span>
           </div>
-          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#2D6A4F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: 'white' }}>
-            {STUDENT_NAME[0]}
+          <div ref={dropdownRef} style={{ position: 'relative' }}>
+            <div
+              onClick={() => setShowDropdown(prev => !prev)}
+              style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#2D6A4F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: 'white', cursor: 'pointer', border: showDropdown ? '2px solid #52B788' : '2px solid transparent', transition: 'border 0.2s' }}>
+              {STUDENT_NAME[0]}
+            </div>
+            {showDropdown && (
+              <div style={{ position: 'absolute', top: '44px', right: 0, background: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', boxShadow: '0 8px 24px rgba(0,0,0,0.1)', minWidth: '180px', overflow: 'hidden', zIndex: 200 }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid #F3F4F6' }}>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#1B4332', marginBottom: '2px' }}>{STUDENT_NAME}</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF' }}>Student</p>
+                </div>
+                <Link href="/student/profile" onClick={() => setShowDropdown(false)} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', textDecoration: 'none', color: '#374151', fontFamily: 'var(--font-body)', fontSize: '14px', transition: 'background 0.15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#F9FAFB')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="#6B7280" strokeWidth="1.5"/><path d="M2 13c0-3 2.5-5 6-5s6 2 6 5" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  My profile
+                </Link>
+                <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', width: '100%', border: 'none', background: 'transparent', color: '#EF4444', fontFamily: 'var(--font-body)', fontSize: '14px', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#FEF2F2')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M10 11l3-3-3-3M13 8H6" stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  Log out
+                </button>
+              </div>
+            )}
           </div>
         </>
       }/>
