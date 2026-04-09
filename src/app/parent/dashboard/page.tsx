@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import Navbar from '@/components/Navbar'
+import ParentSidebarLayout from '@/components/ParentSidebarLayout'
 
 
 
@@ -140,11 +139,8 @@ function PasswordResetCard({ childName, childId }: { childName: string; childId:
 }
 
 export default function ParentDashboard() {
-  const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'writing'>('overview')
-  const [showDropdown, setShowDropdown] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
+  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'writing'>('overview')
   const [child, setChild] = useState<{ name: string; email: string; id: string } | null>(null)
 
   useEffect(() => {
@@ -174,21 +170,7 @@ export default function ParentDashboard() {
     fetchChild()
   }, [])
 
-  const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
-  }
 
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowDropdown(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
 
   const completedChapters = CHAPTERS.filter(c => c.completed).length
   const totalTimeSpent = CHAPTERS.reduce((a, c) => a + c.timeSpent, 0)
@@ -196,7 +178,7 @@ export default function ParentDashboard() {
   const weakChapters = CHAPTERS.filter(c => c.score !== null && c.score < 70)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAF9' }}>
+    <ParentSidebarLayout parentName="Parent">
       <style>{`
         @keyframes slideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         .slide-up { animation: slideUp 0.4s ease forwards; }
@@ -204,36 +186,7 @@ export default function ParentDashboard() {
         .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
         .card-hover:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(45,106,79,0.1); }
       `}</style>
-
-      <Navbar rightContent={
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ textAlign: 'right' }}>
-            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#1B4332', lineHeight: 1 }}>Parent</p>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#9CA3AF', lineHeight: 1, marginTop: '2px' }}>Dashboard</p>
-          </div>
-          <div ref={dropdownRef} style={{ position: 'relative' }}>
-            <div onClick={() => setShowDropdown(p => !p)} style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: 'white', cursor: 'pointer', border: showDropdown ? '2px solid #818CF8' : '2px solid transparent' }}>
-              P
-            </div>
-            {showDropdown && (
-              <div style={{ position: 'absolute', top: '44px', right: 0, background: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', boxShadow: '0 8px 24px rgba(0,0,0,0.1)', minWidth: '180px', overflow: 'hidden', zIndex: 200 }}>
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid #F3F4F6' }}>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#1B4332', marginBottom: '2px' }}>Parent</p>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF' }}>parent@example.com</p>
-                </div>
-                <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', width: '100%', border: 'none', background: 'transparent', color: '#EF4444', fontFamily: 'var(--font-body)', fontSize: '14px', cursor: 'pointer', textAlign: 'left' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#FEF2F2')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M10 11l3-3-3-3M13 8H6" stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  Log out
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      }/>
-
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '28px 5% 60px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '28px 32px 60px' }}>
 
         {/* Child header */}
         <div className="slide-up" style={{ background: 'linear-gradient(135deg, #1B4332, #2D6A4F)', borderRadius: '20px', padding: '24px 28px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
@@ -477,6 +430,6 @@ export default function ParentDashboard() {
         )}
 
       </div>
-    </div>
+    </ParentSidebarLayout>
   )
 }
