@@ -31,40 +31,21 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Not logged in + protected route → go to login
   if (!user && !isPublicRoute(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // Logged in + trying to access login or register → redirect based on role
   if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register')) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
     const url = request.nextUrl.clone()
-    if (profile?.role === 'admin') {
-      url.pathname = '/admin'
-    } else if (profile?.role === 'parent') {
-      url.pathname = '/parent/dashboard'
-    } else {
-      url.pathname = '/student/dashboard'
-    }
+    url.pathname = '/redirect'
     return NextResponse.redirect(url)
   }
 
-  // Logged in student trying to access parent routes → redirect to student dashboard
   if (user && request.nextUrl.pathname.startsWith('/parent')) {
     const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
+      .from('profiles').select('role').eq('id', user.id).single()
     if (profile?.role === 'student') {
       const url = request.nextUrl.clone()
       url.pathname = '/student/dashboard'
@@ -72,14 +53,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Logged in parent trying to access student routes → redirect to parent dashboard
   if (user && request.nextUrl.pathname.startsWith('/student')) {
     const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
+      .from('profiles').select('role').eq('id', user.id).single()
     if (profile?.role === 'parent') {
       const url = request.nextUrl.clone()
       url.pathname = '/parent/dashboard'
