@@ -20,7 +20,7 @@ export default function ParentSidebarLayout({
 }: ParentSidebarLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const [dashboardOpen, setDashboardOpen] = useState(true)
+  const dashboardOpen = pathname.startsWith('/parent/dashboard')
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -39,7 +39,7 @@ export default function ParentSidebarLayout({
   const topLevelLinks = [
     { href: '/parent/password',     label: 'Password',     emoji: '🔑' },
     { href: '/parent/subscription', label: 'Subscription', emoji: '📅' },
-    { href: '/parent/feedback',     label: 'Feedback',     emoji: '💬', badge: 'New' },
+    { href: '/parent/feedback',     label: 'Feedback',     emoji: '💬' },
     { href: '/parent/profile',      label: 'Profile',      emoji: '👤' },
   ]
 
@@ -87,7 +87,7 @@ export default function ParentSidebarLayout({
 
         {/* Dashboard — expandable */}
         <button
-          onClick={() => setDashboardOpen(p => !p)}
+          onClick={() => {}}
           style={{
             display: 'flex', alignItems: 'center', gap: '10px', width: '100%',
             padding: '10px 12px', borderRadius: '10px', marginBottom: '2px',
@@ -136,7 +136,7 @@ export default function ParentSidebarLayout({
         <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '6px 0 8px' }}/>
 
         {/* Top level links */}
-        {topLevelLinks.map(({ href, label, emoji, badge }) => {
+        {topLevelLinks.map(({ href, label, emoji }) => {
           const isActive = pathname === href
           return (
             <Link key={href} href={href} style={{
@@ -154,8 +154,8 @@ export default function ParentSidebarLayout({
               <span style={{ fontFamily: 'var(--font-heading)', fontWeight: isActive ? 700 : 600, fontSize: '13px', color: isActive ? '#74C69D' : 'rgba(255,255,255,0.75)' }}>
                 {label}
               </span>
-              {badge && <span style={{ marginLeft: 'auto', background: '#F59E0B', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '9px', padding: '2px 6px', borderRadius: '6px' }}>{badge}</span>}
-              {isActive && !badge && <div style={{ marginLeft: 'auto', width: '5px', height: '5px', borderRadius: '50%', background: '#74C69D' }}/>}
+
+              {isActive && <div style={{ marginLeft: 'auto', width: '5px', height: '5px', borderRadius: '50%', background: '#74C69D' }}/>}
             </Link>
           )
         })}
