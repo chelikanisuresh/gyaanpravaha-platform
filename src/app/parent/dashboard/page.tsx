@@ -350,7 +350,7 @@ export default function ParentDashboard() {
             </div>
 
             {/* Password reset */}
-            <PasswordResetCard childName={child?.name || 'Your child'} childEmail={child?.email || ''}/>
+            <PasswordResetCard childName={child?.name || 'Your child'} childId={child?.id || ''}/>
 
             {/* Subscription */}
             <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
