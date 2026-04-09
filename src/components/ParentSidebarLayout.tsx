@@ -85,52 +85,48 @@ export default function ParentSidebarLayout({
       {/* Nav */}
       <nav style={{ flex: 1, padding: '10px' }}>
 
-        {/* Dashboard — expandable */}
-        <button
-          onClick={() => {}}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '10px', width: '100%',
-            padding: '10px 12px', borderRadius: '10px', marginBottom: '2px',
-            background: pathname === '/parent/dashboard' ? 'rgba(116,198,157,0.15)' : 'transparent',
-            border: '1px solid transparent', cursor: 'pointer', transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
-          onMouseLeave={e => { e.currentTarget.style.background = pathname === '/parent/dashboard' ? 'rgba(116,198,157,0.15)' : 'transparent' }}
+        {/* Dashboard — link + always-visible sub items when under /parent/dashboard */}
+        <Link href="/parent/dashboard" style={{
+          display: 'flex', alignItems: 'center', gap: '10px',
+          padding: '10px 12px', borderRadius: '10px', marginBottom: '2px',
+          textDecoration: 'none',
+          background: pathname === '/parent/dashboard' ? 'rgba(116,198,157,0.2)' : 'transparent',
+          border: pathname === '/parent/dashboard' ? '1px solid rgba(116,198,157,0.25)' : '1px solid transparent',
+          transition: 'all 0.15s',
+        }}
+          onMouseEnter={e => { if (pathname !== '/parent/dashboard') e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+          onMouseLeave={e => { if (pathname !== '/parent/dashboard') e.currentTarget.style.background = 'transparent' }}
         >
           <span style={{ fontSize: '15px' }}>🏠</span>
-          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: 'rgba(255,255,255,0.85)', flex: 1, textAlign: 'left' }}>Dashboard</span>
-          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', transition: 'transform 0.2s', display: 'inline-block', transform: dashboardOpen ? 'rotate(180deg)' : 'none' }}>▾</span>
-        </button>
+          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: pathname === '/parent/dashboard' ? '#74C69D' : 'rgba(255,255,255,0.85)', flex: 1 }}>Dashboard</span>
+          {pathname === '/parent/dashboard' && <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#74C69D' }}/>}
+        </Link>
 
-        {/* Sub-tabs */}
-        {dashboardOpen && (
-          <div style={{ paddingLeft: '12px', marginBottom: '6px' }}>
-            {dashboardTabs.map(({ key, label, emoji, href }) => {
-              const isActive = pathname === href
-              return (
-                <button
-                  key={key}
-                  onClick={() => onTabChange?.(key)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px', width: '100%',
-                    padding: '8px 12px', borderRadius: '9px', marginBottom: '2px',
-                    background: isActive ? 'rgba(116,198,157,0.2)' : 'transparent',
-                    border: isActive ? '1px solid rgba(116,198,157,0.25)' : '1px solid transparent',
-                    cursor: 'pointer', transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
-                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
-                >
-                  <span style={{ fontSize: '13px' }}>{emoji}</span>
-                  <span style={{ fontFamily: 'var(--font-heading)', fontWeight: isActive ? 700 : 500, fontSize: '12px', color: isActive ? '#74C69D' : 'rgba(255,255,255,0.6)' }}>
-                    {label}
-                  </span>
-                  {isActive && <div style={{ marginLeft: 'auto', width: '5px', height: '5px', borderRadius: '50%', background: '#74C69D' }}/>}
-                </button>
-              )
-            })}
-          </div>
-        )}
+        {/* Sub-tabs — always visible */}
+        <div style={{ paddingLeft: '12px', marginBottom: '6px' }}>
+          {dashboardTabs.map(({ key, label, emoji, href }) => {
+            const isActive = pathname === href
+            return (
+              <Link key={key} href={href} style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '8px 12px', borderRadius: '9px', marginBottom: '2px',
+                textDecoration: 'none',
+                background: isActive ? 'rgba(116,198,157,0.2)' : 'transparent',
+                border: isActive ? '1px solid rgba(116,198,157,0.25)' : '1px solid transparent',
+                transition: 'all 0.15s',
+              }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+                onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent' }}
+              >
+                <span style={{ fontSize: '13px' }}>{emoji}</span>
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: isActive ? 700 : 500, fontSize: '12px', color: isActive ? '#74C69D' : 'rgba(255,255,255,0.6)' }}>
+                  {label}
+                </span>
+                {isActive && <div style={{ marginLeft: 'auto', width: '5px', height: '5px', borderRadius: '50%', background: '#74C69D' }}/>}
+              </Link>
+            )
+          })}
+        </div>
 
         {/* Divider */}
         <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '6px 0 8px' }}/>
