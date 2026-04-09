@@ -1,8 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import ParentSidebarLayout from '@/components/ParentSidebarLayout'
+import ChildTabs from '@/components/ChildTabs'
+
+interface Child { id:string; full_name:string; email:string }
 
 const PROMPTS = [
   { id:1, chapter:'Whistles and Shaving Bristles', prompt:'Write about a rule in your family that you think is unusual but useful.', submitted:true,  score:16, max:20, status:'released', deadline:'Apr 5' },
@@ -11,8 +15,7 @@ const PROMPTS = [
 ]
 
 function ScoreBar({ score, max=20 }: { score:number; max?:number }) {
-  const pct = Math.round((score/max)*100)
-  const c   = pct>=80 ? '#10B981' : pct>=60 ? '#F59E0B' : '#EF4444'
+  const pct=Math.round((score/max)*100); const c=pct>=80?'#10B981':pct>=60?'#F59E0B':'#EF4444'
   return (
     <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
       <div style={{ flex:1, height:'7px', background:'#E5E7EB', borderRadius:'4px', overflow:'hidden' }}>
@@ -23,9 +26,11 @@ function ScoreBar({ score, max=20 }: { score:number; max?:number }) {
   )
 }
 
-export default function WritingPage() {
+function WritingPageInner() {
+  const searchParams = useSearchParams()
+  const [children,   setChildren]   = useState<Child[]>([])
+  const [selectedId, setSelectedId] = useState('')
   const [parentName, setParentName] = useState('Parent')
-  const [childName,  setChildName]  = useState('Student')
 
   useEffect(() => {
     const load = async () => {
@@ -34,19 +39,30 @@ export default function WritingPage() {
       if (!user) return
       const { data:p } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
       if (p?.full_name) setParentName(p.full_name)
-      const { data:l } = await supabase.from('parent_student_links').select('student_id').eq('parent_id', user.id).single()
-      if (!l) return
-      const { data:c } = await supabase.from('profiles').select('full_name').eq('id', l.student_id).single()
-      if (c?.full_name) setChildName(c.full_name)
+      const { data:links } = await supabase.from('parent_student_links').select('student_id').eq('parent_id', user.id)
+      if (!links?.length) return
+      const { data:profiles } = await supabase.from('profiles').select('id, full_name, email').in('id', links.map(l=>l.student_id))
+      if (profiles?.length) {
+        setChildren(profiles as Child[])
+        const fromUrl = searchParams.get('child')
+        setSelectedId(fromUrl || profiles[0].id)
+      }
     }
     load()
-  }, [])
+  }, [searchParams])
+
+  const child = children.find(c=>c.id===selectedId)||children[0]
+  const submitted = PROMPTS.filter(w=>w.submitted).length
 
   return (
     <ParentSidebarLayout parentName={parentName}>
       <div style={{ maxWidth:'780px', padding:'28px 28px 60px' }}>
         <h1 style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'22px', color:'#1B4332', marginBottom:'4px' }}>Writing prompts</h1>
-        <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#6B7280', marginBottom:'24px' }}>{childName}&apos;s writing assignments and scores</p>
+        <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#6B7280', marginBottom:'20px' }}>
+          {child?.full_name} · {submitted} of {PROMPTS.length} submitted
+        </p>
+
+        <ChildTabs children={children} selectedId={selectedId} onSelect={setSelectedId}/>
 
         <div style={{ background:'#F0FDF4', border:'1px solid #D8F3DC', borderRadius:'12px', padding:'12px 16px', marginBottom:'20px' }}>
           <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'#065F46', lineHeight:1.6 }}>
@@ -55,22 +71,22 @@ export default function WritingPage() {
         </div>
 
         <div style={{ background:'white', borderRadius:'14px', border:'1px solid #E5E7EB', overflow:'hidden' }}>
-          {PROMPTS.map((wp, i) => (
-            <div key={wp.id} style={{ padding:'18px 20px', borderBottom: i<PROMPTS.length-1 ? '1px solid #F3F4F6' : 'none' }}>
+          {PROMPTS.map((wp,i)=>(
+            <div key={wp.id} style={{ padding:'18px 20px', borderBottom:i<PROMPTS.length-1?'1px solid #F3F4F6':'none' }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'12px', gap:'12px', flexWrap:'wrap' }}>
                 <div style={{ flex:1 }}>
                   <p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color:'#9CA3AF', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:'4px' }}>{wp.chapter}</p>
                   <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'14px', color:'#1B4332', lineHeight:1.45 }}>{wp.prompt}</p>
                 </div>
-                <span style={{ padding:'4px 10px', borderRadius:'20px', fontSize:'11px', fontFamily:'var(--font-heading)', fontWeight:700, flexShrink:0, background: wp.status==='released' ? '#D8F3DC' : wp.status==='pending' ? '#FEF3C7' : '#F3F4F6', color: wp.status==='released' ? '#1B4332' : wp.status==='pending' ? '#92400E' : '#6B7280' }}>
-                  {wp.status==='released' ? '✓ Score released' : wp.status==='pending' ? '⏳ Under review' : '📝 Not submitted'}
+                <span style={{ padding:'4px 10px', borderRadius:'20px', fontSize:'11px', fontFamily:'var(--font-heading)', fontWeight:700, flexShrink:0, background:wp.status==='released'?'#D8F3DC':wp.status==='pending'?'#FEF3C7':'#F3F4F6', color:wp.status==='released'?'#1B4332':wp.status==='pending'?'#92400E':'#6B7280' }}>
+                  {wp.status==='released'?'✓ Score released':wp.status==='pending'?'⏳ Under review':'📝 Not submitted'}
                 </span>
               </div>
               <div style={{ display:'flex', gap:'18px', alignItems:'center', flexWrap:'wrap' }}>
-                {[{l:'Deadline',v:wp.deadline},{l:'Submitted',v:wp.submitted?'Yes':'No'}].map(({l,v}) => (
+                {[{l:'Deadline',v:wp.deadline},{l:'Submitted',v:wp.submitted?'Yes':'No'}].map(({l,v})=>(
                   <div key={l}>
                     <p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color:'#9CA3AF', marginBottom:'1px' }}>{l}</p>
-                    <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'13px', color: l==='Submitted' ? (wp.submitted?'#10B981':'#EF4444') : '#374151' }}>{v}</p>
+                    <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'13px', color:l==='Submitted'?(wp.submitted?'#10B981':'#EF4444'):'#374151' }}>{v}</p>
                   </div>
                 ))}
                 {wp.score!==null && (
@@ -79,12 +95,20 @@ export default function WritingPage() {
                     <ScoreBar score={wp.score} max={wp.max}/>
                   </div>
                 )}
-                {wp.submitted && wp.score===null && <p style={{ fontFamily:'var(--font-body)', fontSize:'12px', color:'#F59E0B', fontStyle:'italic' }}>Awaiting admin review</p>}
+                {wp.submitted&&wp.score===null && <p style={{ fontFamily:'var(--font-body)', fontSize:'12px', color:'#F59E0B', fontStyle:'italic' }}>Awaiting admin review</p>}
               </div>
             </div>
           ))}
         </div>
       </div>
     </ParentSidebarLayout>
+  )
+}
+
+export default function WritingPage() {
+  return (
+    <Suspense fallback={<></>}>
+      <WritingPageInner />
+    </Suspense>
   )
 }
