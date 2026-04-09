@@ -133,7 +133,12 @@ function ChildCard({ child, index, onView }: { child:Child; index:number; onView
   const s = MOCK_STATS[index] || MOCK_STATS[0]
   const pct = Math.round((s.chaptersCompleted / s.totalChapters) * 100)
   return (
-    <div style={{ background:'white', borderRadius:'16px', border:'1px solid #E5E7EB', overflow:'hidden' }}>
+    <div
+      onClick={() => onView(child.id)}
+      style={{ background:'white', borderRadius:'16px', border:'1px solid #E5E7EB', overflow:'hidden', cursor:'pointer', transition:'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease' }}
+      onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow='0 12px 28px rgba(27,67,50,0.12)'; e.currentTarget.style.borderColor='#74C69D' }}
+      onMouseLeave={e => { e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='none'; e.currentTarget.style.borderColor='#E5E7EB' }}
+    >
       <div style={{ background:'linear-gradient(135deg,#1B4332,#2D6A4F)', padding:'14px 16px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
           <div style={{ width:'36px', height:'36px', minWidth:'36px', borderRadius:'50%', background:'#74C69D', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'15px', color:'#1B4332', flexShrink:0 }}>
@@ -170,9 +175,7 @@ function ChildCard({ child, index, onView }: { child:Child; index:number; onView
         <p style={{ fontFamily:'var(--font-body)', fontSize:'12px', color:'#6B7280' }}>
           📖 <strong style={{ color:'#1B4332' }}>{s.todayMins} mins</strong> today
         </p>
-        <button onClick={()=>onView(child.id)} style={{ background:'#D8F3DC', color:'#1B4332', fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', padding:'6px 14px', borderRadius:'8px', border:'none', cursor:'pointer' }}>
-          View details →
-        </button>
+        <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', color:'#2D6A4F' }}>View details →</p>
       </div>
     </div>
   )
