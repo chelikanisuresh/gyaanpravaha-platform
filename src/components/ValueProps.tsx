@@ -82,15 +82,15 @@ export function SelfRelianceStaircase() {
   ]
 
   const n     = 5
-  const tw    = 48   // tread width per step
-  const riser = 34   // step height
+  const tw    = 72   // tread width per step
+  const riser = 36   // step height
   const W     = n * tw     // 240
   const H     = n * riser  // 170
 
   // Student on step 1 (Understand) - second from bottom
   const sStep = 1
-  const sX    = sStep * tw + tw * 0.3   // 48 + 14 = 62 — within tread of step 1
-  const sY    = H - (sStep + 1) * riser  // 170 - 68 = 102 — top of step 1 surface
+  const sX    = sStep * tw + tw * 0.3   // 72 + 21.6 = 93.6 — within tread of step 1
+  const sY    = H - (sStep + 1) * riser  // top of step 1 surface
 
   return (
     <div style={{ background:'white', borderRadius:'16px', border:'1px solid #E5E7EB', padding:'24px', flex:1, minWidth:'260px' }}>
@@ -150,14 +150,16 @@ export function SelfRelianceStaircase() {
           fill="#74C69D"
         />
 
-        {/* Student — positioned exactly on step 1 surface, clear of step 2 */}
-        <g className="gp-stu" transform={`translate(${sX}, ${sY - 24})`}>
-          <circle cx="6" cy="4"  r="4"   fill="#1B4332"/>
-          <line x1="6" y1="8"  x2="6" y2="17" stroke="#1B4332" strokeWidth="2"   strokeLinecap="round"/>
-          <line x1="1" y1="12" x2="6" y2="10" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round"/>
-          <line x1="11" y1="12" x2="6" y2="10" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round"/>
-          <line x1="3" y1="17" x2="6" y2="24" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round"/>
-          <line x1="9" y1="17" x2="6" y2="24" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round"/>
+        {/* Student — outer g positions, inner g animates */}
+        <g transform={`translate(${sX}, ${sY - 26})`}>
+          <g className="gp-stu">
+            <circle cx="6" cy="4"  r="4"   fill="#1B4332"/>
+            <line x1="6" y1="8"  x2="6" y2="17" stroke="#1B4332" strokeWidth="2"   strokeLinecap="round"/>
+            <line x1="1" y1="12" x2="6" y2="10" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="11" y1="12" x2="6" y2="10" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="3" y1="17" x2="6" y2="24" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="9" y1="17" x2="6" y2="24" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round"/>
+          </g>
         </g>
       </svg>
 
