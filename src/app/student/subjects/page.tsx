@@ -2,9 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import Navbar from '@/components/Navbar'
+import SidebarLayout from '@/components/SidebarLayout'
 
 const SUBJECTS = [
   {
@@ -150,7 +148,6 @@ const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
 }
 
 export default function SubjectsPage() {
-  const router = useRouter()
   const [activeSubject, setActiveSubject] = useState('english')
   const [expandedChapter, setExpandedChapter] = useState<number | null>(null)
 
@@ -160,7 +157,7 @@ export default function SubjectsPage() {
     : 0
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAF9' }}>
+    <SidebarLayout studentName="Arjun">
       <style>{`
         @keyframes slideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         .slide-up { animation: slideUp 0.4s ease forwards; }
@@ -169,16 +166,7 @@ export default function SubjectsPage() {
         .subject-card { transition: all 0.2s; cursor: pointer; }
         .subject-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
       `}</style>
-
-      <Navbar rightContent={
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Link href="/student/dashboard" className="btn-outline" style={{ padding: '7px 16px', fontSize: '13px' }}>
-            ← Dashboard
-          </Link>
-        </div>
-      }/>
-
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '28px 5% 60px' }}>
+      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '28px 32px 60px' }}>
 
         {/* Page title */}
         <div className="slide-up" style={{ marginBottom: '24px' }}>
@@ -399,6 +387,6 @@ export default function SubjectsPage() {
         )}
 
       </div>
-    </div>
+    </SidebarLayout>
   )
 }

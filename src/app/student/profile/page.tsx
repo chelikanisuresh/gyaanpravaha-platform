@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import Navbar from '@/components/Navbar'
+import SidebarLayout from '@/components/SidebarLayout'
 
 const STREAK = 5
 const CHAPTERS_DONE = 3
@@ -49,14 +49,8 @@ export default function StudentProfile() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAF9' }}>
-      <Navbar rightContent={
-        <Link href="/student/dashboard" className="btn-outline" style={{ padding: '7px 16px', fontSize: '13px' }}>
-          ← Dashboard
-        </Link>
-      }/>
-
-      <div style={{ maxWidth: '640px', margin: '0 auto', padding: '32px 5% 60px' }}>
+    <SidebarLayout studentName={profile?.full_name || 'Student'}>
+      <div style={{ maxWidth: '640px', margin: '0 auto', padding: '32px 32px 60px' }}>
 
         {/* Profile header */}
         <div style={{ background: 'linear-gradient(135deg, #1B4332, #2D6A4F)', borderRadius: '20px', padding: '32px', textAlign: 'center', marginBottom: '20px' }}>
@@ -139,26 +133,9 @@ export default function StudentProfile() {
           </div>
         </div>
 
-        {/* Logout */}
-        <button
-          onClick={handleLogout}
-          style={{
-            width: '100%', padding: '14px', borderRadius: '12px',
-            border: '1.5px solid #FECACA', background: 'white',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-            fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '15px', color: '#EF4444',
-            cursor: 'pointer', transition: 'background 0.2s',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.background = '#FEF2F2')}
-          onMouseLeave={e => (e.currentTarget.style.background = 'white')}
-        >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M7 16H4a1 1 0 01-1-1V3a1 1 0 011-1h3M11 13l4-4-4-4M15 9H7" stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Log out
-        </button>
+
 
       </div>
-    </div>
+    </SidebarLayout>
   )
 }
