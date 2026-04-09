@@ -149,10 +149,10 @@ function ChildCard({ child, index, onView }: { child:Child; index:number; onView
       <div style={{ background:'linear-gradient(135deg,#1B4332,#2D6A4F)', padding:'14px 16px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
           <div style={{ width:'36px', height:'36px', minWidth:'36px', borderRadius:'50%', background:'#74C69D', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'15px', color:'#1B4332', flexShrink:0 }}>
-            {child.full_name.charAt(0)}
+            {(child.full_name||'S').charAt(0)}
           </div>
           <div>
-            <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'15px', color:'white', lineHeight:1 }}>{child.full_name}</p>
+            <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'15px', color:'white', lineHeight:1 }}>{child.full_name||'Student'}</p>
             <p style={{ fontFamily:'var(--font-body)', fontSize:'11px', color:'rgba(255,255,255,0.55)', marginTop:'2px' }}>Grade 6</p>
           </div>
         </div>
@@ -204,7 +204,7 @@ export default function ParentDashboardPage() {
     const { data:{ user } } = await supabase.auth.getUser()
     if (!user) return
     const { data:p } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
-    if (p?.full_name) setParentName(p.full_name.split(' ')[0])
+    if (p?.full_name) setParentName((p.full_name||'Parent').split(' ')[0])
     const { data:links } = await supabase.from('parent_student_links').select('student_id').eq('parent_id', user.id)
     if (!links?.length) return
     const { data:profiles } = await supabase.from('profiles').select('id, full_name, email').in('id', links.map(l=>l.student_id))
@@ -230,7 +230,7 @@ export default function ParentDashboardPage() {
             </h1>
             <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#6B7280' }}>
               {children.length===0 ? 'No children linked yet.'
-                : children.length===1 ? `Tracking ${children[0].full_name}'s learning journey.`
+                : children.length===1 ? `Tracking ${(children[0]?.full_name||'Student').split(' ')[0]}'s learning journey.`
                 : `Tracking ${children.length} children's learning journeys.`}
             </p>
           </div>
@@ -255,7 +255,7 @@ export default function ParentDashboardPage() {
                       <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'13px', color:item.urgency==='high'?'#991B1B':'#92400E' }}>{item.title}</p>
                       {children.length>1 && children[item.childIdx] && (
                         <span style={{ background:'rgba(0,0,0,0.07)', borderRadius:'20px', padding:'1px 8px', fontFamily:'var(--font-body)', fontSize:'11px', color:item.urgency==='high'?'#991B1B':'#92400E' }}>
-                          {children[item.childIdx].full_name.split(' ')[0]}
+                          {(children[item.childIdx]?.full_name||'Student').split(' ')[0]}
                         </span>
                       )}
                     </div>
@@ -293,7 +293,7 @@ export default function ParentDashboardPage() {
                 <span style={{ fontSize:'14px', flexShrink:0 }}>{item.emoji}</span>
                 {children.length>1 && (
                   <span style={{ background:'#D8F3DC', color:'#1B4332', fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'10px', padding:'2px 7px', borderRadius:'20px', flexShrink:0 }}>
-                    {children[item.childIdx].full_name.split(' ')[0]}
+                    {(children[item.childIdx]?.full_name||'Student').split(' ')[0]}
                   </span>
                 )}
                 <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'#374151', flex:1 }}>{item.text}</p>
@@ -311,7 +311,7 @@ export default function ParentDashboardPage() {
               {children.map((child,idx)=>(
                 <div key={child.id} style={{ background:'#FEF3C7', borderRadius:'14px', border:'1px solid #FDE68A', padding:'16px 18px' }}>
                   <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'11px', color:'#92400E', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'8px' }}>
-                    Ask {child.full_name.split(' ')[0]}
+                    Ask {(child.full_name||'Student').split(' ')[0]}
                   </p>
                   <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'14px', color:'#92400E', lineHeight:1.5, marginBottom:'6px' }}>
                     &ldquo;{STARTERS[(tipIndex+idx)%STARTERS.length]}&rdquo;

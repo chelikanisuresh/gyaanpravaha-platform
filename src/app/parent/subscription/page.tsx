@@ -13,7 +13,7 @@ export default function SubscriptionPage() {
       const { data:{ user } } = await supabase.auth.getUser()
       if (!user) return
       const { data:p } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
-      if (p?.full_name) setParentName(p.full_name)
+      if (p?.full_name) setParentName(p.full_name||'Parent')
     }
     load()
   }, [])

@@ -52,7 +52,7 @@ export default function ParentProfilePage() {
         {/* Avatar */}
         <div style={{ background:'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius:'16px', padding:'24px', textAlign:'center', marginBottom:'20px' }}>
           <div style={{ width:'60px', height:'60px', minWidth:'60px', borderRadius:'50%', background:'#74C69D', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'22px', color:'#1B4332', margin:'0 auto 12px' }}>
-            {profile?.full_name?.charAt(0)||'P'}
+            {(profile?.full_name||'P').charAt(0)||'P'}
           </div>
           <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'18px', color:'white', marginBottom:'3px' }}>{profile?.full_name||'Parent'}</p>
           <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'rgba(255,255,255,0.6)' }}>{profile?.email}</p>

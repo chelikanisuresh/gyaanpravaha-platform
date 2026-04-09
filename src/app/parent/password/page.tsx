@@ -23,7 +23,7 @@ export default function PasswordPage() {
       const { data:{ user } } = await supabase.auth.getUser()
       if (!user) return
       const { data:p } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
-      if (p?.full_name) setParentName(p.full_name)
+      if (p?.full_name) setParentName(p.full_name||'Parent')
       const { data:links } = await supabase.from('parent_student_links').select('student_id').eq('parent_id', user.id)
       if (!links?.length) return
       const { data:profiles } = await supabase.from('profiles').select('id, full_name, email').in('id', links.map(l=>l.student_id))
@@ -77,7 +77,7 @@ export default function PasswordPage() {
           {child && (
             <div style={{ display:'flex', alignItems:'center', gap:'10px', paddingBottom:'16px', marginBottom:'16px', borderBottom:'1px solid #F3F4F6' }}>
               <div style={{ width:'38px', height:'38px', minWidth:'38px', borderRadius:'50%', background:'#D8F3DC', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'15px', color:'#1B4332' }}>
-                {child.full_name.charAt(0)}
+                {(child.full_name||'S').charAt(0)}
               </div>
               <div>
                 <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'14px', color:'#1B4332' }}>{child.full_name}</p>
