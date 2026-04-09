@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-export default async function AuthRedirectPage() {
+export default async function RedirectPage() {
   const cookieStore = await cookies()
 
   const supabase = createServerClient(
@@ -18,9 +18,7 @@ export default async function AuthRedirectPage() {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect('/login')
-  }
+  if (!user) redirect('/login')
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -28,11 +26,7 @@ export default async function AuthRedirectPage() {
     .eq('id', user.id)
     .single()
 
-  if (profile?.role === 'admin') {
-    redirect('/admin')
-  } else if (profile?.role === 'parent') {
-    redirect('/parent/dashboard')
-  } else {
-    redirect('/student/dashboard')
-  }
+  if (profile?.role === 'admin') redirect('/admin')
+  if (profile?.role === 'parent') redirect('/parent/dashboard')
+  redirect('/student/dashboard')
 }
