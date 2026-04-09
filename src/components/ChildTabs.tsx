@@ -27,9 +27,9 @@ export default function ChildTabs({ children, selectedId, onSelect }: ChildTabsP
             }}
           >
             <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: isActive ? '#74C69D' : '#D8F3DC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '11px', color: '#1B4332', flexShrink: 0 }}>
-              {child.full_name.charAt(0)}
+              {(child.full_name||'S').charAt(0)}
             </div>
-            {child.full_name.split(' ')[0]}
+            {(child.full_name||'Student').split(' ')[0]}
           </button>
         )
       })}

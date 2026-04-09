@@ -191,7 +191,7 @@ export default function ParentDashboardPage() {
     const supabase = createClient()
     const { data:{ user } } = await supabase.auth.getUser()
     if (!user) return
-    const { data:p } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
+    const { data:p } = await supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
     if (p?.full_name) setParentName((p.full_name||'Parent').split(' ')[0])
     const { data:links } = await supabase.from('parent_student_links').select('student_id').eq('parent_id', user.id)
     if (!links?.length) return
