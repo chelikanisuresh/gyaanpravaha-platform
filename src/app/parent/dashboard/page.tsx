@@ -54,25 +54,13 @@ function AddChildModal({ onClose, onSuccess }: { onClose: () => void; onSuccess:
   const handlePayment = async () => {
     setLoading(true); setError('')
     try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not logged in')
-
-      // Duplicate check
-      const { data: existing } = await supabase.from('profiles').select('id').eq('email', childEmail).single()
-      if (existing) { setError('This school Gmail is already registered.'); setLoading(false); return }
-
-      // Create student
-      const { data: newUser, error: signUpErr } = await supabase.auth.signUp({
-        email: childEmail, password,
-        options: { data: { full_name: childName, role: 'student' } },
+      const res = await fetch('/api/add-child', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ childName, childEmail, password }),
       })
-      if (signUpErr) throw signUpErr
-
-      // Link to parent
-      if (newUser.user) {
-        await supabase.from('parent_student_links').insert({ parent_id: user.id, student_id: newUser.user.id })
-      }
+      const data = await res.json()
+      if (!res.ok) { setError(data.error || 'Failed to add child.'); setLoading(false); return }
       onSuccess()
     } catch (err: any) {
       setError(err.message || 'Something went wrong.')
