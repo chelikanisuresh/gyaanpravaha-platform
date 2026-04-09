@@ -6,11 +6,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Navbar from '@/components/Navbar'
 
-const CHILD = {
-  name: 'Arjun',
-  grade: '6',
-  email: 'arjun@school.edu',
-}
+
 
 const SUBJECTS = [
   {
@@ -63,7 +59,7 @@ function ScoreBar({ score, max = 100 }: { score: number; max?: number }) {
   )
 }
 
-function PasswordResetCard({ childName, childEmail }: { childName: string; childEmail: string }) {
+function PasswordResetCard({ childName, childId }: { childName: string; childId: string }) {
   const [showForm, setShowForm] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -79,22 +75,10 @@ function PasswordResetCard({ childName, childEmail }: { childName: string; child
     if (newPassword.length < 8) { setError('Password must be at least 8 characters.'); return }
     setLoading(true)
 
-    const supabase = createClient()
-
-    // Get child user id from profiles
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', childEmail)
-      .single()
-
-    if (!profile) { setError('Could not find child account.'); setLoading(false); return }
-
-    // Use admin update via service — for now call our API route
     const res = await fetch('/api/reset-child-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ childId: profile.id, newPassword }),
+      body: JSON.stringify({ childId, newPassword }),
     })
 
     if (res.ok) {
@@ -161,6 +145,35 @@ export default function ParentDashboard() {
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  const [child, setChild] = useState<{ name: string; email: string; id: string } | null>(null)
+
+  useEffect(() => {
+    const fetchChild = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: links } = await supabase
+        .from('parent_student_links')
+        .select('student_id')
+        .eq('parent_id', user.id)
+        .single()
+
+      if (!links) return
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .eq('id', links.student_id)
+        .single()
+
+      if (profile) {
+        setChild({ id: profile.id, name: profile.full_name || 'Student', email: profile.email })
+      }
+    }
+    fetchChild()
+  }, [])
+
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
@@ -226,11 +239,11 @@ export default function ParentDashboard() {
         <div className="slide-up" style={{ background: 'linear-gradient(135deg, #1B4332, #2D6A4F)', borderRadius: '20px', padding: '24px 28px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#74C69D', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '22px', color: '#1B4332', flexShrink: 0 }}>
-              {CHILD.name[0]}
+              {child?.name || 'Your child'[0]}
             </div>
             <div>
-              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '20px', color: 'white', marginBottom: '2px' }}>{CHILD.name}</p>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.65)' }}>Grade {CHILD.grade}</p>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '20px', color: 'white', marginBottom: '2px' }}>{child?.name || 'Your child'}</p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.65)' }}>Grade {'6'}</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -301,7 +314,7 @@ export default function ParentDashboard() {
                   </div>
                 ))}
                 <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#B91C1C', marginTop: '8px' }}>
-                  Encourage {CHILD.name} to review these chapters and retake the quiz.
+                  Encourage {child?.name || 'Your child'} to review these chapters and retake the quiz.
                 </p>
               </div>
             )}
@@ -337,7 +350,7 @@ export default function ParentDashboard() {
             </div>
 
             {/* Password reset */}
-            <PasswordResetCard childName={CHILD.name} childEmail={CHILD.email}/>
+            <PasswordResetCard childName={child?.name || 'Your child'} childEmail={child?.email || ''}/>
 
             {/* Subscription */}
             <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
