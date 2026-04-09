@@ -31,9 +31,9 @@ export default function ParentSidebarLayout({
   const initial = parentName.charAt(0).toUpperCase()
 
   const dashboardTabs = [
-    { key: 'overview', label: 'Overview', emoji: '📊' },
-    { key: 'progress', label: 'Progress', emoji: '📚' },
-    { key: 'writing',  label: 'Writing',  emoji: '✍️' },
+    { key: 'overview', label: 'Overview', emoji: '📊', href: '/parent/overview' },
+    { key: 'progress', label: 'Progress', emoji: '📚', href: '/parent/progress' },
+    { key: 'writing',  label: 'Writing',  emoji: '✍️', href: '/parent/writing'  },
   ]
 
   const topLevelLinks = [
@@ -105,8 +105,8 @@ export default function ParentSidebarLayout({
         {/* Sub-tabs */}
         {dashboardOpen && (
           <div style={{ paddingLeft: '12px', marginBottom: '6px' }}>
-            {dashboardTabs.map(({ key, label, emoji }) => {
-              const isActive = pathname === '/parent/dashboard' && activeTab === key
+            {dashboardTabs.map(({ key, label, emoji, href }) => {
+              const isActive = pathname === href
               return (
                 <button
                   key={key}

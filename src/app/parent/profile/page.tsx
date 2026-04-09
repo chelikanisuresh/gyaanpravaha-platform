@@ -91,17 +91,7 @@ export default function ParentProfilePage() {
           ))}
         </div>
 
-        {/* Subscription */}
-        <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '18px' }}>📅</span>
-            <div>
-              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#1B4332', marginBottom: '2px' }}>Annual subscription</p>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#9CA3AF' }}>Renews March 2027 · ₹2,499/year</p>
-            </div>
-          </div>
-          <span style={{ background: '#D8F3DC', color: '#1B4332', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', padding: '4px 12px', borderRadius: '20px' }}>Active</span>
-        </div>
+
 
       </div>
     </ParentSidebarLayout>
