@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import ParentSidebarLayout from '@/components/ParentSidebarLayout'
 import ParentRightPanel from '@/components/ParentRightPanel'
 import AnimatedBook from '@/components/AnimatedBook'
+import { NoTutorCard, SelfRelianceStaircase } from '@/components/ValueProps'
 
 interface Child { id: string; full_name: string; email: string }
 
@@ -226,7 +227,7 @@ export default function ParentDashboardPage() {
             </p>
           </div>
           <div style={{ display:'flex', gap:'10px', flexShrink:0 }}>
-            {[{l:'No tutor required',emoji:'🎓'},{l:'₹415 / month',emoji:'💰'},{l:'Full progress tracking',emoji:'📊'}].map(({l,emoji})=>(
+            {[{l:'No tutor required',emoji:'🎓'},{l:'₹415/mo · 7 subjects',emoji:'💰'},{l:'Full progress tracking',emoji:'📊'}].map(({l,emoji})=>(
               <div key={l} style={{ background:'rgba(255,255,255,0.12)', borderRadius:'10px', padding:'10px 12px', textAlign:'center', minWidth:'90px' }}>
                 <p style={{ fontSize:'18px', marginBottom:'4px' }}>{emoji}</p>
                 <p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color:'rgba(255,255,255,0.8)', lineHeight:1.3 }}>{l}</p>
@@ -324,6 +325,15 @@ export default function ParentDashboardPage() {
                     </div>
                   </Link>
                 ))}
+              </div>
+            </div>
+
+            {/* ── VALUE PROPS ── */}
+            <div style={{ marginTop:'20px' }}>
+              <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'11px', color:'#9CA3AF', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:'12px' }}>Why Gyaanpravaha</p>
+              <div style={{ display:'flex', gap:'14px', flexWrap:'wrap' }}>
+                <NoTutorCard/>
+                <SelfRelianceStaircase/>
               </div>
             </div>
           </div>

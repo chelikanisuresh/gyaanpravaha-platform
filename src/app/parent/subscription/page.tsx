@@ -59,7 +59,7 @@ export default function SubscriptionPage() {
           <div style={{ flex:1 }}>
             <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'15px', color:'#1B4332', marginBottom:'6px' }}>No tutor required</p>
             <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'#40916C', lineHeight:1.6 }}>
-              At ₹415/month, Gyaanpravaha gives your child everything a private tutor provides — structured lessons, assessments, writing feedback, and doubt solving — at a fraction of the cost.
+              At ₹415/month, Gyaanpravaha covers all 7 subjects with structured lessons, assessments, writing feedback, and AI doubt solving. A private tutor charges ₹3,000+ per month for just 1-2 subjects.
             </p>
           </div>
           <div style={{ display:'flex', gap:'10px', flexShrink:0, flexWrap:'wrap' }}>
@@ -145,6 +145,7 @@ export default function SubscriptionPage() {
               </div>
               {[
                 { feature:'Monthly cost', gp:'₹415', tutor:'₹3,000+' },
+                { feature:'Subjects covered', gp:'7 subjects', tutor:'1-2 subjects' },
                 { feature:'Available', gp:'24/7', tutor:'Scheduled only' },
                 { feature:'Parent visibility', gp:'Complete', tutor:'None' },
                 { feature:'Consistency', gp:'Always', tutor:'Varies' },
