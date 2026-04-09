@@ -236,7 +236,10 @@ export default function StudentDashboard() {
 
         {/* ── SUBJECT TABS ── */}
         <div style={{ marginBottom: '20px' }}>
-          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '12px' }}>My subjects</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em' }}>My subjects</p>
+            <Link href="/student/subjects" style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#2D6A4F', textDecoration: 'none' }}>View all →</Link>
+          </div>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             {SUBJECTS.map(subject => (
               <button
@@ -280,6 +283,9 @@ export default function StudentDashboard() {
         {/* ── ENGLISH CHAPTERS ── */}
         {activeSubject === 'English' && (
           <div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+              <Link href="/student/subjects" style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#2D6A4F', textDecoration: 'none' }}>View full subject detail →</Link>
+            </div>
             {/* Overall progress bar */}
             <div style={{ background: 'white', borderRadius: '14px', padding: '18px 20px', marginBottom: '16px', border: '1px solid #E5E7EB' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>

@@ -21,11 +21,9 @@ export default function LoginPage() {
     setError('')
 
     const supabase = createClient()
-    const loginPassword = tab === 'parent' ? password + '_parent' : password
-
     const { data, error: authError } = await supabase.auth.signInWithPassword({
       email,
-      password: loginPassword,
+      password,
     })
 
     if (authError) {
