@@ -9,7 +9,6 @@ import Navbar from '@/components/Navbar'
 const CHILD = {
   name: 'Arjun',
   grade: '6',
-  school: 'Singhania School',
   email: 'arjun@school.edu',
 }
 
@@ -60,6 +59,98 @@ function ScoreBar({ score, max = 100 }: { score: number; max?: number }) {
         <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: '4px', transition: 'width 0.8s ease' }}/>
       </div>
       <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color, minWidth: '36px' }}>{score}/{max}</span>
+    </div>
+  )
+}
+
+function PasswordResetCard({ childName, childEmail }: { childName: string; childEmail: string }) {
+  const [showForm, setShowForm] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
+
+  const handleReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setMessage('')
+    if (newPassword !== confirmPassword) { setError('Passwords do not match.'); return }
+    if (newPassword.length < 8) { setError('Password must be at least 8 characters.'); return }
+    setLoading(true)
+
+    const supabase = createClient()
+
+    // Get child user id from profiles
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', childEmail)
+      .single()
+
+    if (!profile) { setError('Could not find child account.'); setLoading(false); return }
+
+    // Use admin update via service — for now call our API route
+    const res = await fetch('/api/reset-child-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ childId: profile.id, newPassword }),
+    })
+
+    if (res.ok) {
+      setMessage('Password updated successfully! Share the new password with your child.')
+      setNewPassword('')
+      setConfirmPassword('')
+      setShowForm(false)
+    } else {
+      setError('Failed to update password. Please try again.')
+    }
+    setLoading(false)
+  }
+
+  return (
+    <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
+      <div style={{ padding: '16px 20px', borderBottom: showForm ? '1px solid #F3F4F6' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '20px' }}>🔑</span>
+          <div>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#1B4332', marginBottom: '2px' }}>{childName}&apos;s password</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF' }}>Only you can change your child&apos;s login password</p>
+          </div>
+        </div>
+        <button
+          onClick={() => { setShowForm(p => !p); setError(''); setMessage('') }}
+          style={{ background: showForm ? '#F3F4F6' : '#D8F3DC', color: showForm ? '#6B7280' : '#1B4332', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', border: 'none', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer' }}
+        >
+          {showForm ? 'Cancel' : 'Change password'}
+        </button>
+      </div>
+
+      {message && (
+        <div style={{ padding: '12px 20px', background: '#D8F3DC', borderBottom: '1px solid #A7F3D0' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#065F46' }}>✓ {message}</p>
+        </div>
+      )}
+
+      {showForm && (
+        <form onSubmit={handleReset} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div>
+            <label className="label" htmlFor="newPw">New password for {childName}</label>
+            <input id="newPw" type="password" className="input" placeholder="Minimum 8 characters" value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength={8}/>
+          </div>
+          <div>
+            <label className="label" htmlFor="confirmPw">Confirm new password</label>
+            <input id="confirmPw" type="password" className="input" placeholder="Re-enter new password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required/>
+          </div>
+          {error && <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#EF4444' }}>{error}</p>}
+          <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: '14px', opacity: loading ? 0.7 : 1 }}>
+            {loading ? 'Updating...' : 'Update password'}
+          </button>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF', textAlign: 'center' }}>
+            After updating, share the new password with {childName} so they can log in.
+          </p>
+        </form>
+      )}
     </div>
   )
 }
@@ -139,7 +230,7 @@ export default function ParentDashboard() {
             </div>
             <div>
               <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '20px', color: 'white', marginBottom: '2px' }}>{CHILD.name}</p>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.65)' }}>Grade {CHILD.grade} · {CHILD.school}</p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.65)' }}>Grade {CHILD.grade}</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -244,6 +335,9 @@ export default function ParentDashboard() {
                 </div>
               ))}
             </div>
+
+            {/* Password reset */}
+            <PasswordResetCard childName={CHILD.name} childEmail={CHILD.email}/>
 
             {/* Subscription */}
             <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
