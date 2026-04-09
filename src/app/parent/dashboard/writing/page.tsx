@@ -1,115 +1,94 @@
 'use client'
 
+// ── WRITING PAGE ──────────────────────────────────────────────────────────────
+
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import ParentSidebarLayout from '@/components/ParentSidebarLayout'
+import PageShell from '@/components/PageShell'
 
-const WRITING_PROMPTS = [
-  { id: 1, chapter: 'Whistles and Shaving Bristles', prompt: 'Write about a rule in your family that you think is unusual but useful.', submitted: true, score: 16, maxScore: 20, status: 'released', deadline: 'Apr 5' },
-  { id: 2, chapter: 'The Fun They Had', prompt: 'Do you think schools of the future will be better or worse than today? Give reasons.', submitted: true, score: null, maxScore: 20, status: 'pending', deadline: 'Apr 10' },
-  { id: 3, chapter: 'In Morning Dew', prompt: 'Write about something you observe every day but have never really thought about.', submitted: false, score: null, maxScore: 20, status: 'assigned', deadline: 'Apr 15' },
+const PROMPTS = [
+  { id: 1, chapter: 'Whistles and Shaving Bristles', prompt: 'Write about a rule in your family that you think is unusual but useful.', submitted: true,  score: 16, max: 20, status: 'released', deadline: 'Apr 5' },
+  { id: 2, chapter: 'The Fun They Had',              prompt: 'Do you think schools of the future will be better or worse than today?',  submitted: true,  score: null, max: 20, status: 'pending',  deadline: 'Apr 10' },
+  { id: 3, chapter: 'In Morning Dew',                prompt: 'Write about something you observe every day but never really think about.', submitted: false, score: null, max: 20, status: 'assigned', deadline: 'Apr 15' },
 ]
 
-function ScoreBar({ score, max = 20 }: { score: number; max?: number }) {
+function ScoreBar({ score, max }: { score: number; max: number }) {
   const pct = Math.round((score / max) * 100)
-  const color = pct >= 80 ? '#10B981' : pct >= 60 ? '#F59E0B' : '#EF4444'
+  const color = pct >= 80 ? 'var(--brand)' : pct >= 60 ? 'var(--amber)' : 'var(--red)'
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <div style={{ flex: 1, height: '8px', background: '#E5E7EB', borderRadius: '4px', overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: '4px', transition: 'width 0.8s ease' }}/>
+      <div className="progress-bar" style={{ flex: 1 }}>
+        <div className="progress-fill" style={{ width: `${pct}%`, background: color }}/>
       </div>
-      <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color, minWidth: '40px' }}>{score}/{max}</span>
+      <span style={{ fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '13px', color, minWidth: '40px', textAlign: 'right' }}>{score}/{max}</span>
     </div>
   )
 }
 
-export default function WritingPage() {
+export function WritingPage() {
   const [parentName, setParentName] = useState('Parent')
   const [childName, setChildName] = useState('Student')
 
   useEffect(() => {
-    const fetchData = async () => {
+    const load = async () => {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
       const { data: p } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
       if (p?.full_name) setParentName(p.full_name)
-      const { data: links } = await supabase.from('parent_student_links').select('student_id').eq('parent_id', user.id).single()
-      if (!links) return
-      const { data: c } = await supabase.from('profiles').select('full_name').eq('id', links.student_id).single()
+      const { data: l } = await supabase.from('parent_student_links').select('student_id').eq('parent_id', user.id).single()
+      if (!l) return
+      const { data: c } = await supabase.from('profiles').select('full_name').eq('id', l.student_id).single()
       if (c?.full_name) setChildName(c.full_name)
     }
-    fetchData()
+    load()
   }, [])
 
-  const submitted = WRITING_PROMPTS.filter(w => w.submitted).length
-  const released = WRITING_PROMPTS.filter(w => w.status === 'released').length
-
   return (
-    <ParentSidebarLayout parentName={parentName} activeTab="writing">
-      <div style={{ maxWidth: '760px', padding: '24px 24px 60px' }}>
+    <ParentSidebarLayout parentName={parentName}>
+      <PageShell title="Writing prompts" subtitle={`${childName}'s writing assignments and scores`} maxWidth="760px">
 
-        <div style={{ marginBottom: '20px' }}>
-          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '26px', color: '#1B4332', marginBottom: '4px' }}>Writing prompts</h1>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>{childName} · {submitted} submitted · {released} scores released</p>
-        </div>
-
-        {/* Info banner */}
-        <div style={{ background: '#F0FDF4', border: '1px solid #D8F3DC', borderRadius: '12px', padding: '14px 18px', marginBottom: '20px', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-          <span style={{ fontSize: '18px', flexShrink: 0 }}>ℹ️</span>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#065F46', lineHeight: 1.6 }}>
-            Writing prompts are assigned per chapter. AI evaluates the submission first, then our team reviews it before releasing the final score to you.
+        <div style={{ padding: '12px 16px', borderRadius: 'var(--radius-md)', background: 'var(--gray-50)', border: '1px solid var(--border-subtle)', marginBottom: '20px' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--gray-500)', lineHeight: 1.6 }}>
+            Writing prompts are assigned per chapter. AI evaluates the submission first, then our team reviews it before releasing the final score.
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {WRITING_PROMPTS.map(wp => (
-            <div key={wp.id} style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '20px 22px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px', gap: '12px', flexWrap: 'wrap' }}>
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          {PROMPTS.map((wp, i) => (
+            <div key={wp.id} style={{ padding: '18px 20px', borderBottom: i < PROMPTS.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#9CA3AF', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{wp.chapter}</p>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '15px', color: '#1B4332', lineHeight: 1.45 }}>{wp.prompt}</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--gray-400)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{wp.chapter}</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontWeight: 500, fontSize: '14px', color: 'var(--gray-900)', lineHeight: 1.5 }}>{wp.prompt}</p>
                 </div>
-                <span style={{
-                  padding: '5px 12px', borderRadius: '20px', fontSize: '12px', fontFamily: 'var(--font-heading)', fontWeight: 700, flexShrink: 0,
-                  background: wp.status === 'released' ? '#D8F3DC' : wp.status === 'pending' ? '#FEF3C7' : '#F3F4F6',
-                  color: wp.status === 'released' ? '#1B4332' : wp.status === 'pending' ? '#92400E' : '#6B7280',
-                }}>
+                <span className={`badge ${wp.status === 'released' ? 'badge-green' : wp.status === 'pending' ? 'badge-amber' : 'badge-neutral'}`} style={{ fontSize: '11px', flexShrink: 0 }}>
                   {wp.status === 'released' ? '✓ Score released' : wp.status === 'pending' ? '⏳ Under review' : '📝 Not submitted'}
                 </span>
               </div>
-
               <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <div>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#9CA3AF', marginBottom: '2px' }}>Deadline</p>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#374151' }}>{wp.deadline}</p>
-                </div>
-                <div>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#9CA3AF', marginBottom: '2px' }}>Submitted by {childName}</p>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: wp.submitted ? '#10B981' : '#EF4444' }}>
-                    {wp.submitted ? 'Yes ✓' : 'Not yet'}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#9CA3AF', marginBottom: '2px' }}>Max marks</p>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#374151' }}>{wp.maxScore}</p>
-                </div>
+                {[{ l: 'Deadline', v: wp.deadline }, { l: 'Submitted', v: wp.submitted ? 'Yes' : 'No' }].map(({ l, v }) => (
+                  <div key={l}>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--gray-400)', marginBottom: '1px' }}>{l}</p>
+                    <p style={{ fontFamily: 'var(--font-body)', fontWeight: 500, fontSize: '13px', color: l === 'Submitted' ? (wp.submitted ? 'var(--brand)' : 'var(--red)') : 'var(--gray-700)' }}>{v}</p>
+                  </div>
+                ))}
                 {wp.score !== null && (
-                  <div style={{ flex: 1, minWidth: '160px' }}>
-                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#9CA3AF', marginBottom: '6px' }}>Score</p>
-                    <ScoreBar score={wp.score} max={wp.maxScore}/>
+                  <div style={{ flex: 1, minWidth: '140px' }}>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--gray-400)', marginBottom: '5px' }}>Score</p>
+                    <ScoreBar score={wp.score} max={wp.max}/>
                   </div>
                 )}
-                {wp.submitted && wp.score === null && (
-                  <div style={{ background: '#FEF3C7', borderRadius: '8px', padding: '8px 12px' }}>
-                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#92400E' }}>Score will appear here after admin review</p>
-                  </div>
-                )}
+                {wp.submitted && wp.score === null && <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--amber)', fontStyle: 'italic' }}>Awaiting admin review</p>}
               </div>
             </div>
           ))}
         </div>
-      </div>
+
+      </PageShell>
     </ParentSidebarLayout>
   )
 }
+
+export default WritingPage

@@ -1,72 +1,59 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import ParentSidebarLayout from '@/components/ParentSidebarLayout'
+import PageShell from '@/components/PageShell'
 
 export default function SubscriptionPage() {
+  const [parentName, setParentName] = useState('Parent')
+  useEffect(() => {
+    const load = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: p } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
+      if (p?.full_name) setParentName(p.full_name)
+    }
+    load()
+  }, [])
+
   return (
-    <ParentSidebarLayout>
-      <div style={{ maxWidth: '520px', padding: '28px 28px 60px' }}>
-
-        <div style={{ marginBottom: '28px' }}>
-          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '26px', color: '#1B4332', marginBottom: '6px' }}>Subscription</h1>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>Your current plan and billing details.</p>
-        </div>
-
-        {/* Active plan card */}
-        <div style={{ background: 'linear-gradient(135deg, #1B4332, #2D6A4F)', borderRadius: '18px', padding: '24px', marginBottom: '16px' }}>
+    <ParentSidebarLayout parentName={parentName}>
+      <PageShell title="Subscription" subtitle="Your current plan and billing details" maxWidth="520px">
+        <div className="card-featured" style={{ marginBottom: '20px', background: 'var(--brand-pale)', border: '1px solid rgba(45,106,79,0.15)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
             <div>
-              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: '#74C69D', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Current plan</p>
-              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '22px', color: 'white', lineHeight: 1 }}>Annual Plan</p>
+              <p className="uppercase-label" style={{ marginBottom: '6px' }}>Current plan</p>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '22px', color: 'var(--gray-900)', letterSpacing: '-0.3px' }}>Annual Plan</p>
             </div>
-            <span style={{ background: '#74C69D', color: '#1B4332', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '12px', padding: '5px 12px', borderRadius: '20px' }}>Active</span>
+            <span className="badge badge-green">Active</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-            {[
-              { label: 'Amount paid',   value: '₹2,499' },
-              { label: 'Started',       value: 'Apr 2026' },
-              { label: 'Renews',        value: 'Mar 2027' },
-            ].map(({ label, value }) => (
-              <div key={label} style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '10px', padding: '10px 12px' }}>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: 'rgba(255,255,255,0.5)', marginBottom: '3px' }}>{label}</p>
-                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: 'white' }}>{value}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }}>
+            {[{ l: 'Paid', v: '₹2,499' }, { l: 'Started', v: 'Apr 2026' }, { l: 'Renews', v: 'Mar 2027' }].map(({ l, v }) => (
+              <div key={l} style={{ background: 'var(--white)', borderRadius: 'var(--radius-md)', padding: '12px', border: '1px solid var(--border-subtle)' }}>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'var(--gray-400)', marginBottom: '3px' }}>{l}</p>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '14px', color: 'var(--gray-900)' }}>{v}</p>
               </div>
             ))}
           </div>
         </div>
-
-        {/* What is included */}
-        <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', overflow: 'hidden', marginBottom: '16px' }}>
-          <div style={{ padding: '14px 20px', borderBottom: '1px solid #F3F4F6' }}>
-            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#1B4332' }}>What is included</p>
-          </div>
-          {[
-            { emoji: '📚', text: 'All subjects — chapter by chapter lessons' },
-            { emoji: '✅', text: 'Smart quizzes with instant feedback' },
-            { emoji: '✍️', text: 'Writing prompts and AI evaluation' },
-            { emoji: '📊', text: 'Parent progress dashboard' },
-            { emoji: '🔑', text: 'Full password control for parents' },
-            { emoji: '💡', text: 'AI doubt solver — bounded to syllabus' },
-          ].map(({ emoji, text }) => (
-            <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '11px 20px', borderBottom: '1px solid #F9FAFB' }}>
-              <span style={{ fontSize: '16px' }}>{emoji}</span>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#374151' }}>{text}</p>
+        <p className="uppercase-label" style={{ marginBottom: '10px' }}>What is included</p>
+        <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: '20px' }}>
+          {['All subjects — chapter by chapter', 'Smart quizzes with instant feedback', 'Writing prompts and AI evaluation', 'Parent progress dashboard', 'Password control for parents', 'AI doubt solver'].map((item, i, arr) => (
+            <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '11px 20px', borderBottom: i < arr.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}>
+              <span style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'var(--brand-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="var(--brand-deep)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </span>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--gray-700)' }}>{item}</p>
             </div>
           ))}
         </div>
-
-        {/* Renewal notice */}
-        <div style={{ background: '#F0FDF4', border: '1px solid #D8F3DC', borderRadius: '14px', padding: '16px 20px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-          <span style={{ fontSize: '20px', flexShrink: 0 }}>📅</span>
-          <div>
-            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#1B4332', marginBottom: '4px' }}>Auto-renewal in March 2027</p>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#40916C', lineHeight: 1.6 }}>
-              You will receive a reminder 30 days before renewal. Contact us at hello@gyaanpravaha.in if you have any questions about your subscription.
-            </p>
-          </div>
+        <div style={{ padding: '14px 18px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)', background: 'var(--gray-50)' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontWeight: 500, fontSize: '13px', color: 'var(--gray-700)', marginBottom: '4px' }}>Auto-renewal in March 2027</p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'var(--gray-400)', lineHeight: 1.5 }}>You will receive a reminder 30 days before renewal. Questions? hello@gyaanpravaha.in</p>
         </div>
-
-      </div>
+      </PageShell>
     </ParentSidebarLayout>
   )
 }
