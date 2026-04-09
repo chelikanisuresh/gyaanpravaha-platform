@@ -31,9 +31,9 @@ export default function ParentSidebarLayout({
   const initial = parentName.charAt(0).toUpperCase()
 
   const dashboardTabs = [
-    { key: 'overview', label: 'Overview', emoji: '📊', href: '/parent/overview' },
-    { key: 'progress', label: 'Progress', emoji: '📚', href: '/parent/progress' },
-    { key: 'writing',  label: 'Writing',  emoji: '✍️', href: '/parent/writing'  },
+    { key: 'overview', label: 'Overview', emoji: '📊', href: '/parent/dashboard/overview' },
+    { key: 'progress', label: 'Progress', emoji: '📚', href: '/parent/dashboard/progress' },
+    { key: 'writing',  label: 'Writing',  emoji: '✍️', href: '/parent/dashboard/writing'  },
   ]
 
   const topLevelLinks = [
