@@ -33,19 +33,9 @@ export default function LoginPage() {
     }
 
     if (data.user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .single()
-
-      if (profile?.role === 'admin') {
-        router.push('/admin')
-      } else if (profile?.role === 'parent') {
-        router.push('/parent/dashboard')
-      } else {
-        router.push('/student/dashboard')
-      }
+      // Let middleware handle role-based redirect
+      router.push('/redirect')
+      router.refresh()
     }
 
     setLoading(false)
