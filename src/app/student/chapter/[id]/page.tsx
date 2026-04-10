@@ -27,14 +27,17 @@ function TooltipWord({ word, meaning }: { word: string; meaning: string }) {
       <span
         onClick={() => setOpen(o => !o)}
         style={{
-          color: '#2D6A4F',
-          borderBottom: '2px dotted #52B788',
+          background: '#D8F3DC',
+          color: '#1B4332',
+          borderRadius: '4px',
+          padding: '1px 5px',
           cursor: 'pointer',
-          fontWeight: 500,
-          transition: 'color 0.15s',
+          fontWeight: 600,
+          transition: 'background 0.15s',
+          display: 'inline',
         }}
-        onMouseEnter={e => (e.currentTarget.style.color = '#1B4332')}
-        onMouseLeave={e => (e.currentTarget.style.color = '#2D6A4F')}
+        onMouseEnter={e => (e.currentTarget.style.background = '#B7E4C7')}
+        onMouseLeave={e => (e.currentTarget.style.background = '#D8F3DC')}
       >
         {word}
       </span>
@@ -196,7 +199,7 @@ function SectionContent({
       {/* Tooltip hint — only in lesson section */}
       {section.id === 4 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
-          <span style={{ color: '#2D6A4F', borderBottom: '2px dotted #52B788', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: '12px' }}>highlighted words</span>
+          <span style={{ background: '#D8F3DC', color: '#1B4332', fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '12px', borderRadius: '4px', padding: '1px 6px' }}>highlighted words</span>
           <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF' }}>— tap any green word to see its meaning</p>
         </div>
       )}
