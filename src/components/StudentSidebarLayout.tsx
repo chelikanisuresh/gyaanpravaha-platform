@@ -68,7 +68,7 @@ export default function StudentSidebarLayout({ children }: Props) {
 
       {/* Logo */}
       <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <a href="https://gyaanpravaha.in" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
           <div style={{ width: '34px', height: '34px', background: '#74C69D', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
               <path d="M4 10h12M10 4v12" stroke="#1B4332" strokeWidth="2" strokeLinecap="round"/>
@@ -78,7 +78,7 @@ export default function StudentSidebarLayout({ children }: Props) {
             <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '15px', color: 'white', lineHeight: 1 }}>Gyaanpravaha</p>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>ज्ञानप्रवाह</p>
           </div>
-        </div>
+        </a>
       </div>
 
       {/* Student info */}
@@ -89,19 +89,13 @@ export default function StudentSidebarLayout({ children }: Props) {
           </div>
           <div style={{ minWidth: 0 }}>
             <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: 'white', lineHeight: 1, marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{studentName}</p>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>Grade 6 · Singhania</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>Student</p>
           </div>
         </div>
       </div>
 
       {/* Nav */}
       <nav style={{ flex: 1, padding: '10px', overflowY: 'auto' }}>
-
-        {/* Home */}
-        <a href="https://gyaanpravaha.in" style={navItemStyle(false)}>
-          <span style={{ fontSize: '16px', width: '20px', textAlign: 'center' }}>🏠</span>
-          <span style={navLabelStyle(false)}>Home</span>
-        </a>
 
         {/* Dashboard */}
         <button onClick={() => { setActiveSection('dashboard'); setMobileNavOpen(false) }} style={navItemStyle(activeSection === 'dashboard')}>
