@@ -1,216 +1,217 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import SidebarLayout from '@/components/SidebarLayout'
 
 const CHAPTERS = [
-  { id: 1, title: 'Whistles and Shaving Bristles', type: 'Prose',     minutes: 15, completed: true,  score: 88, sectionsRead: 7 },
-  { id: 2, title: 'If I Were Lord of Tartary',     type: 'Poetry',    minutes: 12, completed: true,  score: 76, sectionsRead: 7 },
-  { id: 3, title: 'The Fun They Had',              type: 'Story',     minutes: 16, completed: true,  score: 92, sectionsRead: 7 },
-  { id: 4, title: 'In Morning Dew',                type: 'Poetry',    minutes: 11, completed: false, score: null, sectionsRead: 3 },
-  { id: 5, title: 'The Boy Who Outran the Wind',   type: 'Biography', minutes: 18, completed: false, score: null, sectionsRead: 0 },
-  { id: 6, title: 'The Blind Boy',                 type: 'Poetry',    minutes: 12, completed: false, score: null, sectionsRead: 0 },
-  { id: 7, title: 'Three Questions',               type: 'Story',     minutes: 20, completed: false, score: null, sectionsRead: 0 },
-  { id: 8, title: 'From a Railway Carriage',       type: 'Poetry',    minutes: 10, completed: false, score: null, sectionsRead: 0 },
+  { id: 1, title: 'Whistles and Shaving Bristles', type: 'Prose',     emoji: '📖' },
+  { id: 2, title: 'If I Were Lord of Tartary',     type: 'Poetry',    emoji: '✨' },
+  { id: 3, title: 'The Fun They Had',              type: 'Story',     emoji: '🤖' },
+  { id: 4, title: 'In Morning Dew',                type: 'Poetry',    emoji: '🌿' },
+  { id: 5, title: 'The Boy Who Outran the Wind',   type: 'Biography', emoji: '🏃' },
+  { id: 6, title: 'The Blind Boy',                 type: 'Poetry',    emoji: '🌟' },
+  { id: 7, title: 'Three Questions',               type: 'Story',     emoji: '🤔' },
+  { id: 8, title: 'From a Railway Carriage',       type: 'Poetry',    emoji: '🚂' },
 ]
 
-const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
-  Prose:     { bg: '#D8F3DC', text: '#1B4332' },
-  Poetry:    { bg: '#FEF3C7', text: '#92400E' },
-  Story:     { bg: '#EDE9FE', text: '#5B21B6' },
-  Biography: { bg: '#FFE4E6', text: '#9F1239' },
-}
-
-const STREAK = 5
-const STUDENT_NAME = 'Arjun'
-
-function ScoreRing({ score }: { score: number }) {
-  const color = score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444'
-  return (
-    <div style={{ position: 'relative', width: '44px', height: '44px', flexShrink: 0 }}>
-      <svg width="44" height="44" viewBox="0 0 44 44">
-        <circle cx="22" cy="22" r="18" fill="none" stroke="#E5E7EB" strokeWidth="4"/>
-        <circle cx="22" cy="22" r="18" fill="none" stroke={color} strokeWidth="4"
-          strokeDasharray={`${(score / 100) * 113} 113`} strokeLinecap="round"
-          transform="rotate(-90 22 22)"/>
-      </svg>
-      <p style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '11px', color, margin: 0 }}>
-        {score}%
-      </p>
-    </div>
-  )
+function getGreeting() {
+  const h = new Date().getHours()
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'
 }
 
 export default function StudentDashboard() {
-  const [greeting, setGreeting] = useState('')
+  const router = useRouter()
+  const [name,     setName]     = useState('there')
+  const [progress, setProgress] = useState<{chapterId:number;sectionsCompleted:number;score:number|null}[]>([])
+  const [streak,   setStreak]   = useState(0)
+  const [loading,  setLoading]  = useState(true)
 
   useEffect(() => {
-    const hour = new Date().getHours()
-    if (hour < 12) setGreeting('Good morning')
-    else if (hour < 17) setGreeting('Good afternoon')
-    else setGreeting('Good evening')
-  }, [])
+    const load = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/login'); return }
 
-  const completedChapters = CHAPTERS.filter(c => c.completed).length
-  const overallProgress = Math.round((completedChapters / CHAPTERS.length) * 100)
-  const avgScore = Math.round(CHAPTERS.filter(c => c.score !== null).reduce((a, c) => a + (c.score || 0), 0) / CHAPTERS.filter(c => c.score !== null).length)
-  const nextChapter = CHAPTERS.find(c => !c.completed)
+      const { data: p } = await supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
+      if (p?.full_name) setName((p.full_name || 'there').split(' ')[0])
+
+      const { data: sectionRows } = await supabase
+        .from('student_lesson_progress')
+        .select('chapter_id')
+        .eq('student_id', user.id)
+
+      const countMap: Record<number, number> = {}
+      sectionRows?.forEach((r) => {
+        countMap[r.chapter_id] = (countMap[r.chapter_id] || 0) + 1
+      })
+
+      const { data: quizRows } = await supabase
+        .from('student_quiz_attempts')
+        .select('chapter_id, score')
+        .eq('student_id', user.id)
+        .order('created_at', { ascending: false })
+
+      const scoreMap: Record<number, number> = {}
+      quizRows?.forEach((r) => {
+        if (!(r.chapter_id in scoreMap)) scoreMap[r.chapter_id] = r.score
+      })
+
+      setProgress(CHAPTERS.map(c => ({
+        chapterId:         c.id,
+        sectionsCompleted: countMap[c.id] || 0,
+        score:             scoreMap[c.id] ?? null,
+      })))
+      setStreak(3)
+      setLoading(false)
+    }
+    load()
+  }, [router])
+
+  if (loading) return (
+    <div style={{ minHeight: '100vh', background: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <p style={{ fontFamily: 'var(--font-body)', fontSize: '15px', color: '#6B7280' }}>Loading...</p>
+    </div>
+  )
+
+  const completedCount  = progress.filter(p => p.sectionsCompleted >= 7).length
+  const currentChapter  = CHAPTERS.find(c => {
+    const prog = progress.find(x => x.chapterId === c.id)
+    return !prog || prog.sectionsCompleted < 7
+  })
 
   return (
-    <SidebarLayout studentName={STUDENT_NAME}>
+    <div style={{ minHeight: '100vh', background: '#F0FDF4' }}>
       <style>{`
-        @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes pop { 0%{transform:scale(0.95);opacity:0} 100%{transform:scale(1);opacity:1} }
-        .stat-card { animation: slideUp 0.5s ease forwards; opacity: 0; }
-        .chapter-card { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
-        .chapter-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(45,106,79,0.12); }
+        @keyframes gp-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+        .gp-bounce { animation: gp-bounce 2.5s ease-in-out infinite; }
+        .gp-card { transition: transform 0.2s, box-shadow 0.2s; }
+        .gp-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(27,67,50,0.1); }
       `}</style>
 
-      <div style={{ padding: '28px 32px 60px' }}>
-
-        {/* Greeting */}
-        <div style={{ marginBottom: '24px' }}>
-          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 'clamp(20px,3vw,28px)', color: '#1B4332', marginBottom: '4px' }}>
-            {greeting}, {STUDENT_NAME}! 👋
-          </h1>
-          <p style={{ fontSize: '14px', color: '#6B7280' }}>
-            {nextChapter ? `Keep going — "${nextChapter.title}" is waiting for you` : 'You have completed all chapters — amazing work!'}
-          </p>
-        </div>
-
-        {/* Stat cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: '12px', marginBottom: '24px' }}>
-          {[
-            { label: 'Chapters done',    value: `${completedChapters}/${CHAPTERS.length}`, emoji: '📚', bg: '#D8F3DC', color: '#1B4332', delay: '0ms'   },
-            { label: 'Average score',    value: `${avgScore}%`,                             emoji: '⭐', bg: '#FEF3C7', color: '#92400E', delay: '80ms'  },
-            { label: 'Day streak',       value: `${STREAK} days`,                           emoji: '🔥', bg: '#FFE4E6', color: '#9F1239', delay: '160ms' },
-            { label: 'Overall progress', value: `${overallProgress}%`,                      emoji: '📈', bg: '#EDE9FE', color: '#5B21B6', delay: '240ms' },
-          ].map(({ label, value, emoji, bg, color, delay }) => (
-            <div key={label} className="stat-card" style={{ background: bg, borderRadius: '14px', padding: '16px', animationDelay: delay }}>
-              <span style={{ fontSize: '22px', display: 'block', marginBottom: '8px' }}>{emoji}</span>
-              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '22px', color, lineHeight: 1, marginBottom: '4px' }}>{value}</p>
-              <p style={{ fontSize: '12px', color: '#6B7280' }}>{label}</p>
+      {/* Top bar */}
+      <div style={{ background: '#1B4332', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '16px', color: 'white' }}>ज्ञानप्रवाह</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          {streak > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(245,158,11,0.18)', borderRadius: '20px', padding: '5px 12px' }}>
+              <span>🔥</span>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#FCD34D' }}>{streak} day streak</p>
             </div>
-          ))}
+          )}
+          <Link href="/student/profile" style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#74C69D', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: '#1B4332', margin: 0 }}>{name.charAt(0)}</p>
+          </Link>
         </div>
+      </div>
 
-        {/* Continue banner */}
-        {nextChapter && (
-          <div style={{
-            background: 'linear-gradient(135deg, #1B4332, #2D6A4F)',
-            borderRadius: '16px', padding: '20px 24px',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            gap: '16px', marginBottom: '28px', flexWrap: 'wrap',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <span style={{ fontSize: '30px' }}>▶️</span>
-              <div>
-                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: '#74C69D', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>Continue where you left off</p>
-                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: 'white', marginBottom: '2px' }}>{nextChapter.title}</p>
-                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>
-                  {nextChapter.sectionsRead > 0 ? `${nextChapter.sectionsRead} of 7 sections read` : `${nextChapter.minutes} min read · 7 sections`}
-                </p>
+      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '28px 20px 60px' }}>
+
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '26px', color: '#1B4332', marginBottom: '4px' }}>
+          {getGreeting()}, {name}! 👋
+        </h1>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '15px', color: '#6B7280', marginBottom: '28px' }}>
+          {completedCount === 0 ? 'Ready to start your first chapter?'
+            : completedCount === 8 ? 'You have completed all 8 chapters!'
+            : `${completedCount} of 8 chapters done. Keep it up!`}
+        </p>
+
+        {/* Big continue button */}
+        {currentChapter && (
+          <div className="gp-bounce" style={{ marginBottom: '36px' }}>
+            <Link href={`/student/chapter/${currentChapter.id}`} style={{ textDecoration: 'none' }}>
+              <div style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '20px', padding: '24px', display: 'flex', alignItems: 'center', gap: '18px', cursor: 'pointer' }}>
+                <div style={{ fontSize: '36px', flexShrink: 0 }}>{currentChapter.emoji}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#74C69D', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '5px' }}>
+                    {(progress.find(p => p.chapterId === currentChapter.id)?.sectionsCompleted || 0) > 0 ? 'Continue reading' : 'Start reading'}
+                  </p>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '18px', color: 'white', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {currentChapter.title}
+                  </p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.55)', marginTop: '4px' }}>
+                    Chapter {currentChapter.id} · {currentChapter.type}
+                  </p>
+                </div>
+                <div style={{ width: '44px', height: '44px', background: '#74C69D', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M6 3l7 6-7 6" stroke="#1B4332" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
               </div>
-            </div>
-            <Link href={`/student/chapter/${nextChapter.id}`} style={{
-              background: '#74C69D', color: '#1B4332',
-              fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px',
-              padding: '11px 22px', borderRadius: '10px', textDecoration: 'none', flexShrink: 0,
-            }}>
-              {nextChapter.sectionsRead > 0 ? 'Continue →' : 'Start →'}
             </Link>
           </div>
         )}
 
-        {/* English chapters */}
-        <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '17px', color: '#1B4332', marginBottom: '2px' }}>English chapters</h2>
-            <p style={{ fontSize: '13px', color: '#9CA3AF' }}>{completedChapters} of {CHAPTERS.length} completed · {overallProgress}% progress</p>
-          </div>
-          <Link href="/student/subjects" style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#2D6A4F', textDecoration: 'none', background: '#D8F3DC', padding: '7px 14px', borderRadius: '8px' }}>
-            All subjects →
-          </Link>
-        </div>
-
-        {/* Progress bar */}
-        <div style={{ height: '8px', background: '#E5E7EB', borderRadius: '4px', overflow: 'hidden', marginBottom: '16px' }}>
-          <div style={{ height: '100%', width: `${overallProgress}%`, background: 'linear-gradient(90deg,#2D6A4F,#52B788)', borderRadius: '4px', transition: 'width 1s ease' }}/>
-        </div>
-
         {/* Chapter list */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '12px' }}>
+          All chapters
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {CHAPTERS.map(chapter => {
-            const typeStyle = TYPE_COLORS[chapter.type]
-            const isNext = chapter.id === nextChapter?.id
+            const prog        = progress.find(p => p.chapterId === chapter.id)
+            const secsDone    = prog?.sectionsCompleted || 0
+            const isCompleted = secsDone >= 7
+            const isStarted   = secsDone > 0 && !isCompleted
+            const isCurrent   = chapter.id === currentChapter?.id
+            const isLocked    = !isCurrent && !isStarted && !isCompleted && chapter.id > (currentChapter?.id || 1)
+
             return (
-              <div key={chapter.id} className="chapter-card" style={{
-                background: 'white', borderRadius: '14px', padding: '16px 20px',
-                border: isNext ? '2px solid #2D6A4F' : chapter.completed ? '1px solid #D8F3DC' : '1px solid #E5E7EB',
-                display: 'flex', alignItems: 'center', gap: '14px', position: 'relative', overflow: 'hidden',
-              }}>
-                {chapter.completed && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: '#10B981', borderRadius: '14px 0 0 14px' }}/>}
-                {isNext && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: '#2D6A4F', borderRadius: '14px 0 0 14px' }}/>}
-
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: chapter.completed ? '#D8F3DC' : isNext ? '#2D6A4F' : '#F3F4F6', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '15px', color: chapter.completed ? '#1B4332' : isNext ? 'white' : '#9CA3AF' }}>
-                  {chapter.completed ? '✓' : chapter.id}
-                </div>
-
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#1B4332' }}>{chapter.title}</p>
-                    {isNext && <span style={{ background: '#2D6A4F', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '2px 8px', borderRadius: '10px', flexShrink: 0 }}>UP NEXT</span>}
+              <Link key={chapter.id} href={isLocked ? '#' : `/student/chapter/${chapter.id}`}
+                style={{ textDecoration: 'none' }} onClick={e => isLocked && e.preventDefault()}>
+                <div className={isLocked ? '' : 'gp-card'} style={{
+                  background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '14px',
+                  border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB',
+                  padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '14px',
+                  opacity: isLocked ? 0.4 : 1, cursor: isLocked ? 'default' : 'pointer',
+                }}>
+                  <div style={{ width: '42px', height: '42px', minWidth: '42px', borderRadius: '12px',
+                    background: isCompleted ? '#2D6A4F' : isCurrent ? '#D8F3DC' : '#F3F4F6',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: isCompleted ? '0' : '20px' }}>
+                    {isCompleted
+                      ? <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9l4 4 8-8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      : isLocked ? <span style={{ fontSize: '16px' }}>🔒</span>
+                      : <span>{chapter.emoji}</span>}
                   </div>
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontFamily: 'var(--font-heading)', fontWeight: 700, background: typeStyle.bg, color: typeStyle.text }}>{chapter.type}</span>
-                    <span style={{ fontSize: '12px', color: '#9CA3AF' }}>{chapter.minutes} min</span>
-                    {chapter.sectionsRead > 0 && !chapter.completed && (
-                      <span style={{ fontSize: '12px', color: '#F59E0B', fontWeight: 600 }}>{chapter.sectionsRead}/7 sections read</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px',
+                      color: isLocked ? '#9CA3AF' : '#1B4332',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: '2px' }}>
+                      {chapter.title}
+                    </p>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF' }}>
+                      Chapter {chapter.id} · {chapter.type}
+                    </p>
+                    {isStarted && (
+                      <div style={{ marginTop: '5px', height: '3px', background: '#E5E7EB', borderRadius: '2px', overflow: 'hidden', width: '100px' }}>
+                        <div style={{ height: '100%', width: `${(secsDone / 7) * 100}%`, background: '#2D6A4F', borderRadius: '2px' }}/>
+                      </div>
                     )}
                   </div>
+                  <div style={{ flexShrink: 0 }}>
+                    {isCompleted && prog?.score != null
+                      ? <span style={{ background: prog.score >= 80 ? '#D8F3DC' : prog.score >= 60 ? '#FEF3C7' : '#FEE2E2',
+                          color: prog.score >= 80 ? '#1B4332' : prog.score >= 60 ? '#92400E' : '#991B1B',
+                          fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px',
+                          padding: '4px 10px', borderRadius: '20px' }}>{prog.score}%</span>
+                      : isCompleted
+                      ? <span style={{ background: '#D8F3DC', color: '#1B4332', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', padding: '4px 10px', borderRadius: '20px' }}>Done ✓</span>
+                      : isStarted
+                      ? <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#2D6A4F' }}>{secsDone}/7</span>
+                      : null}
+                  </div>
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-                  {chapter.score !== null && <ScoreRing score={chapter.score}/>}
-                  <Link href={`/student/chapter/${chapter.id}`} style={{
-                    fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px',
-                    padding: '8px 14px', borderRadius: '8px', textDecoration: 'none',
-                    background: chapter.completed ? '#F0FDF4' : isNext ? '#2D6A4F' : '#F3F4F6',
-                    color: chapter.completed ? '#2D6A4F' : isNext ? 'white' : '#9CA3AF',
-                    border: chapter.completed ? '1px solid #D8F3DC' : 'none',
-                  }}>
-                    {chapter.completed ? 'Review' : isNext ? 'Continue' : chapter.sectionsRead > 0 ? 'Resume' : 'Start'}
-                  </Link>
-                </div>
-              </div>
+              </Link>
             )
           })}
         </div>
 
-        {/* Streak + quote */}
-        <div style={{ marginTop: '20px', background: 'white', borderRadius: '16px', padding: '20px 24px', border: '1px solid #E5E7EB' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '15px', color: '#1B4332' }}>🔥 {STREAK} day streak!</p>
-            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#F59E0B', background: '#FEF3C7', padding: '4px 12px', borderRadius: '20px' }}>Best: 7 days</span>
-          </div>
-          <div style={{ display: 'flex', gap: '4px' }}>
-            {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((day, i) => (
-              <div key={day} style={{ flex: 1, textAlign: 'center' }}>
-                <div style={{ height: '6px', borderRadius: '3px', background: i < STREAK ? '#F59E0B' : '#E5E7EB', marginBottom: '4px' }}/>
-                <p style={{ fontSize: '10px', color: '#9CA3AF', fontFamily: 'var(--font-heading)', fontWeight: 600 }}>{day}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ marginTop: '14px', background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '16px', padding: '20px 24px', textAlign: 'center' }}>
-          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#74C69D', marginBottom: '6px' }}>💬 Today's thought</p>
-          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: 'white', lineHeight: 1.4 }}>"The more that you read, the more things you will know."</p>
-          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', marginTop: '6px' }}>— Dr. Seuss</p>
-        </div>
-
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF', textAlign: 'center', marginTop: '32px', lineHeight: 1.7 }}>
+          More subjects coming soon 📚<br/>Complete each chapter to unlock the next one.
+        </p>
       </div>
-    </SidebarLayout>
+    </div>
   )
 }
