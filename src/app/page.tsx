@@ -174,6 +174,30 @@ function ParentIllustration() {
 }
 
 export default function HomePage() {
+  const [dashboardHref, setDashboardHref] = useState('')
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Check role — parent or student
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      if (profile?.role === 'parent') {
+        setDashboardHref('/parent/dashboard')
+      } else {
+        setDashboardHref('/student/dashboard')
+      }
+    }
+    checkAuth()
+  }, [])
   const typed = useTypingEffect(['Learn it.', 'Know it.', 'Flow with it.'], 90, 1600)
   const statsRef = useRef<HTMLDivElement>(null)
   const [statsVisible, setStatsVisible] = useState(false)
@@ -235,8 +259,16 @@ export default function HomePage() {
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
           <Link href="/gk" className="btn-secondary" style={{ padding:'8px 18px', fontSize:'13px' }}>Learn for free</Link>
-          <Link href="/login" className="btn-outline" style={{ padding:'8px 18px', fontSize:'13px' }}>Log in</Link>
-          <Link href="/register" className="btn-primary btn-pulse" style={{ padding:'8px 18px', fontSize:'13px' }}>Register</Link>
+          {dashboardHref ? (
+            <Link href={dashboardHref} className="btn-primary" style={{ padding:'8px 18px', fontSize:'13px' }}>
+              Go to Dashboard →
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" className="btn-outline" style={{ padding:'8px 18px', fontSize:'13px' }}>Log in</Link>
+              <Link href="/register" className="btn-primary btn-pulse" style={{ padding:'8px 18px', fontSize:'13px' }}>Register</Link>
+            </>
+          )}
         </div>
       </nav>
 
