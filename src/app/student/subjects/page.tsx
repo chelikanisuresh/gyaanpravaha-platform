@@ -253,10 +253,13 @@ export default function SubjectsPage() {
                 return (
                   <div key={ch.id} style={{ background: 'white', borderRadius: '16px', border: ch.completed ? '1px solid #D8F3DC' : isNext ? '2px solid #2D6A4F' : '1px solid #E5E7EB', overflow: 'hidden' }}>
 
-                    {/* Chapter row — always visible */}
+                    {/* Chapter row — full row is a link */}
+                    <Link
+                      href={`/student/chapter/${ch.id}`}
+                      style={{ textDecoration: 'none', display: 'block' }}
+                    >
                     <div
                       className="chapter-row"
-                      onClick={() => setExpandedChapter(isExpanded ? null : ch.id)}
                       style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', background: isExpanded ? '#F9FAFB' : 'white', position: 'relative' }}
                     >
                       {ch.completed && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: '#10B981', borderRadius: '16px 0 0 16px' }}/>}
@@ -288,22 +291,23 @@ export default function SubjectsPage() {
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-                        <Link
-                          href={`/student/chapter/${ch.id}`}
-                          onClick={e => e.stopPropagation()}
-                          style={{
-                            fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px',
-                            padding: '8px 16px', borderRadius: '8px', textDecoration: 'none',
-                            background: ch.completed ? '#F0FDF4' : isNext ? '#2D6A4F' : '#F3F4F6',
-                            color: ch.completed ? '#2D6A4F' : isNext ? 'white' : '#9CA3AF',
-                            border: ch.completed ? '1px solid #D8F3DC' : 'none',
-                          }}
-                        >
+                        <span style={{
+                          fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px',
+                          padding: '8px 16px', borderRadius: '8px',
+                          background: ch.completed ? '#F0FDF4' : isNext ? '#2D6A4F' : '#F3F4F6',
+                          color: ch.completed ? '#2D6A4F' : isNext ? 'white' : '#9CA3AF',
+                          border: ch.completed ? '1px solid #D8F3DC' : 'none',
+                        }}>
                           {ch.completed ? 'Review' : isNext ? 'Continue' : ch.sectionsRead > 0 ? 'Resume' : 'Start'}
-                        </Link>
-                        <span style={{ fontSize: '14px', color: '#9CA3AF', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>▾</span>
+                        </span>
+                        {/* Expand toggle — stop propagation so it doesn't navigate */}
+                        <span
+                          onClick={e => { e.preventDefault(); setExpandedChapter(isExpanded ? null : ch.id) }}
+                          style={{ fontSize: '14px', color: '#9CA3AF', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none', cursor: 'pointer', padding: '4px' }}
+                        >▾</span>
                       </div>
                     </div>
+                    </Link>
 
                     {/* Expanded detail */}
                     {isExpanded && (
