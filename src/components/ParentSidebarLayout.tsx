@@ -18,6 +18,7 @@ const DASHBOARD_CHILDREN = [
 const OTHER_LINKS = [
   { label: 'Password',     href: '/parent/password',     emoji: '🔑' },
   { label: 'Subscription', href: '/parent/subscription', emoji: '📅' },
+  { label: 'Help',         href: '/parent/help',         emoji: '🎫' },
   { label: 'Feedback',     href: '/parent/feedback',     emoji: '💬' },
   { label: 'Profile',      href: '/parent/profile',      emoji: '👤' },
 ]
@@ -39,7 +40,7 @@ export default function ParentSidebarLayout({ children, parentName = 'Parent' }:
 
       {/* Logo */}
       <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+        <Link href="/parent/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
           <div style={{ width: '34px', height: '34px', background: '#74C69D', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
               <path d="M6 8h8M10 4v8" stroke="#1B4332" strokeWidth="1.8" strokeLinecap="round"/>
