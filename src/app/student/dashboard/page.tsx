@@ -10,14 +10,14 @@ import WordGames, { WordSearch, MeaningMatch } from '@/components/WordGames'
 // ── Chapter data ─────────────────────────────────────────────────────────────
 
 const CHAPTERS = [
-  { id: 1, title: 'Whistles and Shaving Bristles', type: 'Prose',     emoji: '📖' },
-  { id: 2, title: 'If I Were Lord of Tartary',     type: 'Poetry',    emoji: '✨' },
-  { id: 3, title: 'The Fun They Had',              type: 'Story',     emoji: '🤖' },
-  { id: 4, title: 'In Morning Dew',                type: 'Poetry',    emoji: '🌿' },
-  { id: 5, title: 'The Boy Who Outran the Wind',   type: 'Biography', emoji: '🏃' },
-  { id: 6, title: 'The Blind Boy',                 type: 'Poetry',    emoji: '🌟' },
-  { id: 7, title: 'Three Questions',               type: 'Story',     emoji: '🤔' },
-  { id: 8, title: 'From a Railway Carriage',       type: 'Poetry',    emoji: '🚂' },
+  { id: 1, title: 'Whistles and Shaving Bristles', type: 'Prose',     emoji: '📖', estimatedReadMins: 15 },
+  { id: 2, title: 'If I Were Lord of Tartary',     type: 'Poetry',    emoji: '✨', estimatedReadMins: 12 },
+  { id: 3, title: 'The Fun They Had',              type: 'Story',     emoji: '🤖', estimatedReadMins: 16 },
+  { id: 4, title: 'In Morning Dew',                type: 'Poetry',    emoji: '🌿', estimatedReadMins: 11 },
+  { id: 5, title: 'The Boy Who Outran the Wind',   type: 'Biography', emoji: '🏃', estimatedReadMins: 18 },
+  { id: 6, title: 'The Blind Boy',                 type: 'Poetry',    emoji: '🌟', estimatedReadMins: 12 },
+  { id: 7, title: 'Three Questions',               type: 'Story',     emoji: '🤔', estimatedReadMins: 20 },
+  { id: 8, title: 'From a Railway Carriage',       type: 'Poetry',    emoji: '🚂', estimatedReadMins: 10 },
 ]
 
 // ── Dashboard home ───────────────────────────────────────────────────────────
@@ -127,11 +127,20 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
 
   const currentChapter  = CHAPTERS.find(c => (progress[c.id] || 0) < 7)
   const completedCount  = CHAPTERS.filter(c => (progress[c.id] || 0) >= 7).length
+  const overallProgress = Math.round((completedCount / 8) * 100)
+
+  const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
+    'Prose':                  { bg: '#D8F3DC', text: '#1B4332' },
+    'Poetry':                 { bg: '#FEF3C7', text: '#92400E' },
+    'Short story':            { bg: '#EDE9FE', text: '#5B21B6' },
+    'Biographical narrative': { bg: '#FFE4E6', text: '#9F1239' },
+  }
 
   return (
-    <div style={{ maxWidth: '720px' }}>
+    <div style={{ width: '100%' }}>
+      {/* Page header */}
       <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '24px', color: '#1B4332', marginBottom: '4px' }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '28px', color: '#1B4332', marginBottom: '4px' }}>
           📖 English
         </h1>
         <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>
@@ -139,25 +148,54 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
         </p>
       </div>
 
+      {/* Stats + progress bar */}
+      <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '20px 24px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>
+            Stories, poems, and biographical narratives from Connexion Class 6
+          </p>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ background: '#D8F3DC', borderRadius: '10px', padding: '10px 16px', textAlign: 'center' }}>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '18px', color: '#1B4332', lineHeight: 1 }}>{completedCount}/8</p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#40916C', marginTop: '2px' }}>Chapters</p>
+            </div>
+            {Object.keys(scores).length > 0 && (
+              <div style={{ background: '#FEF3C7', borderRadius: '10px', padding: '10px 16px', textAlign: 'center' }}>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '18px', color: '#92400E', lineHeight: 1 }}>
+                  {Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length)}%
+                </p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#B45309', marginTop: '2px' }}>Avg score</p>
+              </div>
+            )}
+          </div>
+        </div>
+        <div style={{ height: '8px', background: '#E5E7EB', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${overallProgress}%`, background: 'linear-gradient(90deg,#2D6A4F,#52B788)', borderRadius: '4px', transition: 'width 0.8s ease' }}/>
+        </div>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF', marginTop: '6px' }}>
+          {overallProgress}% complete — keep going!
+        </p>
+      </div>
+
+      {/* Continue card */}
       {currentChapter && (
-        <div style={{ marginBottom: '28px' }}>
+        <div style={{ marginBottom: '20px' }}>
           <style>{`@keyframes gp-b{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}.gp-b{animation:gp-b 2.5s ease-in-out infinite}`}</style>
           <div className="gp-b">
             <Link href={`/student/chapter/${currentChapter.id}`} style={{ textDecoration: 'none' }}>
               <div style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '18px', padding: '22px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '36px', flexShrink: 0 }}>{currentChapter.emoji}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: '#74C69D', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '5px' }}>
                     {(progress[currentChapter.id] || 0) > 0 ? '📖 Continue reading' : '▶️ Start reading'}
                   </p>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '18px', color: 'white', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '20px', color: 'white', lineHeight: 1.3, marginBottom: '4px' }}>
                     {currentChapter.title}
                   </p>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.55)', marginTop: '4px' }}>
-                    Chapter {currentChapter.id} · {currentChapter.type}
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.55)' }}>
+                    Chapter {currentChapter.id} · {currentChapter.type} · {currentChapter.estimatedReadMins} min read
                   </p>
                   {(progress[currentChapter.id] || 0) > 0 && (
-                    <div style={{ marginTop: '10px', height: '4px', background: 'rgba(255,255,255,0.15)', borderRadius: '2px', width: '160px' }}>
+                    <div style={{ marginTop: '10px', height: '4px', background: 'rgba(255,255,255,0.15)', borderRadius: '2px', width: '180px' }}>
                       <div style={{ height: '100%', width: `${((progress[currentChapter.id] || 0) / 7) * 100}%`, background: '#74C69D', borderRadius: '2px' }}/>
                     </div>
                   )}
@@ -173,58 +211,88 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
         </div>
       )}
 
+      {/* All chapters */}
       <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>
         All chapters
       </p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {CHAPTERS.map(chapter => {
           const secsDone    = progress[chapter.id] || 0
           const isCompleted = secsDone >= 7
           const isStarted   = secsDone > 0 && !isCompleted
           const isCurrent   = chapter.id === currentChapter?.id
           const isLocked    = !isCurrent && !isStarted && !isCompleted && chapter.id > (currentChapter?.id || 1)
+          const typeStyle   = TYPE_COLORS[chapter.type] || { bg: '#F3F4F6', text: '#374151' }
+          const score       = scores[chapter.id]
+
+          const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : isCurrent ? 'Start' : '—'
+
           return (
-            <Link key={chapter.id} href={isLocked ? '#' : `/student/chapter/${chapter.id}`}
-              style={{ textDecoration: 'none' }} onClick={e => isLocked && e.preventDefault()}>
-              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '14px',
+            <div
+              key={chapter.id}
+              style={{
+                background: isCompleted ? '#F0FDF4' : 'white',
+                borderRadius: '16px',
                 border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB',
-                padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '14px',
-                opacity: isLocked ? 0.4 : 1, cursor: isLocked ? 'default' : 'pointer',
-                transition: 'transform 0.15s, box-shadow 0.15s' }}
-                onMouseEnter={e => { if (!isLocked) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(27,67,50,0.08)' }}}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none' }}>
-                <div style={{ width: '42px', height: '42px', minWidth: '42px', borderRadius: '12px',
-                  background: isCompleted ? '#2D6A4F' : isCurrent ? '#D8F3DC' : '#F3F4F6',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isCompleted ? '0' : '20px' }}>
-                  {isCompleted
-                    ? <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9l4 4 8-8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    : isLocked ? <span style={{ fontSize: '16px' }}>🔒</span>
-                    : <span>{chapter.emoji}</span>}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: isLocked ? '#9CA3AF' : '#1B4332', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: '2px' }}>
+                padding: '16px 20px',
+                display: 'flex', alignItems: 'center', gap: '14px',
+                opacity: isLocked ? 0.45 : 1,
+                position: 'relative', overflow: 'hidden',
+                transition: 'box-shadow 0.15s',
+              }}
+              onMouseEnter={e => { if (!isLocked) e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}
+            >
+              {/* Left colour bar */}
+              {(isCompleted || isCurrent) && (
+                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: isCompleted ? '#10B981' : '#2D6A4F', borderRadius: '16px 0 0 16px' }}/>
+              )}
+
+              {/* Number / check */}
+              <div style={{ width: '40px', height: '40px', minWidth: '40px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isCompleted ? '#D8F3DC' : isCurrent ? '#2D6A4F' : '#F3F4F6', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: isCompleted ? '#1B4332' : isCurrent ? 'white' : '#9CA3AF' }}>
+                {isCompleted ? '✓' : chapter.id}
+              </div>
+
+              {/* Info */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: isLocked ? '#9CA3AF' : '#1B4332', lineHeight: 1.3 }}>
                     {chapter.title}
                   </p>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF' }}>
-                    Chapter {chapter.id} · {chapter.type}
-                  </p>
-                  {isStarted && (
-                    <div style={{ marginTop: '5px', height: '3px', background: '#E5E7EB', borderRadius: '2px', width: '100px' }}>
-                      <div style={{ height: '100%', width: `${(secsDone / 7) * 100}%`, background: '#2D6A4F', borderRadius: '2px' }}/>
-                    </div>
+                  {isCurrent && !isCompleted && (
+                    <span style={{ background: '#2D6A4F', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '2px 8px', borderRadius: '10px', flexShrink: 0 }}>UP NEXT</span>
                   )}
                 </div>
-                <div style={{ flexShrink: 0 }}>
-                  {isCompleted && scores[chapter.id] != null
-                    ? <span style={{ background: scores[chapter.id] >= 80 ? '#D8F3DC' : scores[chapter.id] >= 60 ? '#FEF3C7' : '#FEE2E2', color: scores[chapter.id] >= 80 ? '#1B4332' : scores[chapter.id] >= 60 ? '#92400E' : '#991B1B', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '4px 10px', borderRadius: '20px' }}>{scores[chapter.id]}%</span>
-                    : isCompleted
-                    ? <span style={{ background: '#D8F3DC', color: '#1B4332', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', padding: '4px 10px', borderRadius: '20px' }}>Done ✓</span>
-                    : isStarted
-                    ? <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#2D6A4F' }}>{secsDone}/7</span>
-                    : null}
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontFamily: 'var(--font-heading)', fontWeight: 700, background: typeStyle.bg, color: typeStyle.text }}>{chapter.type}</span>
+                  <span style={{ fontSize: '12px', color: '#9CA3AF' }}>⏱ {chapter.estimatedReadMins} min</span>
+                  <span style={{ fontSize: '12px', color: '#9CA3AF' }}>📋 7 sections</span>
+                  {isStarted && <span style={{ fontSize: '12px', color: '#F59E0B', fontWeight: 600 }}>{secsDone}/7 read</span>}
+                  {score != null && (
+                    <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444' }}>
+                      Score: {score}%
+                    </span>
+                  )}
                 </div>
               </div>
-            </Link>
+
+              {/* CTA button */}
+              {!isLocked && (
+                <Link
+                  href={`/student/chapter/${chapter.id}`}
+                  style={{
+                    fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px',
+                    padding: '8px 18px', borderRadius: '8px', textDecoration: 'none', flexShrink: 0,
+                    background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6',
+                    color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280',
+                    border: isCompleted ? '1px solid #D8F3DC' : 'none',
+                  }}
+                >
+                  {ctaLabel}
+                </Link>
+              )}
+              {isLocked && <span style={{ fontSize: '16px', flexShrink: 0 }}>🔒</span>}
+            </div>
           )
         })}
       </div>

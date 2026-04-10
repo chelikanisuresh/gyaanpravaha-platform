@@ -215,7 +215,7 @@ export default function StudentSidebarLayout({ children }: Props) {
         </div>
 
         {/* Page content */}
-        <div style={{ flex: 1, padding: '28px 24px 60px' }}>
+        <div style={{ flex: 1, padding: '28px 36px 60px' }}>
           {studentId ? children(activeSection, studentId) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px' }}>
               <p style={{ fontFamily: 'var(--font-body)', color: '#9CA3AF' }}>Loading...</p>
