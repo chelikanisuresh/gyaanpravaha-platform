@@ -4,7 +4,87 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { getChapter, type Chapter, type Section } from '@/lib/chapter-content'
+import { getWordMap, type WordMap } from '@/lib/tooltip-words'
 import { useReadTimer, formatTime } from '@/hooks/useReadTimer'
+
+// ── Inline word tooltip ───────────────────────────────────────────────────────
+
+function TooltipWord({ word, meaning }: { word: string; meaning: string }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const close = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [open])
+
+  return (
+    <span ref={ref} style={{ position: 'relative', display: 'inline' }}>
+      <span
+        onClick={() => setOpen(o => !o)}
+        style={{
+          color: '#2D6A4F',
+          borderBottom: '2px dotted #52B788',
+          cursor: 'pointer',
+          fontWeight: 500,
+          transition: 'color 0.15s',
+        }}
+        onMouseEnter={e => (e.currentTarget.style.color = '#1B4332')}
+        onMouseLeave={e => (e.currentTarget.style.color = '#2D6A4F')}
+      >
+        {word}
+      </span>
+      {open && (
+        <span style={{
+          position: 'absolute', bottom: 'calc(100% + 6px)', left: '50%',
+          transform: 'translateX(-50%)', zIndex: 200,
+          background: '#1B4332', color: 'white',
+          fontFamily: 'var(--font-body)', fontSize: '13px', lineHeight: 1.55,
+          padding: '10px 14px', borderRadius: '10px',
+          width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+          display: 'block', whiteSpace: 'normal',
+        }}>
+          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#74C69D', display: 'block', marginBottom: '4px' }}>
+            {word}
+          </span>
+          {meaning}
+          {/* Arrow */}
+          <span style={{ position: 'absolute', bottom: '-6px', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '6px solid #1B4332' }}/>
+        </span>
+      )}
+    </span>
+  )
+}
+
+// Parse text and inject tooltip spans for known vocabulary words
+function renderWithTooltips(text: string, wordMap: WordMap): React.ReactNode {
+  if (!wordMap || Object.keys(wordMap).length === 0) return text
+
+  // Build sorted list of phrases (longest first to avoid partial matches)
+  const phrases = Object.keys(wordMap).sort((a, b) => b.length - a.length)
+
+  // Build regex that matches any known word/phrase (word boundary aware)
+  const escaped = phrases.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+  const pattern  = new RegExp(`(${escaped.join('|')})`, 'gi')
+
+  const parts = text.split(pattern)
+  return (
+    <>
+      {parts.map((part, i) => {
+        const key = part.toLowerCase()
+        const entry = wordMap[key]
+        if (entry) {
+          return <TooltipWord key={i} word={part} meaning={entry.meaning} />
+        }
+        return part
+      })}
+    </>
+  )
+}
 
 // ── Section sidebar ──────────────────────────────────────────────────────────
 
@@ -77,6 +157,7 @@ function SectionContent({
   onComplete,
   elapsed,
   minReadSeconds,
+  wordMap,
 }: {
   section: Section
   isLastSection: boolean
@@ -84,9 +165,13 @@ function SectionContent({
   onComplete: () => void
   elapsed: number
   minReadSeconds: number
+  wordMap: WordMap
 }) {
   const readGateMet = !section.minReadSeconds || elapsed >= section.minReadSeconds
   const timeLeft    = section.minReadSeconds ? Math.max(0, section.minReadSeconds - elapsed) : 0
+
+  // Only apply tooltips in Section 4 (the lesson text)
+  const useTooltips = section.id === 4
 
   return (
     <div style={{ flex: 1, minWidth: 0 }}>
@@ -107,6 +192,14 @@ function SectionContent({
           </div>
         )}
       </div>
+
+      {/* Tooltip hint — only in lesson section */}
+      {section.id === 4 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+          <span style={{ color: '#2D6A4F', borderBottom: '2px dotted #52B788', fontFamily: 'var(--font-heading)', fontWeight: 500, fontSize: '12px' }}>highlighted words</span>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF' }}>— tap any green word to see its meaning</p>
+        </div>
+      )}
 
       {/* Content */}
       <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E5E7EB', padding: '28px', marginBottom: '20px' }}>
@@ -154,7 +247,7 @@ function SectionContent({
           }
           return (
             <p key={i} style={{ fontFamily: 'var(--font-body)', fontSize: '15px', color: '#374151', lineHeight: 1.8, marginBottom: '12px' }}>
-              {para}
+              {useTooltips ? renderWithTooltips(para, wordMap) : para}
             </p>
           )
         })}
@@ -390,6 +483,7 @@ export default function ChapterReaderPage() {
             onComplete={() => completeSection(currentSection)}
             elapsed={elapsed}
             minReadSeconds={minRead}
+            wordMap={getWordMap(chapterId)}
           />
         )}
       </div>
