@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import StudentDashboardPanel from '@/components/StudentDashboardPanel'
 
 const CHAPTERS = [
   { id: 1, title: 'Whistles and Shaving Bristles', type: 'Prose',     emoji: '📖' },
@@ -24,6 +25,7 @@ function getGreeting() {
 export default function StudentDashboard() {
   const router = useRouter()
   const [name,     setName]     = useState('there')
+  const [userId,   setUserId]   = useState('')
   const [progress, setProgress] = useState<{chapterId:number;sectionsCompleted:number;score:number|null}[]>([])
   const [streak,   setStreak]   = useState(0)
   const [loading,  setLoading]  = useState(true)
@@ -34,6 +36,7 @@ export default function StudentDashboard() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
+      setUserId(user.id)
       const { data: p } = await supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
       if (p?.full_name) setName((p.full_name || 'there').split(' ')[0])
 

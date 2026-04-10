@@ -34,6 +34,7 @@ function AddChildModal({ onClose, onSuccess }: { onClose: () => void; onSuccess:
   const [step, setStep] = useState<'form'|'payment'>('form')
   const [childName, setChildName] = useState('')
   const [childEmail, setChildEmail] = useState('')
+  const [childGender, setChildGender] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
@@ -49,7 +50,7 @@ function AddChildModal({ onClose, onSuccess }: { onClose: () => void; onSuccess:
   const handlePayment = async () => {
     setLoading(true); setError('')
     try {
-      const res = await fetch('/api/add-child', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ childName, childEmail, password }) })
+      const res = await fetch('/api/add-child', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ childName, childEmail, password, gender: childGender }) })
       const data = await res.json()
       if (!res.ok) { setError(data.error || 'Failed to add child.'); setLoading(false); return }
       onSuccess()
@@ -77,6 +78,22 @@ function AddChildModal({ onClose, onSuccess }: { onClose: () => void; onSuccess:
         {step==='form' && (
           <form onSubmit={handleForm} style={{ padding:'22px', display:'flex', flexDirection:'column', gap:'14px' }}>
             <div><label style={lStyle}>Child&apos;s full name</label><input type="text" value={childName} onChange={e=>setChildName(e.target.value)} required placeholder="Enter full name" style={iStyle}/></div>
+              <div>
+                <label style={lStyle}>Child&apos;s gender</label>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {(['male', 'female'] as const).map(g => (
+                    <button key={g} type="button" onClick={() => setChildGender(g)}
+                      style={{ flex: 1, padding: '10px', borderRadius: '8px', cursor: 'pointer',
+                        fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px',
+                        border: childGender === g ? '2px solid #2D6A4F' : '1.5px solid #E5E7EB',
+                        background: childGender === g ? '#F0FDF4' : 'white',
+                        color: childGender === g ? '#1B4332' : '#6B7280',
+                      }}>
+                      {g === 'male' ? '👦 Male' : '👧 Female'}
+                    </button>
+                  ))}
+                </div>
+              </div>
             <div><label style={lStyle}>Child&apos;s school Gmail</label><input type="email" value={childEmail} onChange={e=>setChildEmail(e.target.value)} required placeholder="e.g. name@school.edu" style={iStyle}/></div>
             <div><label style={lStyle}>Set a password</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength={8} placeholder="Minimum 8 characters" style={iStyle}/></div>
             <div><label style={lStyle}>Confirm password</label><input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} required placeholder="Re-enter password" style={iStyle}/></div>

@@ -4,7 +4,7 @@ import { createClient as createServerClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
   try {
-    const { childName, childEmail, password } = await req.json()
+    const { childName, childEmail, password, gender } = await req.json()
 
     // Admin client — created at request time so env vars are available
     const adminSupabase = createClient(
@@ -50,7 +50,8 @@ export async function POST(req: NextRequest) {
       email: childEmail,
       password,
       email_confirm: true,
-      user_metadata: { full_name: childName, role: 'student' },
+      user_metadata: { full_name: childName,
+        gender: gender || null, role: 'student' },
     })
     if (createError) throw createError
 
@@ -58,6 +59,7 @@ export async function POST(req: NextRequest) {
     await adminSupabase.from('profiles').insert({
       id: newUser.user.id,
       full_name: childName,
+        gender: gender || null,
       email: childEmail,
       role: 'student',
     })
