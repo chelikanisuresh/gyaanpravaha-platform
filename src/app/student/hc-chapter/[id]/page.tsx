@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { getChapter, type Chapter, type Section } from '@/lib/hc-chapter-content'
-import { getWordMap, type WordMap } from '@/lib/tooltip-words'
+import { getHCWordMap as getWordMap, type WordMap } from '@/lib/hc-tooltip-words'
 import { useReadTimer, formatTime } from '@/hooks/useReadTimer'
 
 // ── Inline word tooltip ───────────────────────────────────────────────────────
