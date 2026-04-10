@@ -228,8 +228,13 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
           const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : isCurrent ? 'Start' : '—'
 
           return (
-            <div
+            <Link
               key={chapter.id}
+              href={isLocked ? '#' : `/student/chapter/${chapter.id}`}
+              onClick={e => isLocked && e.preventDefault()}
+              style={{ textDecoration: 'none', display: 'block' }}
+            >
+            <div
               style={{
                 background: isCompleted ? '#F0FDF4' : 'white',
                 borderRadius: '16px',
@@ -239,6 +244,7 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
                 opacity: isLocked ? 0.45 : 1,
                 position: 'relative', overflow: 'hidden',
                 transition: 'box-shadow 0.15s',
+                cursor: isLocked ? 'not-allowed' : 'pointer',
               }}
               onMouseEnter={e => { if (!isLocked) e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}
@@ -276,23 +282,21 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
                 </div>
               </div>
 
-              {/* CTA button */}
+              {/* CTA label */}
               {!isLocked && (
-                <Link
-                  href={`/student/chapter/${chapter.id}`}
-                  style={{
-                    fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px',
-                    padding: '8px 18px', borderRadius: '8px', textDecoration: 'none', flexShrink: 0,
-                    background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6',
-                    color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280',
-                    border: isCompleted ? '1px solid #D8F3DC' : 'none',
-                  }}
-                >
+                <span style={{
+                  fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px',
+                  padding: '8px 18px', borderRadius: '8px', flexShrink: 0,
+                  background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6',
+                  color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280',
+                  border: isCompleted ? '1px solid #D8F3DC' : 'none',
+                }}>
                   {ctaLabel}
-                </Link>
+                </span>
               )}
               {isLocked && <span style={{ fontSize: '16px', flexShrink: 0 }}>🔒</span>}
             </div>
+            </Link>
           )
         })}
       </div>
