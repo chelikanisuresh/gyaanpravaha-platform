@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import StudentSidebarLayout from '@/components/StudentSidebarLayout'
 import StudentDashboardPanel from '@/components/StudentDashboardPanel'
+import WordGames from '@/components/WordGames'
 
 // ── Chapter data ─────────────────────────────────────────────────────────────
 
@@ -52,7 +53,7 @@ function DashboardHome({ studentId }: { studentId: string }) {
         {/* Left — gamification panel */}
         <StudentDashboardPanel studentId={studentId}/>
 
-        {/* Right — guide cards */}
+        {/* Right — guide cards + word games */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
           <div style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '16px', padding: '22px' }}>
@@ -88,6 +89,8 @@ function DashboardHome({ studentId }: { studentId: string }) {
               Read at least one section every day. Even 10 minutes beats an hour of distracted studying.
             </p>
           </div>
+
+          <WordGames/>
 
         </div>
       </div>
