@@ -28,6 +28,16 @@ export default function StudentSidebarLayout({ children }: Props) {
   const [subjectsOpen,   setSubjectsOpen]   = useState(false)
   const [mobileNavOpen,  setMobileNavOpen]  = useState(false)
 
+  // On mount, read ?section= from URL to restore active section (e.g. coming back from chapter reader)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const section = params.get('section')
+    if (section && ['english','maths','science','history','geo','sanskrit','ict','profile'].includes(section)) {
+      setActiveSection(section as ActiveSection)
+      setSubjectsOpen(true)
+    }
+  }, [])
+
   useEffect(() => {
     const load = async () => {
       const supabase = createClient()

@@ -327,7 +327,7 @@ export default function ChapterReaderPage() {
       <div style={{ background: '#1B4332', padding: '14px 28px', display: 'flex', alignItems: 'center', gap: '6px' }}>
         <button onClick={() => router.push('/student/dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-body)', fontSize: '13px', padding: '4px 8px' }}>Dashboard</button>
         <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>›</span>
-        <button onClick={() => router.push('/student/subjects')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-body)', fontSize: '13px', padding: '4px 8px' }}>English</button>
+        <button onClick={() => router.push('/student/dashboard?section=english')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-body)', fontSize: '13px', padding: '4px 8px' }}>English</button>
         <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>›</span>
         <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: 'white' }}>{chapter.title}</p>
       </div>
@@ -347,7 +347,7 @@ export default function ChapterReaderPage() {
             Dashboard
           </button>
           <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>›</span>
-          <button onClick={() => router.push('/student/subjects')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-body)', fontSize: '13px', padding: '4px 8px', borderRadius: '6px' }}>
+          <button onClick={() => router.push('/student/dashboard?section=english')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-body)', fontSize: '13px', padding: '4px 8px', borderRadius: '6px' }}>
             English
           </button>
           <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>›</span>
