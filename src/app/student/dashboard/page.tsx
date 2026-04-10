@@ -109,7 +109,8 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '28px 20px 60px' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '28px 20px 60px', display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 300px', gap: '28px', alignItems: 'start' }}>
+        <div>
 
         <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '26px', color: '#1B4332', marginBottom: '4px' }}>
           {getGreeting()}, {name}! 👋
@@ -214,6 +215,13 @@ export default function StudentDashboard() {
         <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF', textAlign: 'center', marginTop: '32px', lineHeight: 1.7 }}>
           More subjects coming soon 📚<br/>Complete each chapter to unlock the next one.
         </p>
+        </div>
+
+        {/* Right panel */}
+        <div style={{ minWidth: 0 }}>
+          {userId && <StudentDashboardPanel studentId={userId} />}
+        </div>
+
       </div>
     </div>
   )
