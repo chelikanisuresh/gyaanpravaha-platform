@@ -68,7 +68,7 @@ export default function StudentSidebarLayout({ children }: Props) {
 
       {/* Logo */}
       <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <a href="https://gyaanpravaha.in" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+        <a href="https://gyaanpravaha.in" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
           <div style={{ width: '34px', height: '34px', background: '#74C69D', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
               <path d="M4 10h12M10 4v12" stroke="#1B4332" strokeWidth="2" strokeLinecap="round"/>
