@@ -1,0 +1,1175 @@
+// Quiz content — Gyaanpravaha
+// All 8 chapters, 25 marks each
+// Part A: 5 MCQ (1 mark) | Part B: 5 Single word (1 mark) | Part C: 5 Sentence forming (2 marks) | Part D: 1 Long answer (5 marks)
+
+export type QuestionType = 'mcq' | 'single_word' | 'sentence' | 'long_answer'
+
+export interface MCQOption { label: string; text: string }
+
+export interface Question {
+  id: number
+  type: QuestionType
+  marks: number
+  question: string
+  options?: MCQOption[]          // MCQ only
+  answer: string                  // correct answer / sample answer
+  reexplanation: string           // shown when wrong
+  hint?: string                   // shown for sentence/long answer
+}
+
+export interface ChapterQuiz {
+  chapterId: number
+  title: string
+  totalMarks: number
+  questions: Question[]
+}
+
+// ─── CHAPTER 1 — Whistles and Shaving Bristles ────────────────────────────────
+
+const quiz1: ChapterQuiz = {
+  chapterId: 1,
+  title: 'Whistles and Shaving Bristles',
+  totalMarks: 25,
+  questions: [
+    // PART A — MCQ
+    {
+      id: 1, type: 'mcq', marks: 1,
+      question: 'What was the profession of the children\'s father in the story?',
+      options: [
+        { label: 'A', text: 'A school teacher' },
+        { label: 'B', text: 'An efficiency expert' },
+        { label: 'C', text: 'A factory owner' },
+        { label: 'D', text: 'A government officer' },
+      ],
+      answer: 'B',
+      reexplanation: 'Dad was an efficiency expert — someone companies hired to visit their factories and help them get work done faster with less waste. He applied the same thinking at home with his twelve children.',
+    },
+    {
+      id: 2, type: 'mcq', marks: 1,
+      question: 'Why did Dad button his shirt from the bottom up?',
+      options: [
+        { label: 'A', text: 'Because it looked better that way' },
+        { label: 'B', text: 'Because he had always done it that way' },
+        { label: 'C', text: 'Because it saved him four seconds' },
+        { label: 'D', text: 'Because the top button was broken' },
+      ],
+      answer: 'C',
+      reexplanation: 'Dad timed everything he did. He discovered that buttoning from the bottom saved four seconds compared to starting from the top. Every second mattered to him.',
+    },
+    {
+      id: 3, type: 'mcq', marks: 1,
+      question: 'What happened when Dad tried shaving with two razors at once?',
+      options: [
+        { label: 'A', text: 'It worked perfectly and saved him time' },
+        { label: 'B', text: 'He cut himself and wasted two minutes bandaging the wound' },
+        { label: 'C', text: 'He broke both razors' },
+        { label: 'D', text: 'His wife stopped him before he could try' },
+      ],
+      answer: 'B',
+      reexplanation: 'Dad\'s experiment with two razors went badly wrong. He injured himself and had to spend nearly two minutes bandaging the wound — far more time than he had hoped to save. What bothered him most was not the pain but the wasted time.',
+    },
+    {
+      id: 4, type: 'mcq', marks: 1,
+      question: 'What did the whistle mean when Dad blew it?',
+      options: [
+        { label: 'A', text: 'Dinner is ready' },
+        { label: 'B', text: 'Time to sleep' },
+        { label: 'C', text: 'Drop everything and run to the yard immediately' },
+        { label: 'D', text: 'Someone is at the door' },
+      ],
+      answer: 'C',
+      reexplanation: 'Dad had composed a special whistle tune that was the family\'s signal. The moment it was blown, all children had to stop whatever they were doing and assemble in the yard at once.',
+    },
+    {
+      id: 5, type: 'mcq', marks: 1,
+      question: 'In how many seconds did the family evacuate the house during the fire?',
+      options: [
+        { label: 'A', text: 'Forty seconds' },
+        { label: 'B', text: 'Twenty-five seconds' },
+        { label: 'C', text: 'One minute' },
+        { label: 'D', text: 'Fourteen seconds' },
+      ],
+      answer: 'D',
+      reexplanation: 'When the house caught fire, Dad blew his whistle and all twelve children evacuated in just fourteen seconds. This was possible because they had practised responding to the whistle so many times that it had become second nature.',
+    },
+    // PART B — Single word
+    {
+      id: 6, type: 'single_word', marks: 1,
+      question: 'What is the scientific study of movements involved in doing a task called?',
+      answer: 'Motion study',
+      reexplanation: 'Motion study is the science of analysing movements to find the most efficient way to complete a task. Mother called Dad\'s approach to running the home by this name.',
+    },
+    {
+      id: 7, type: 'single_word', marks: 1,
+      question: 'What did each child have to sign on the bathroom chart after completing their chores?',
+      answer: 'Initials',
+      reexplanation: 'Each child had to sign their initials — the first letters of their name — on the bathroom chart after completing tasks like brushing teeth and combing hair.',
+    },
+    {
+      id: 8, type: 'single_word', marks: 1,
+      question: 'What is an extract?',
+      answer: 'A piece taken from a longer book or text',
+      reexplanation: 'An extract is a short portion taken from a much larger book or piece of writing. This chapter is an extract from the book "Cheaper by the Dozen."',
+    },
+    {
+      id: 9, type: 'single_word', marks: 1,
+      question: 'What word in the chapter means "to gather together in one place"?',
+      answer: 'Assemble',
+      reexplanation: 'Assemble means to gather or come together in one place — just like your school assembly where everyone gathers together.',
+    },
+    {
+      id: 10, type: 'single_word', marks: 1,
+      question: 'What word describes Dad\'s ability to notice everything around him?',
+      answer: 'Eagle eye',
+      reexplanation: '"Eagle eye" is a phrase used to describe someone who is very sharp and notices every small detail — just like an eagle can spot a tiny mouse from high up in the sky.',
+    },
+    // PART C — Sentence forming
+    {
+      id: 11, type: 'sentence', marks: 2,
+      question: 'Use the word "efficiency" in a sentence of your own.',
+      answer: 'The new machine increased the efficiency of the factory by finishing work in half the time.',
+      hint: 'Efficiency means doing something in the best possible way without wasting time or effort. Think of a real-life situation — at school, at home, or in sports.',
+      reexplanation: 'Efficiency means doing something in the best possible way without wasting time or effort. Your sentence should show something being done faster or better.',
+    },
+    {
+      id: 12, type: 'sentence', marks: 2,
+      question: 'Use the phrase "eagle eye" in a sentence of your own.',
+      answer: 'Our class teacher had an eagle eye and always noticed if anyone was talking during the test.',
+      hint: 'Eagle eye means being extremely observant. Think of someone in your life who notices every little thing.',
+      reexplanation: 'Eagle eye means being extremely observant. Think of someone — your parent, teacher, or coach — who notices everything, and write a sentence about them using this phrase.',
+    },
+    {
+      id: 13, type: 'sentence', marks: 2,
+      question: 'Use the word "discipline" in a sentence of your own.',
+      answer: 'With discipline and daily practice, Rohan improved his cricket batting in just one month.',
+      hint: 'Discipline means following rules and habits consistently. Think about how discipline helped someone achieve something.',
+      reexplanation: 'Discipline means following rules and habits consistently. Think about how discipline helped someone achieve something and write your sentence around that idea.',
+    },
+    {
+      id: 14, type: 'sentence', marks: 2,
+      question: 'Use the word "mansion" in a sentence of your own.',
+      answer: 'The Gilbreth family lived in a mansion in New Jersey with many rooms and a large garden.',
+      hint: 'A mansion is a very large, grand house — much bigger than a regular bungalow.',
+      reexplanation: 'A mansion is a very large, grand house. Use it to describe a big impressive building in your sentence.',
+    },
+    {
+      id: 15, type: 'sentence', marks: 2,
+      question: 'Use the word "accustomed" in a sentence of your own.',
+      answer: 'The children were so accustomed to the whistle that they ran to the yard within seconds of hearing it.',
+      hint: 'Accustomed means used to something through habit or regular experience.',
+      reexplanation: 'Accustomed means used to something; familiar with it through habit. Write a sentence about someone who is so used to something that it feels natural to them.',
+    },
+    // PART D — Long answer
+    {
+      id: 16, type: 'long_answer', marks: 5,
+      question: 'Dad was very strict at home but would not allow any outsider to criticise his children. What does this tell you about his character? Do you think this was the right attitude? Give reasons.',
+      answer: 'Dad\'s behaviour shows that he was a man of contradictions in the best possible way. At home he believed in discipline and held his children to high standards — but the moment an outsider tried to interfere, he became their protector. This shows that his strictness came from love, not harshness. He felt it was his job as a father to correct his children, not anyone else\'s. I think this attitude was right because children need to feel that their parents will always stand up for them. At the same time, Dad did not let his children get away with bad behaviour — he punished his son privately after the neighbour\'s complaint, which shows he was fair and responsible.',
+      hint: 'Think about the two sides of Dad\'s character: strict at home, but a fierce protector from outsiders. What does this combination tell you about what kind of father he was?',
+      reexplanation: 'Think about the two sides of Dad\'s character. On one side — strict, organised, disciplined at home. On the other side — a fierce protector when anyone outside the family criticised his children. His strictness came from love. His protection came from love. Both together show what kind of father he truly was.',
+    },
+  ],
+}
+
+// ─── CHAPTER 2 — If I Were Lord of Tartary ───────────────────────────────────
+
+const quiz2: ChapterQuiz = {
+  chapterId: 2,
+  title: 'If I Were Lord of Tartary',
+  totalMarks: 25,
+  questions: [
+    {
+      id: 1, type: 'mcq', marks: 1,
+      question: 'What would the poet\'s bed be made of if he were Lord of Tartary?',
+      options: [
+        { label: 'A', text: 'Silver and gold' },
+        { label: 'B', text: 'Ivory' },
+        { label: 'C', text: 'Wood and stone' },
+        { label: 'D', text: 'Silk and velvet' },
+      ],
+      answer: 'B',
+      reexplanation: 'In Stanza 1, the poet says "My bed should be of ivory" — ivory being the precious white material from elephant tusks, representing the greatest luxury he can imagine.',
+    },
+    {
+      id: 2, type: 'mcq', marks: 1,
+      question: 'In the poem, what animals would roam the poet\'s forests?',
+      options: [
+        { label: 'A', text: 'Lions and elephants' },
+        { label: 'B', text: 'Wolves and bears' },
+        { label: 'C', text: 'Tigers' },
+        { label: 'D', text: 'Zebras and peacocks' },
+      ],
+      answer: 'C',
+      reexplanation: 'In Stanza 1, the poet says "And in my forests tigers haunt" — tigers roaming freely in his forests are part of his grand, exotic fantasy kingdom.',
+    },
+    {
+      id: 3, type: 'mcq', marks: 1,
+      question: 'What would the evening lamps look like in the poet\'s kingdom?',
+      options: [
+        { label: 'A', text: 'Blue as the sky and white as snow' },
+        { label: 'B', text: 'Yellow as honey and red as wine' },
+        { label: 'C', text: 'Green as leaves and gold as sunlight' },
+        { label: 'D', text: 'Bright as stars and pale as moonlight' },
+      ],
+      answer: 'B',
+      reexplanation: 'In Stanza 2, the poet writes "the evening lamps should shine, Yellow as honey, red as wine" — these are similes comparing the warm glow of the lamps to honey and wine.',
+    },
+    {
+      id: 4, type: 'mcq', marks: 1,
+      question: 'What would draw the poet\'s carriage through Tartary\'s dark glades?',
+      options: [
+        { label: 'A', text: 'Seven white horses' },
+        { label: 'B', text: 'Seven camels' },
+        { label: 'C', text: 'Seven zebras' },
+        { label: 'D', text: 'Seven elephants' },
+      ],
+      answer: 'C',
+      reexplanation: 'In Stanza 3, the poet says "And zebras seven should draw my car / Through Tartary\'s dark glades" — seven zebras pulling his royal carriage through the forest paths of his kingdom.',
+    },
+    {
+      id: 5, type: 'mcq', marks: 1,
+      question: 'What poetic device is used in the line "Yellow as honey, red as wine"?',
+      options: [
+        { label: 'A', text: 'Metaphor' },
+        { label: 'B', text: 'Personification' },
+        { label: 'C', text: 'Simile' },
+        { label: 'D', text: 'Onomatopoeia' },
+      ],
+      answer: 'C',
+      reexplanation: 'A simile is a comparison using "as" or "like." "Yellow as honey, red as wine" compares the colour of the lamps to honey and wine — making it a simile.',
+    },
+    {
+      id: 6, type: 'single_word', marks: 1,
+      question: 'What does the word "flaunt" mean as used in the poem?',
+      answer: 'To show off proudly',
+      reexplanation: 'Flaunt means to show off something proudly. In the poem, peacocks flaunt their beautiful feathers — they show them off proudly in the poet\'s court.',
+    },
+    {
+      id: 7, type: 'single_word', marks: 1,
+      question: 'What is the old poetic word used in the poem that means "before"?',
+      answer: 'Ere',
+      reexplanation: '"Ere" is an old poetic word meaning before. The poet uses it in "ere should wane the morning star" — meaning before the morning star fades.',
+    },
+    {
+      id: 8, type: 'single_word', marks: 1,
+      question: 'What is a vale?',
+      answer: 'A valley',
+      reexplanation: 'A vale is an old poetic word for a valley. The poet uses "purple vale" in the last stanza to describe the beautiful, coloured valleys of his kingdom.',
+    },
+    {
+      id: 9, type: 'single_word', marks: 1,
+      question: 'What does "wane" mean in the poem?',
+      answer: 'To grow smaller or fade away',
+      reexplanation: 'Wane means to grow smaller or fade away. The moon wanes after it is full — it gets smaller each night. In the poem, the morning star wanes as day arrives.',
+    },
+    {
+      id: 10, type: 'single_word', marks: 1,
+      question: 'What kind of sword is a scimitar?',
+      answer: 'A curved sword',
+      reexplanation: 'A scimitar is a curved sword used by Eastern warriors and kings. The poet says he would don his scimitar — wear this royal, curved sword as part of his kingly appearance.',
+    },
+    {
+      id: 11, type: 'sentence', marks: 2,
+      question: 'Use the word "flaunt" in a sentence of your own.',
+      answer: 'The peacock flaunted its beautiful feathers in front of everyone at the zoo.',
+      hint: 'Flaunt means to show off something proudly. Think of someone or something showing off.',
+      reexplanation: 'Flaunt means to show something off proudly and boldly. Write a sentence where someone or something is showing off in a proud way.',
+    },
+    {
+      id: 12, type: 'sentence', marks: 2,
+      question: 'Use the word "imagination" in a sentence of your own.',
+      answer: 'With a strong imagination, a child can turn an empty room into a magical kingdom.',
+      hint: 'Imagination is the ability to create pictures, ideas, or worlds in your mind.',
+      reexplanation: 'Imagination is the power to create entire worlds in your mind. Write a sentence that shows how imagination can make something ordinary feel magical.',
+    },
+    {
+      id: 13, type: 'sentence', marks: 2,
+      question: 'Use the word "scimitar" in a sentence of your own.',
+      answer: 'The brave warrior carried a gleaming scimitar at his side as he rode into battle.',
+      hint: 'A scimitar is a curved sword associated with Eastern kings and warriors.',
+      reexplanation: 'A scimitar is a curved sword used by Eastern kings and warriors. Write a sentence that places this sword in an exciting or royal setting.',
+    },
+    {
+      id: 14, type: 'sentence', marks: 2,
+      question: 'Use the word "summon" in a sentence of your own.',
+      answer: 'The king summoned all his ministers to the palace for an important meeting.',
+      hint: 'Summon means to call someone to come, often with authority.',
+      reexplanation: 'Summon means to call someone to come — usually with authority. Think of a king, teacher, or leader calling someone to appear.',
+    },
+    {
+      id: 15, type: 'sentence', marks: 2,
+      question: 'Use the word "wondrous" in a sentence of your own.',
+      answer: 'The children stared in wondrous amazement at the fireworks lighting up the night sky.',
+      hint: 'Wondrous means something that fills you with wonder and amazement.',
+      reexplanation: 'Wondrous means wonderful and full of wonder. Write a sentence about something that fills you with amazement or awe.',
+    },
+    {
+      id: 16, type: 'long_answer', marks: 5,
+      question: 'The poem "If I Were Lord of Tartary" is a celebration of imagination. What does the poet imagine in his kingdom? What does this tell us about the power of imagination? Use examples from the poem.',
+      answer: 'The poet Walter de la Mare imagines a magnificent kingdom called Tartary where everything is the finest possible. He imagines a bed of ivory, a throne of beaten gold, peacocks flaunting in his court, tigers in his forests, trumpeters announcing his meals, evening lamps glowing yellow as honey and red as wine, and seven zebras pulling his carriage through dark forest glades. In the final stanza, he celebrates the natural beauty of his kingdom — silver rivers, scented breezes, trembling lakes, and citron trees in purple valleys. This tells us that imagination has no limits. Without spending a single rupee or going anywhere, the poet creates an entire world of beauty and grandeur. Imagination gives us the power to be kings in our own minds, to travel to faraway places, and to experience things beyond our daily lives.',
+      hint: 'Go through each stanza and list what the poet imagines. Then explain what this shows about imagination as a gift.',
+      reexplanation: 'Go through each stanza and list what the poet imagines — his bed, throne, animals, evenings, clothing, and kingdom. Then think about what all of these images together tell us about the power of the human imagination to create beauty without limits.',
+    },
+  ],
+}
+
+// ─── CHAPTER 3 — The Fun They Had ────────────────────────────────────────────
+
+const quiz3: ChapterQuiz = {
+  chapterId: 3,
+  title: 'The Fun They Had',
+  totalMarks: 25,
+  questions: [
+    {
+      id: 1, type: 'mcq', marks: 1,
+      question: 'In what year is the story "The Fun They Had" set?',
+      options: [
+        { label: 'A', text: '2057' },
+        { label: 'B', text: '2157' },
+        { label: 'C', text: '1957' },
+        { label: 'D', text: '2257' },
+      ],
+      answer: 'B',
+      reexplanation: 'The story is set in 2157, over a hundred years from now. Margie begins her diary entry with the date "17 May 2157" — telling us exactly when this future world exists.',
+    },
+    {
+      id: 2, type: 'mcq', marks: 1,
+      question: 'Where did Tommy find the real book?',
+      options: [
+        { label: 'A', text: 'In the school library' },
+        { label: 'B', text: 'In his father\'s study' },
+        { label: 'C', text: 'In the attic of his house' },
+        { label: 'D', text: 'At the County Inspector\'s office' },
+      ],
+      answer: 'C',
+      reexplanation: 'Tommy found the real book in the attic of his house. It was very old with yellow, crinkly pages — so unusual in 2157 that Margie considered it worth writing about in her diary.',
+    },
+    {
+      id: 3, type: 'mcq', marks: 1,
+      question: 'Why did Margie\'s mother call the County Inspector?',
+      options: [
+        { label: 'A', text: 'Because Margie was absent from school' },
+        { label: 'B', text: 'Because the mechanical teacher was teaching geography too fast' },
+        { label: 'C', text: 'Because Margie refused to do her homework' },
+        { label: 'D', text: 'Because the mechanical teacher had completely stopped working' },
+      ],
+      answer: 'B',
+      reexplanation: 'The County Inspector found that the geography sector of Margie\'s mechanical teacher had been "geared a little too quick" — it was teaching too fast for Margie\'s level. He adjusted the settings and slowed it down.',
+    },
+    {
+      id: 4, type: 'mcq', marks: 1,
+      question: 'What did Margie find most interesting about the old schools?',
+      options: [
+        { label: 'A', text: 'That schools had no homework' },
+        { label: 'B', text: 'That all children of the same age learned the same things together' },
+        { label: 'C', text: 'That schools were open all day and all night' },
+        { label: 'D', text: 'That teachers were machines in the old days too' },
+      ],
+      answer: 'B',
+      reexplanation: 'Margie was fascinated that in the old days, all children of the same age learned the same things together in one place. This was completely different from her experience of learning alone with a mechanical teacher adjusted only to her.',
+    },
+    {
+      id: 5, type: 'mcq', marks: 1,
+      question: 'What does Margie think about at the end of the story?',
+      options: [
+        { label: 'A', text: 'She thinks about her next geography test' },
+        { label: 'B', text: 'She thinks about the fun the old school children must have had' },
+        { label: 'C', text: 'She thinks about the mechanical teacher being repaired again' },
+        { label: 'D', text: 'She thinks about what Tommy said about the book' },
+      ],
+      answer: 'B',
+      reexplanation: 'The story ends with Margie sitting at her mechanical teacher and thinking about the fun those old school children must have had — laughing together, learning together, going home together. This is the quiet, powerful ending of the story.',
+    },
+    {
+      id: 6, type: 'single_word', marks: 1,
+      question: 'What word describes the pages of the old book Tommy found?',
+      answer: 'Crinkly',
+      reexplanation: 'The pages of the real book were described as "crinkly" — wrinkled and slightly crushed from age. This is one detail that made the book feel so different and strange to both children.',
+    },
+    {
+      id: 7, type: 'single_word', marks: 1,
+      question: 'What is the slot in Margie\'s mechanical teacher used for?',
+      answer: 'Inserting homework and test papers',
+      reexplanation: 'Margie had to insert her homework and test papers — written in punch code — into a slot in the mechanical teacher. The machine then calculated her marks instantly.',
+    },
+    {
+      id: 8, type: 'single_word', marks: 1,
+      question: 'What genre of writing is "The Fun They Had"?',
+      answer: 'Science fiction',
+      reexplanation: 'The Fun They Had is a science fiction story. It is set in the future (2157) and imagines a world with mechanical teachers and learning on screens — things that did not exist when Asimov wrote the story in 1951.',
+    },
+    {
+      id: 9, type: 'single_word', marks: 1,
+      question: 'What word means pointing out something as worthless or beneath you?',
+      answer: 'Scornful',
+      reexplanation: 'Scornful means feeling that something is worthless or beneath you. Margie was scornful when she first heard the book was about school — she hated school and couldn\'t imagine why anyone would write about it.',
+    },
+    {
+      id: 10, type: 'single_word', marks: 1,
+      question: 'Who was called when Margie\'s mechanical teacher was not working correctly?',
+      answer: 'The County Inspector',
+      reexplanation: 'Margie\'s mother called the County Inspector — a round little man who came with a box of tools and took the mechanical teacher apart to fix the geography sector.',
+    },
+    {
+      id: 11, type: 'sentence', marks: 2,
+      question: 'Use the word "mechanical" in a sentence of your own.',
+      answer: 'The mechanical arm in the factory worked faster than any human hand.',
+      hint: 'Mechanical means related to machines or working like a machine.',
+      reexplanation: 'Mechanical means relating to machines or working like a machine. Write a sentence where something mechanical is doing a job or task.',
+    },
+    {
+      id: 12, type: 'sentence', marks: 2,
+      question: 'Use the word "nonchalantly" in a sentence of your own.',
+      answer: 'Tommy walked away nonchalantly after saying something that surprised everyone.',
+      hint: 'Nonchalantly means in a casual, unconcerned way — as if nothing important has happened.',
+      reexplanation: 'Nonchalantly means in a relaxed, casual way — as if nothing matters or nothing surprising has happened. Write a sentence where someone reacts to something without showing any concern.',
+    },
+    {
+      id: 13, type: 'sentence', marks: 2,
+      question: 'Use the phrase "take for granted" in a sentence of your own.',
+      answer: 'We often take for granted the joy of learning alongside our friends in a real classroom.',
+      hint: 'To take something for granted means to not appreciate something because you assume it will always be there.',
+      reexplanation: 'To take something for granted means to fail to appreciate it because you assume it will always be available. This story teaches us not to take real schools and human teachers for granted.',
+    },
+    {
+      id: 14, type: 'sentence', marks: 2,
+      question: 'Use the word "scornful" in a sentence of your own.',
+      answer: 'Margie was scornful when Tommy suggested reading a book about school.',
+      hint: 'Scornful means feeling that something is silly or beneath you.',
+      reexplanation: 'Scornful means expressing a feeling that something is worthless or beneath you. Write a sentence where someone dismisses something as unimportant or silly.',
+    },
+    {
+      id: 15, type: 'sentence', marks: 2,
+      question: 'Use the word "dispute" in a sentence of your own.',
+      answer: 'Margie was not prepared to dispute what Tommy said, so she stayed quiet.',
+      hint: 'Dispute means to argue against or challenge something someone has said.',
+      reexplanation: 'Dispute means to argue against or challenge. Write a sentence where someone either disputes something or chooses not to dispute it.',
+    },
+    {
+      id: 16, type: 'long_answer', marks: 5,
+      question: 'The story shows us two very different kinds of schools — the mechanical school of 2157 and the old human school. Compare the two. Which do you think is better and why? Use examples from the story.',
+      answer: 'In 2157, children like Margie learn from mechanical teachers in their own bedrooms. The machine is always there, never absent, and adjusted to each child\'s level. There are no classmates, no shared classroom, no walking to school together. The old kind of school was the opposite — children went to a special building, sat together, had a human teacher, and all learned the same things at the same pace. I think the old school is better because school is not just about information. It is about growing up together. Margie realises this when she reads the old book and thinks about the fun those children must have had — laughing in the yard, helping each other with homework, going home together. A machine can teach facts. But a human teacher and human classmates give you friendship, understanding, and memories that a machine never can.',
+      hint: 'Think about what each type of school offers. Then pick one and explain your choice using specific examples from the story.',
+      reexplanation: 'Think about what the mechanical school offers (efficiency, personalisation, always available) and what the old school offers (friendship, shared experience, human connection). Then use specific moments from the story — like Margie inserting papers into the slot, or her imagining children playing in the schoolyard — to support your view.',
+    },
+  ],
+}
+
+// ─── CHAPTER 4 — In Morning Dew ──────────────────────────────────────────────
+
+const quiz4: ChapterQuiz = {
+  chapterId: 4,
+  title: 'In Morning Dew',
+  totalMarks: 25,
+  questions: [
+    {
+      id: 1, type: 'mcq', marks: 1,
+      question: 'From whose perspective is the poem "In Morning Dew" written?',
+      options: [
+        { label: 'A', text: 'A farmer' },
+        { label: 'B', text: 'A bird' },
+        { label: 'C', text: 'A scarecrow' },
+        { label: 'D', text: 'A young child' },
+      ],
+      answer: 'C',
+      reexplanation: 'The poem is written from the perspective of a scarecrow — a figure made of straw and old clothes, standing in a field. The poet gives the scarecrow human qualities like combing hair, sleeping, and wondering about things.',
+    },
+    {
+      id: 2, type: 'mcq', marks: 1,
+      question: 'What does the scarecrow do in morning dew?',
+      options: [
+        { label: 'A', text: 'It waters the plants' },
+        { label: 'B', text: 'It combs its hair' },
+        { label: 'C', text: 'It dances in the fields' },
+        { label: 'D', text: 'It chases the monkeys away' },
+      ],
+      answer: 'B',
+      reexplanation: 'The poem opens with "In morning dew the scarecrow combs his hair" — a playful, imaginative image giving the scarecrow a human morning routine. The dew acts like a comb on its straw hair.',
+    },
+    {
+      id: 3, type: 'mcq', marks: 1,
+      question: 'What is the scarecrow\'s biggest question in the poem?',
+      options: [
+        { label: 'A', text: 'Why do birds fly south in winter?' },
+        { label: 'B', text: 'Where does the sun go at night?' },
+        { label: 'C', text: 'Do seasons come from the ground or drop from the sky?' },
+        { label: 'D', text: 'Why do the monkeys shout at him?' },
+      ],
+      answer: 'C',
+      reexplanation: 'The scarecrow\'s biggest question is: "Do seasons come up from the ground / Or do they drop down from the sky?" He experiences the seasons physically but cannot understand where they come from.',
+    },
+    {
+      id: 4, type: 'mcq', marks: 1,
+      question: 'What does "snuffs the fellow out" mean in the poem?',
+      options: [
+        { label: 'A', text: 'The scarecrow falls asleep' },
+        { label: 'B', text: 'The evening puts out the scarecrow\'s day like a candle' },
+        { label: 'C', text: 'The scarecrow is removed from the field' },
+        { label: 'D', text: 'The shadow of the scarecrow disappears' },
+      ],
+      answer: 'B',
+      reexplanation: '"Snuffs the fellow out" is a metaphor comparing the end of the scarecrow\'s day to a finger snuffing out a candle. Evening ends his day just like pinching a flame puts it out.',
+    },
+    {
+      id: 5, type: 'mcq', marks: 1,
+      question: 'What does the poet compare the scarecrow\'s confused mind to in the final stanza?',
+      options: [
+        { label: 'A', text: 'A spinning top' },
+        { label: 'B', text: 'A river going round bends' },
+        { label: 'C', text: 'Oxen walking in circles on a threshing floor' },
+        { label: 'D', text: 'Birds flying in a circle overhead' },
+      ],
+      answer: 'C',
+      reexplanation: 'The poet compares the scarecrow\'s confused, circular thinking to "oxen on a threshing floor" — oxen that walk in circles to grind grain. His mind keeps going round and round, just like the seasons, never finding an answer.',
+    },
+    {
+      id: 6, type: 'single_word', marks: 1,
+      question: 'What does the word "spry" mean as used in the poem?',
+      answer: 'Lively and energetic',
+      reexplanation: '"Spry" means lively and energetic. In the poem, the scarecrow looks spry in the morning light — full of energy after a good night\'s sleep, even though he is actually completely still.',
+    },
+    {
+      id: 7, type: 'single_word', marks: 1,
+      question: 'What does the phrase "bird traffic" mean in the poem?',
+      answer: 'The constant movement of birds through the sky',
+      reexplanation: '"Bird traffic" is a humorous metaphor comparing birds flying overhead to cars on a busy road. It is an unexpected and clever way to describe how many birds pass by.',
+    },
+    {
+      id: 8, type: 'single_word', marks: 1,
+      question: 'What does the poet mean by the scarecrow\'s "upper storey"?',
+      answer: 'His head or mind',
+      reexplanation: 'The "upper storey" is a metaphor for the head or mind — just like the upper floor of a building. The scarecrow bolts the door of his upper storey to stop the unanswerable questions from getting in.',
+    },
+    {
+      id: 9, type: 'single_word', marks: 1,
+      question: 'What does "to and fro" mean?',
+      answer: 'Moving backwards and forwards',
+      reexplanation: '"To and fro" means moving back and forth. A swing goes to and fro. In the poem, the seasons go to and fro — cycling around in a repeated pattern the scarecrow cannot understand.',
+    },
+    {
+      id: 10, type: 'single_word', marks: 1,
+      question: 'What poetic device is used when the scarecrow is given human qualities like combing hair and sleeping?',
+      answer: 'Personification',
+      reexplanation: 'Personification is giving human qualities to a non-human object or animal. Throughout this poem, the scarecrow combs its hair, sleeps, feels cold, wonders about things — all human qualities given to an inanimate object.',
+    },
+    {
+      id: 11, type: 'sentence', marks: 2,
+      question: 'Use the word "observant" in a sentence of your own.',
+      answer: 'An observant student notices the teacher\'s expressions and understands the lesson better.',
+      hint: 'Observant means noticing things carefully and paying close attention.',
+      reexplanation: 'Observant means noticing things carefully. The scarecrow is very observant — he watches everything in the field. Write a sentence about someone who notices things carefully.',
+    },
+    {
+      id: 12, type: 'sentence', marks: 2,
+      question: 'Use the word "curious" in a sentence of your own.',
+      answer: 'The curious child kept asking questions about why the sky turns orange at sunset.',
+      hint: 'Curious means eager to know or learn something.',
+      reexplanation: 'Curious means eager to know or learn something. Like the scarecrow who is curious about where seasons come from, write a sentence about someone who wants to understand something.',
+    },
+    {
+      id: 13, type: 'sentence', marks: 2,
+      question: 'Use the word "porcupine" in a sentence of your own.',
+      answer: 'A porcupine rolled into a ball when the dog came too close, showing off its sharp quills.',
+      hint: 'A porcupine is a spiky animal with sharp quills on its back.',
+      reexplanation: 'A porcupine is a spiky animal with sharp quills. Write a sentence that shows what a porcupine looks like or how it behaves.',
+    },
+    {
+      id: 14, type: 'sentence', marks: 2,
+      question: 'Use the word "mysterious" in a sentence of your own.',
+      answer: 'The scarecrow found the changing of seasons deeply mysterious and impossible to explain.',
+      hint: 'Mysterious means something that is difficult to understand or explain.',
+      reexplanation: 'Mysterious means something that is hard to understand or explain. Write a sentence about something that is puzzling or unexplained.',
+    },
+    {
+      id: 15, type: 'sentence', marks: 2,
+      question: 'Use the word "alert" in a sentence of your own.',
+      answer: 'The alert guard noticed the suspicious person long before anyone else did.',
+      hint: 'Alert means being watchful and ready to notice things quickly.',
+      reexplanation: 'Alert means being watchful and aware of your surroundings. Write a sentence where someone or something is paying careful attention.',
+    },
+    {
+      id: 16, type: 'long_answer', marks: 5,
+      question: 'The scarecrow in this poem asks questions that seem funny but are actually quite deep. What questions does the scarecrow ask? What do these questions tell us about the value of curiosity? Give reasons using examples from the poem.',
+      answer: 'The scarecrow asks some wonderfully simple but deep questions — the most important being whether seasons come up from the ground or drop down from the sky. He also wonders why answers don\'t come to him easily, and why his mind goes round in circles when he tries to think. These questions seem funny because a scarecrow cannot really think. But the poet uses the scarecrow\'s questions to show us something important — that curiosity is natural and valuable. The scarecrow experiences the seasons directly (he shivers in cold and fries in heat) but he still wonders about their source. This teaches us that truly curious people are not satisfied just experiencing things — they want to understand them too. Curiosity is how we learn and grow. The poem also shows that not knowing the answer is okay — what matters is continuing to ask.',
+      hint: 'List the questions the scarecrow asks. Then think about what these questions — even if silly — teach us about being curious.',
+      reexplanation: 'List the scarecrow\'s questions from the poem: where do seasons come from? Why does his head go round in circles? Then think about what the poet is really trying to say — that curiosity is valuable, that asking questions (even unanswerable ones) is how we grow as thinkers.',
+    },
+  ],
+}
+
+// ─── CHAPTER 5 — Milkha Singh ─────────────────────────────────────────────────
+
+const quiz5: ChapterQuiz = {
+  chapterId: 5,
+  title: 'The Boy Who Outran the Wind — Milkha Singh',
+  totalMarks: 25,
+  questions: [
+    {
+      id: 1, type: 'mcq', marks: 1,
+      question: 'What were Milkha Singh\'s father\'s last words to him?',
+      options: [
+        { label: 'A', text: '"Be brave, my son"' },
+        { label: 'B', text: '"Bhaag Milkha Bhaag"' },
+        { label: 'C', text: '"Never give up"' },
+        { label: 'D', text: '"Go to Delhi and study"' },
+      ],
+      answer: 'B',
+      reexplanation: 'In the chaos of war, Milkha\'s father\'s last words to him were "Bhaag Milkha Bhaag!" — which means "Run, Milkha, Run!" These words became the driving force of Milkha\'s entire life.',
+    },
+    {
+      id: 2, type: 'mcq', marks: 1,
+      question: 'What was the prize for the cross-country race that Milkha ran in the army?',
+      options: [
+        { label: 'A', text: 'A gold medal' },
+        { label: 'B', text: 'A cash prize' },
+        { label: 'C', text: 'A glass of milk' },
+        { label: 'D', text: 'A certificate of honour' },
+      ],
+      answer: 'C',
+      reexplanation: 'The prize for the cross-country race was simply a glass of milk. But for Milkha, who had been hungry for so long living in refugee camps, that glass of milk meant everything. He ran with all his might and finished in the top ten.',
+    },
+    {
+      id: 3, type: 'mcq', marks: 1,
+      question: 'What unusual method did Milkha use to increase his pace during training?',
+      options: [
+        { label: 'A', text: 'He swam every morning' },
+        { label: 'B', text: 'He ran against speeding trains' },
+        { label: 'C', text: 'He cycled up hills every day' },
+        { label: 'D', text: 'He practised with a coach every evening' },
+      ],
+      answer: 'B',
+      reexplanation: 'Milkha trained with extreme dedication. He ran on hills at night while others slept and ran against speeding trains to push his pace beyond its limits. His training was legendary.',
+    },
+    {
+      id: 4, type: 'mcq', marks: 1,
+      question: 'What title did Milkha Singh earn after his race in Pakistan in 1960?',
+      options: [
+        { label: 'A', text: 'The Golden Runner' },
+        { label: 'B', text: 'The Iron Man of India' },
+        { label: 'C', text: 'The Flying Sikh' },
+        { label: 'D', text: 'The Champion of Asia' },
+      ],
+      answer: 'C',
+      reexplanation: 'After Milkha broke the world record in Pakistan, the leader of Pakistan said "Milkha, you didn\'t run today — you flew!" From that day on, the world called him The Flying Sikh.',
+    },
+    {
+      id: 5, type: 'mcq', marks: 1,
+      question: 'What type of writing is this chapter?',
+      options: [
+        { label: 'A', text: 'Science fiction' },
+        { label: 'B', text: 'Biographical narrative' },
+        { label: 'C', text: 'Fantasy story' },
+        { label: 'D', text: 'Newspaper report' },
+      ],
+      answer: 'B',
+      reexplanation: 'A biographical narrative is a story based on the real life of a real person. This chapter tells us the true story of Milkha Singh\'s life — his struggles, his training, and his victories.',
+    },
+    {
+      id: 6, type: 'single_word', marks: 1,
+      question: 'What does the word "resilience" mean as used in the chapter?',
+      answer: 'The ability to recover from difficulties and keep going',
+      reexplanation: 'Resilience means the ability to bounce back from hardship — like a rubber ball thrown hard to the ground that always bounces back up. Milkha showed resilience by continuing to move forward even after losing his home and family.',
+    },
+    {
+      id: 7, type: 'single_word', marks: 1,
+      question: 'What organisation did Milkha Singh join that gave him structure and discipline?',
+      answer: 'The Indian Army',
+      reexplanation: 'After reaching Delhi with nothing, Milkha Singh joined the Indian Army. It was there that he found structure, discipline, and his love for running.',
+    },
+    {
+      id: 8, type: 'single_word', marks: 1,
+      question: 'What word means complete confusion and disorder?',
+      answer: 'Chaos',
+      reexplanation: 'Chaos means complete confusion and disorder. The word was used to describe the situation during the Partition of India when Milkha\'s family was torn apart.',
+    },
+    {
+      id: 9, type: 'single_word', marks: 1,
+      question: 'Where did Milkha live after reaching Delhi with no money or family?',
+      answer: 'Refugee camps',
+      reexplanation: 'After reaching Delhi, Milkha lived in refugee camps — temporary shelters set up for people who had lost their homes due to war or conflict.',
+    },
+    {
+      id: 10, type: 'single_word', marks: 1,
+      question: 'What does the word "collapse" mean as used in the chapter?',
+      answer: 'To fall down suddenly from exhaustion or weakness',
+      reexplanation: 'Collapse means to fall down suddenly due to exhaustion or weakness. Milkha sometimes trained so hard that he would collapse on the ground — but he always got back up.',
+    },
+    {
+      id: 11, type: 'sentence', marks: 2,
+      question: 'Use the word "determination" in a sentence of your own.',
+      answer: 'With determination and daily practice, she learned to play the guitar in just three months.',
+      hint: 'Determination means the firmness of purpose — not giving up even when things are hard.',
+      reexplanation: 'Determination means the firmness of purpose — not giving up even when things are hard. Think of a time when you or someone you know kept trying despite difficulties.',
+    },
+    {
+      id: 12, type: 'sentence', marks: 2,
+      question: 'Use the word "resilience" in a sentence of your own.',
+      answer: 'Despite failing his first exam, Arjun showed great resilience by studying harder and scoring top marks the next time.',
+      hint: 'Resilience is about bouncing back from a setback. Think of someone who fell down and got back up.',
+      reexplanation: 'Resilience is about bouncing back from a setback. Think of a situation — in studies, sports, or life — where someone fell down and got back up, and build your sentence around that moment.',
+    },
+    {
+      id: 13, type: 'sentence', marks: 2,
+      question: 'Use the word "courage" in a sentence of your own.',
+      answer: 'It took great courage for Milkha to race in Pakistan, the country where he had lost his family.',
+      hint: 'Courage is doing something even when it is frightening or difficult.',
+      reexplanation: 'Courage means doing something even when it scares you. Think of a situation where someone faced their fear and acted bravely anyway.',
+    },
+    {
+      id: 14, type: 'sentence', marks: 2,
+      question: 'Use the phrase "never give up" in a sentence describing a real or imaginary situation.',
+      answer: 'Even when the team was losing by two goals, the captain told everyone to never give up, and they came back to win the match.',
+      hint: 'Think about a tough situation — a match, an exam, a challenge — and write a sentence that captures the spirit of never giving up.',
+      reexplanation: 'Think about a tough situation — a match, an exam, a challenge — and write a sentence that captures the spirit of persisting even when things look bad.',
+    },
+    {
+      id: 15, type: 'sentence', marks: 2,
+      question: 'Use the word "discipline" in a sentence related to sports or studying.',
+      answer: 'A champion athlete needs both talent and discipline — practising every day even when tired.',
+      hint: 'Discipline means following a routine consistently, even when it is difficult.',
+      reexplanation: 'Discipline means following consistent habits and rules, even when it is hard. Write a sentence connecting discipline to success in sports or academics.',
+    },
+    {
+      id: 16, type: 'long_answer', marks: 5,
+      question: 'Milkha Singh went from having nothing to becoming one of India\'s greatest athletes. What qualities made this possible? Use at least three examples from the chapter to support your answer.',
+      answer: 'Milkha Singh\'s journey from a homeless orphan to a world-class athlete was possible because of three key qualities — resilience, determination, and courage. His resilience showed when he survived the Partition, reached Delhi with nothing, and still kept moving forward instead of giving up. His determination showed in his training — running on hills at night and against trains, sometimes collapsing from exhaustion but always getting back up. His courage showed when he agreed to race in Pakistan, the country where he had lost his family, and ran so brilliantly that he broke a world record. These qualities together prove that talent alone is not enough — it is character that makes a true champion. Milkha\'s life teaches us that the greatest race is not against others but against our own fears and our own desire to stop.',
+      hint: 'Pick three qualities from the chapter — resilience, determination, courage — and find one specific example from the story for each. Then explain how that quality helped Milkha succeed.',
+      reexplanation: 'Go back to three moments in the chapter — one that shows resilience, one that shows determination, and one that shows courage. Describe each moment in your own words and then explain how that quality helped Milkha succeed. Use specific details from the story.',
+    },
+  ],
+}
+
+// ─── CHAPTER 6 — The Blind Boy ────────────────────────────────────────────────
+
+const quiz6: ChapterQuiz = {
+  chapterId: 6,
+  title: 'The Blind Boy',
+  totalMarks: 25,
+  questions: [
+    {
+      id: 1, type: 'mcq', marks: 1,
+      question: 'From whose perspective is the poem "The Blind Boy" written?',
+      options: [
+        { label: 'A', text: 'A doctor describing a blind child' },
+        { label: 'B', text: 'A blind boy speaking in his own voice' },
+        { label: 'C', text: 'A parent worried about their blind child' },
+        { label: 'D', text: 'A friend describing what a blind boy told him' },
+      ],
+      answer: 'B',
+      reexplanation: 'The poem is written in the first person — the blind boy himself is speaking. He asks "O tell your poor blind boy!" showing that he is the narrator and is directly addressing the reader.',
+    },
+    {
+      id: 2, type: 'mcq', marks: 1,
+      question: 'Although the blind boy cannot see the sun, what can he feel?',
+      options: [
+        { label: 'A', text: 'Its colour' },
+        { label: 'B', text: 'Its warmth' },
+        { label: 'C', text: 'Its light' },
+        { label: 'D', text: 'Its movement' },
+      ],
+      answer: 'B',
+      reexplanation: 'The blind boy says "I feel him warm" — he can feel the warmth of the sun on his skin, even though he cannot see its light or understand how it makes day or night.',
+    },
+    {
+      id: 3, type: 'mcq', marks: 1,
+      question: 'How does the blind boy understand day and night?',
+      options: [
+        { label: 'A', text: 'By listening to birds — they sing at dawn' },
+        { label: 'B', text: 'By the temperature — warmer means day' },
+        { label: 'C', text: 'By whether he is asleep or awake and playing' },
+        { label: 'D', text: 'By what his parents tell him' },
+      ],
+      answer: 'C',
+      reexplanation: 'The blind boy has created his own system: when he sleeps, it is night; when he is awake and playing, it is day. He says "My day or night myself I make / Whene\'er I sleep or play."',
+    },
+    {
+      id: 4, type: 'mcq', marks: 1,
+      question: 'What does the line "Whilst thus I sing, I am a king" mean?',
+      options: [
+        { label: 'A', text: 'The blind boy is literally a prince' },
+        { label: 'B', text: 'As long as he can find joy, he feels complete and powerful' },
+        { label: 'C', text: 'Singing makes the blind boy see' },
+        { label: 'D', text: 'The king of his country is also blind' },
+      ],
+      answer: 'B',
+      reexplanation: 'This is a metaphor. Being a "king" means feeling complete, powerful, and at peace. As long as the boy can sing — as long as he can find joy — he feels like a king. It is about inner happiness, not literal royalty.',
+    },
+    {
+      id: 5, type: 'mcq', marks: 1,
+      question: 'Why are the people around the boy sadder about his blindness than he is?',
+      options: [
+        { label: 'A', text: 'Because they know what sight looks like and he does not' },
+        { label: 'B', text: 'Because the boy pretends to be happy' },
+        { label: 'C', text: 'Because they are more sensitive than him' },
+        { label: 'D', text: 'Because the boy cannot understand that he is disabled' },
+      ],
+      answer: 'A',
+      reexplanation: 'The people around him know what sight looks like — they can see the beauty of the world and feel the sadness of what he is missing. The blind boy has never known sight, so he does not grieve its loss. You cannot miss something you have never had.',
+    },
+    {
+      id: 6, type: 'single_word', marks: 1,
+      question: 'What does "cheer of mind" mean in the poem?',
+      answer: 'Inner happiness and cheerfulness',
+      reexplanation: '"Cheer of mind" is a beautiful phrase for inner happiness — the happiness that lives inside you, not dependent on things outside you. The blind boy refuses to let what he cannot have destroy his cheer of mind.',
+    },
+    {
+      id: 7, type: 'single_word', marks: 1,
+      question: 'What does the word "hapless" mean?',
+      answer: 'Unfortunate or unlucky',
+      reexplanation: 'Hapless means unfortunate or unlucky. "Hap" means luck in old English, so hapless means without luck. The people mourn the boy\'s hapless woe — his unfortunate situation.',
+    },
+    {
+      id: 8, type: 'single_word', marks: 1,
+      question: 'What does the word "mourn" mean?',
+      answer: 'To feel or express great sadness for a loss',
+      reexplanation: 'Mourn means to feel or express deep sadness, especially for a loss. The people around the boy mourn his blindness — they sigh heavily and feel sad for him.',
+    },
+    {
+      id: 9, type: 'single_word', marks: 1,
+      question: 'What is the old English word used in the poem that means "never"?',
+      answer: "Ne'er",
+      reexplanation: '"Ne\'er" is a poetic contraction of "never" — used for rhythm and rhyme in old English poetry. The boy says "Which I must ne\'er enjoy" — meaning he will never experience light.',
+    },
+    {
+      id: 10, type: 'single_word', marks: 1,
+      question: 'What poetic device is used in the line "Whilst thus I sing, I am a king"?',
+      answer: 'Metaphor',
+      reexplanation: '"I am a king" is a metaphor — comparing the blind boy\'s feeling of inner completeness to the power and completeness of a king. It is not a literal statement but a powerful image of what true happiness feels like.',
+    },
+    {
+      id: 11, type: 'sentence', marks: 2,
+      question: 'Use the word "contentment" in a sentence of your own.',
+      answer: 'The old man sat in contentment in his garden, happy with the simple life he had built.',
+      hint: 'Contentment means being at peace with what you have, without wanting more.',
+      reexplanation: 'Contentment means peaceful happiness and satisfaction with what you have. Write a sentence about someone who is genuinely happy without needing more than what they have.',
+    },
+    {
+      id: 12, type: 'sentence', marks: 2,
+      question: 'Use the word "wondrous" in a sentence of your own.',
+      answer: 'The blind boy could not see the wondrous colours of the sunset, but he felt its warmth.',
+      hint: 'Wondrous means something that fills you with wonder and amazement.',
+      reexplanation: 'Wondrous means wonderful and amazing. Write a sentence about something that inspires awe or amazement.',
+    },
+    {
+      id: 13, type: 'sentence', marks: 2,
+      question: 'Use the phrase "inner strength" in a sentence of your own.',
+      answer: 'It took great inner strength for the blind boy to remain cheerful when everyone around him felt sorry for him.',
+      hint: 'Inner strength means the emotional or mental power that helps you through difficult times.',
+      reexplanation: 'Inner strength means the power that comes from within — not from physical strength but from your mind and spirit. Write a sentence about someone finding the strength to face a difficult situation.',
+    },
+    {
+      id: 14, type: 'sentence', marks: 2,
+      question: 'Use the word "patient" in a sentence about someone facing a difficulty.',
+      answer: 'She remained patient and calm even when the doctor told her the recovery would take months.',
+      hint: 'Patient means being able to wait or accept difficulty without becoming angry or upset.',
+      reexplanation: 'Patient means calmly accepting a difficult situation without anger. Write a sentence where someone remains calm and accepting in the face of something hard.',
+    },
+    {
+      id: 15, type: 'sentence', marks: 2,
+      question: 'Use the word "empathy" in a sentence of your own.',
+      answer: 'Her empathy for the blind boy made her see the world in a completely new way.',
+      hint: 'Empathy means understanding and sharing the feelings of another person.',
+      reexplanation: 'Empathy means truly understanding and feeling what another person is going through. Write a sentence where someone feels what another person is feeling.',
+    },
+    {
+      id: 16, type: 'long_answer', marks: 5,
+      question: 'The blind boy says "Whilst thus I sing, I am a king." What does this line tell us about the source of true happiness? Use examples from the poem to explain your answer.',
+      answer: 'This line is the most powerful in the poem because it captures the blind boy\'s entire philosophy. Despite never having seen light, colours, or the faces of people around him, the blind boy is not miserable. He has found his own way of understanding day and night — when he sleeps it is night, when he plays it is day. He recognises that the people around him are sadder about his blindness than he is, because they know what he is missing and he does not. He refuses to let what he cannot have destroy his "cheer of mind." The line "Whilst thus I sing, I am a king" tells us that true happiness does not come from things we can see, touch, or own. It comes from within — from how we choose to feel about our situation. As long as the boy can sing, as long as he can find joy in the present moment, he is complete. He is a king — not because he has power, but because he has peace.',
+      hint: 'Think about what makes the blind boy happy despite his blindness. How does he create his own world? What does the final line tell us about where real happiness comes from?',
+      reexplanation: 'Think carefully about what the blind boy has and what he does not have. He cannot see — but he can feel warmth, hear music, experience the difference between sleep and wakefulness. He has created his own understanding of the world. The final line tells us that happiness is a choice — it comes from the inside, not from what we have. Use specific lines from the poem to support this idea.',
+    },
+  ],
+}
+
+// ─── CHAPTER 7 — Three Questions ─────────────────────────────────────────────
+
+const quiz7: ChapterQuiz = {
+  chapterId: 7,
+  title: 'Three Questions',
+  totalMarks: 25,
+  questions: [
+    {
+      id: 1, type: 'mcq', marks: 1,
+      question: 'What were the King\'s three questions?',
+      options: [
+        { label: 'A', text: 'What is wealth, what is power, what is fame?' },
+        { label: 'B', text: 'What is the right time, who are the right people, what is the most important task?' },
+        { label: 'C', text: 'How to win wars, how to rule wisely, how to avoid enemies?' },
+        { label: 'D', text: 'When to act, when to wait, when to retreat?' },
+      ],
+      answer: 'B',
+      reexplanation: 'The King\'s three questions were: (1) What is the right time to begin every task? (2) Who are the most important people to listen to? (3) What is the most important thing to do at any moment? He believed knowing these would make him a perfect ruler.',
+    },
+    {
+      id: 2, type: 'mcq', marks: 1,
+      question: 'Why did the King disguise himself before visiting the Hermit?',
+      options: [
+        { label: 'A', text: 'Because the Hermit was dangerous' },
+        { label: 'B', text: 'Because the Hermit only spoke to common people, not kings or nobles' },
+        { label: 'C', text: 'Because he was afraid of being recognised' },
+        { label: 'D', text: 'Because the Hermit lived in a dangerous forest' },
+      ],
+      answer: 'B',
+      reexplanation: 'The Hermit was known to speak only to common people — never to kings or nobles. So the King dressed in plain, dusty clothes and went alone to find him, leaving his knights behind.',
+    },
+    {
+      id: 3, type: 'mcq', marks: 1,
+      question: 'Who was the wounded man who came running out of the woods?',
+      options: [
+        { label: 'A', text: 'A lost traveller seeking shelter' },
+        { label: 'B', text: 'The Hermit\'s son who had been injured' },
+        { label: 'C', text: 'The King\'s enemy who had come to kill him' },
+        { label: 'D', text: 'A soldier who had fought for the King' },
+      ],
+      answer: 'C',
+      reexplanation: 'The wounded man was the King\'s enemy — whose brother the King had executed and whose property he had seized. The man had come to kill the King but was wounded by the King\'s bodyguards. The King saved his life without knowing this.',
+    },
+    {
+      id: 4, type: 'mcq', marks: 1,
+      question: 'According to the Hermit, what is the only time that is truly important?',
+      options: [
+        { label: 'A', text: 'The future, because that is when results are seen' },
+        { label: 'B', text: 'The past, because it teaches us lessons' },
+        { label: 'C', text: 'Now — the present moment' },
+        { label: 'D', text: 'Morning, because the mind is clearest then' },
+      ],
+      answer: 'C',
+      reexplanation: 'The Hermit says "Remember that there is only one time that is important — Now. It is the only time when we have any power." The present moment is the only one in which we can actually act and do good.',
+    },
+    {
+      id: 5, type: 'mcq', marks: 1,
+      question: 'How did the King make a faithful friend out of his greatest enemy?',
+      options: [
+        { label: 'A', text: 'By offering him money' },
+        { label: 'B', text: 'By pardoning him in court' },
+        { label: 'C', text: 'By saving his life and forgiving him' },
+        { label: 'D', text: 'By releasing his brother from prison' },
+      ],
+      answer: 'C',
+      reexplanation: 'The King saved the wounded man\'s life by bandaging his wound — without knowing he was his enemy. When the man revealed who he was, the King forgave him and returned his property. This act of kindness turned the enemy into a faithful friend.',
+    },
+    {
+      id: 6, type: 'single_word', marks: 1,
+      question: 'What does "bewildered" mean?',
+      answer: 'Completely confused and puzzled',
+      reexplanation: 'Bewildered means completely confused and puzzled. The King was bewildered when the Hermit told him he had already found his answers — he could not understand how, since the Hermit had never directly answered his questions.',
+    },
+    {
+      id: 7, type: 'single_word', marks: 1,
+      question: 'What does the word "frail" mean as used to describe the Hermit?',
+      answer: 'Weak and delicate',
+      reexplanation: 'Frail means weak and delicate. The Hermit was described as frail and thin — each time he plunged his spade into the earth, he panted with exhaustion. This is why the King offered to dig for him.',
+    },
+    {
+      id: 8, type: 'single_word', marks: 1,
+      question: 'What does the word "empathy" mean?',
+      answer: 'Understanding and sharing the feelings of another person',
+      reexplanation: 'Empathy means understanding and sharing the feelings of another person. The King showed empathy when he stopped to help the wounded stranger — feeling concern for the man\'s suffering and acting on it.',
+    },
+    {
+      id: 9, type: 'single_word', marks: 1,
+      question: 'What did the King do first when he offered to help the Hermit?',
+      answer: 'He took the spade and dug the garden',
+      reexplanation: 'When the King saw the Hermit was exhausted from digging, he offered to take the spade and dig for him. He dug two large beds of earth while the Hermit rested — this act of kindness is what led to everything else in the story.',
+    },
+    {
+      id: 10, type: 'single_word', marks: 1,
+      question: 'What is a hermit?',
+      answer: 'A person who lives alone, away from society',
+      reexplanation: 'A hermit is a person who lives alone, away from other people — often in a remote place like a forest or mountain. The Hermit in this story lived in the mountains and was known for his wisdom.',
+    },
+    {
+      id: 11, type: 'sentence', marks: 2,
+      question: 'Use the word "wisdom" in a sentence of your own.',
+      answer: 'True wisdom is not about knowing many things, but about knowing the right thing to do at the right time.',
+      hint: 'Wisdom means good judgement and the ability to make the right decisions, especially in difficult situations.',
+      reexplanation: 'Wisdom means the ability to make good judgements based on experience and understanding. Write a sentence that captures what wisdom truly means.',
+    },
+    {
+      id: 12, type: 'sentence', marks: 2,
+      question: 'Use the word "empathy" in a sentence of your own.',
+      answer: 'When she saw her friend crying, she sat beside her with empathy, listening without saying a word.',
+      hint: 'Empathy means feeling what another person is feeling and showing them you understand.',
+      reexplanation: 'Empathy means truly feeling and understanding what another person is going through. Write a sentence where someone notices another person\'s pain and responds with genuine care.',
+    },
+    {
+      id: 13, type: 'sentence', marks: 2,
+      question: 'Use the phrase "present moment" in a sentence of your own.',
+      answer: 'Instead of worrying about the future, she learned to enjoy the present moment with her family.',
+      hint: 'The present moment is right now — this very moment, not the past or future.',
+      reexplanation: 'The present moment is right now. The Hermit teaches that the present moment is the only time in which we have power to act. Write a sentence about appreciating or acting in the present moment.',
+    },
+    {
+      id: 14, type: 'sentence', marks: 2,
+      question: 'Use the word "forgiveness" in a sentence of your own.',
+      answer: 'The King\'s forgiveness of his enemy was the greatest act of courage in the entire story.',
+      hint: 'Forgiveness means choosing not to be angry or seek revenge against someone who has wronged you.',
+      reexplanation: 'Forgiveness means letting go of anger and choosing not to punish someone who has wronged you. Write a sentence where forgiveness leads to something positive.',
+    },
+    {
+      id: 15, type: 'sentence', marks: 2,
+      question: 'Use the word "pity" in a sentence of your own.',
+      answer: 'The King felt pity for the exhausted Hermit and offered to dig in his place.',
+      hint: 'Pity means feeling sympathy and sorrow for someone who is suffering or in difficulty.',
+      reexplanation: 'Pity means feeling sympathy and sadness for someone who is in a difficult situation. Write a sentence where someone feels pity and acts on that feeling.',
+    },
+    {
+      id: 16, type: 'long_answer', marks: 5,
+      question: 'The Hermit tells the King: "There is only one time that is important — Now." Do you agree with this? Explain using examples from the story and from your own life.',
+      answer: 'I completely agree with the Hermit\'s answer. The story proves this through two powerful moments. First, the King stayed to dig for the exhausted Hermit instead of leaving — and because of that act of kindness in that present moment, he was still there when the wounded man arrived. If he had left, the man would have died without forgiving the King, and the King might have been killed on his way home. Second, when the wounded man arrived, the King immediately forgot his questions and focused on saving him. That present moment of care turned an enemy into a friend. In my own life, I have seen how worrying about the future or regretting the past stops us from doing good right now. The person in front of us, the task in front of us, the moment we are in — these are always the most important. The Hermit\'s wisdom is simple but changes everything when you truly understand it.',
+      hint: 'Explain the Hermit\'s answer in your own words. Then use two moments from the story to show how the present moment mattered. Then add your own example.',
+      reexplanation: 'Think about why the present moment was so important in the story. If the King had not stayed to dig, he would have missed the wounded man. If he had not helped the wounded man, he would have made a permanent enemy. The present moment and the person in front of you are always the most important. Use these ideas and add a personal example to write your answer.',
+    },
+  ],
+}
+
+// ─── CHAPTER 8 — From a Railway Carriage ─────────────────────────────────────
+
+const quiz8: ChapterQuiz = {
+  chapterId: 8,
+  title: 'From a Railway Carriage',
+  totalMarks: 25,
+  questions: [
+    {
+      id: 1, type: 'mcq', marks: 1,
+      question: 'What is the poem "From a Railway Carriage" about?',
+      options: [
+        { label: 'A', text: 'A train being repaired at a station' },
+        { label: 'B', text: 'The view from a moving train window' },
+        { label: 'C', text: 'A child\'s journey to a new school' },
+        { label: 'D', text: 'The history of Indian railways' },
+      ],
+      answer: 'B',
+      reexplanation: 'The poem describes what you see when you look out of a moving train window — images flashing past one after another, too quickly to focus on, each appearing and disappearing in a moment.',
+    },
+    {
+      id: 2, type: 'mcq', marks: 1,
+      question: 'What does the poet compare the train\'s speed to in the first stanza?',
+      options: [
+        { label: 'A', text: 'Faster than lightning and thunder' },
+        { label: 'B', text: 'Faster than fairies and witches' },
+        { label: 'C', text: 'Faster than horses and deer' },
+        { label: 'D', text: 'Faster than wind and rain' },
+      ],
+      answer: 'B',
+      reexplanation: 'The poem opens "Faster than fairies, faster than witches" — comparing the train\'s incredible speed to magical creatures that move supernaturally fast. This immediately sets the breathless pace of the poem.',
+    },
+    {
+      id: 3, type: 'mcq', marks: 1,
+      question: 'What does the poet compare the sights flashing past to?',
+      options: [
+        { label: 'A', text: 'Stars in the night sky' },
+        { label: 'B', text: 'Fish in a river' },
+        { label: 'C', text: 'Driving rain' },
+        { label: 'D', text: 'Leaves falling from trees' },
+      ],
+      answer: 'C',
+      reexplanation: 'The poet writes "All of the sights of the hill and the plain / Fly as thick as driving rain" — comparing the numerous, fast-moving sights to heavy rain driven by the wind, coming thick and fast.',
+    },
+    {
+      id: 4, type: 'mcq', marks: 1,
+      question: 'What is the most important line in the poem and what does it mean?',
+      options: [
+        { label: 'A', text: '"Faster than fairies" — the train is magical' },
+        { label: 'B', text: '"Each a glimpse and gone forever" — every moment is brief and never returns' },
+        { label: 'C', text: '"Here is a child" — children are the most important thing we see' },
+        { label: 'D', text: '"Painted stations whistle by" — stations are colourful' },
+      ],
+      answer: 'B',
+      reexplanation: '"Each a glimpse and gone forever" is the heart of the poem. A glimpse is a brief, quick look. Every person and place seen from the train window appears for just a moment and then is gone forever — like every moment in life.',
+    },
+    {
+      id: 5, type: 'mcq', marks: 1,
+      question: 'What poetic device is used in "clambers and scrambles"?',
+      options: [
+        { label: 'A', text: 'Simile' },
+        { label: 'B', text: 'Metaphor' },
+        { label: 'C', text: 'Onomatopoeia' },
+        { label: 'D', text: 'Personification' },
+      ],
+      answer: 'C',
+      reexplanation: 'Onomatopoeia means words that sound like the actions or sounds they describe. "Clambers" and "scrambles" both sound like the awkward, effortful climbing they describe — making you feel the action in the sound of the words.',
+    },
+    {
+      id: 6, type: 'single_word', marks: 1,
+      question: 'What does "glimpse" mean?',
+      answer: 'A brief, quick look at something',
+      reexplanation: 'A glimpse is a brief, quick look — just a flash before something is gone. From a moving train, every sight is a glimpse — there for a moment and then gone forever.',
+    },
+    {
+      id: 7, type: 'single_word', marks: 1,
+      question: 'What are brambles?',
+      answer: 'Wild prickly bushes that produce blackberries',
+      reexplanation: 'Brambles are wild prickly bushes with sharp thorns that produce blackberries. In the poem, a child is seen gathering brambles — picking the berries from these thorny bushes in the countryside.',
+    },
+    {
+      id: 8, type: 'single_word', marks: 1,
+      question: 'What does "lumping" mean in the poem?',
+      answer: 'Moving heavily and clumsily',
+      reexplanation: '"Lumping" means moving heavily and clumsily. The cart "lumps along" with man and load — bumping and jolting over the rough road. You can almost feel the weight of it in the word.',
+    },
+    {
+      id: 9, type: 'single_word', marks: 1,
+      question: 'What does the word "meadows" mean?',
+      answer: 'Open fields of grass, often with wildflowers',
+      reexplanation: 'Meadows are open, peaceful fields of grass — often with wildflowers growing in them. In the poem, horses and cattle are seen in the meadows, charging past like troops in a battle.',
+    },
+    {
+      id: 10, type: 'single_word', marks: 1,
+      question: 'What does the repetition of "Here is..." in the second stanza create?',
+      answer: 'The rhythm of a moving train spotting new things',
+      reexplanation: 'The repetition of "Here is... Here is... And there is..." mimics the rhythm of the moving train and the experience of spotting one new thing after another — as if the poet is pointing out of the window at each sight as it appears.',
+    },
+    {
+      id: 11, type: 'sentence', marks: 2,
+      question: 'Use the word "glimpse" in a sentence of your own.',
+      answer: 'She caught a glimpse of the deer before it disappeared into the forest.',
+      hint: 'A glimpse is a very brief look — something you see for just a second before it is gone.',
+      reexplanation: 'A glimpse is a brief, quick look. Write a sentence where something or someone appears for just a moment before disappearing.',
+    },
+    {
+      id: 12, type: 'sentence', marks: 2,
+      question: 'Use the word "fleeting" in a sentence of your own.',
+      answer: 'Childhood is fleeting — it passes so quickly that we must treasure every moment.',
+      hint: 'Fleeting means something that lasts for a very short time before it is gone.',
+      reexplanation: 'Fleeting means lasting for only a very short time. Write a sentence about something that passes quickly — a moment, a feeling, a season, or a sight.',
+    },
+    {
+      id: 13, type: 'sentence', marks: 2,
+      question: 'Use the phrase "appreciate the moment" in a sentence of your own.',
+      answer: 'Looking out of the train window reminded her to appreciate the moment rather than always rushing past life.',
+      hint: 'To appreciate the moment means to notice and value what is happening right now.',
+      reexplanation: 'To appreciate the moment means to pause and truly notice and value what is happening right now, before it is gone. Write a sentence about someone learning to be present.',
+    },
+    {
+      id: 14, type: 'sentence', marks: 2,
+      question: 'Use the word "ordinary" in a sentence about finding beauty.',
+      answer: 'The poem teaches us that ordinary things — a cart, a child, a field — can be beautiful if we truly pay attention.',
+      hint: 'Ordinary means common or everyday. Sometimes the most ordinary things are the most beautiful.',
+      reexplanation: 'Ordinary means everyday and commonplace. Write a sentence that shows how something ordinary can be beautiful or meaningful when we pay attention to it.',
+    },
+    {
+      id: 15, type: 'sentence', marks: 2,
+      question: 'Use the word "exhilarating" in a sentence of your own.',
+      answer: 'The fast-moving train ride was exhilarating, with the world rushing past the window in a blur.',
+      hint: 'Exhilarating means making you feel very happy, excited, and alive.',
+      reexplanation: 'Exhilarating means making you feel excited, alive, and thrilled. Write a sentence about an experience that fills you with excitement and energy.',
+    },
+    {
+      id: 16, type: 'long_answer', marks: 5,
+      question: 'The poem ends with "Each a glimpse and gone forever." What is the poet saying about life and moments? How does the poem teach us to look at the world around us? Use examples from the poem.',
+      answer: 'The final line of the poem — "Each a glimpse and gone forever" — is Stevenson\'s quiet but powerful message about life. Everything we see from the train window is there for just a second: a child gathering brambles, a tramp gazing at the train, a cart on a bumpy road, a mill, a river. Each of these ordinary things appears briefly and then disappears. The poet is telling us that life is like a train journey — moments, people, and places appear and vanish. We must pay attention, because once a moment is gone, it is gone forever. The first stanza shows us speed and excitement — everything rushing past. The second stanza slows us down to notice individual people and things. This teaches us to look more carefully at the ordinary world around us. A child picking berries, a man on a cart, a quiet river — these everyday things have beauty in them if we take the time to notice. The poem teaches us to be present, to observe, and to appreciate every moment before it becomes a memory.',
+      hint: 'Think about what the train journey represents in the poem. What does seeing things "each a glimpse and gone forever" tell us about life? How does the poem change the way we look at ordinary things?',
+      reexplanation: 'Think about the train as a metaphor for life — always moving forward, with moments appearing and disappearing. The first stanza gives us speed; the second gives us specific people and places. The final line brings everything together. Use specific images from the poem (the child, the tramp, the cart) to show how the poem finds beauty in ordinary things, and then explain what "each a glimpse and gone forever" tells us about life.',
+    },
+  ],
+}
+
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+
+export const ALL_QUIZZES: ChapterQuiz[] = [
+  quiz1, quiz2, quiz3, quiz4, quiz5, quiz6, quiz7, quiz8,
+]
+
+export function getQuiz(chapterId: number): ChapterQuiz | undefined {
+  return ALL_QUIZZES.find(q => q.chapterId === chapterId)
+}
