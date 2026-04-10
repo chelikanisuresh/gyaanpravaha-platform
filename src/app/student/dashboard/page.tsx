@@ -20,6 +20,15 @@ const CHAPTERS = [
   { id: 8, title: 'From a Railway Carriage',       type: 'Poetry',    emoji: '🚂', estimatedReadMins: 10 },
 ]
 
+const HC_CHAPTERS = [
+  { id: 1, title: 'The Vedas — Our Sacred Heritage',             type: 'History', emoji: '📜', estimatedReadMins: 18 },
+  { id: 2, title: 'Essence of Hinduism',                         type: 'History', emoji: '🕉️',  estimatedReadMins: 16 },
+  { id: 3, title: 'The Great Preachers',                         type: 'History', emoji: '🙏', estimatedReadMins: 20 },
+  { id: 4, title: 'The Preamble',                                type: 'Civics',  emoji: '⚖️',  estimatedReadMins: 15 },
+  { id: 5, title: 'India Lives in Villages (Rural Administration)', type: 'Civics', emoji: '🏡', estimatedReadMins: 14 },
+  { id: 6, title: 'The Power of Determination',                  type: 'Values',  emoji: '💪', estimatedReadMins: 10 },
+]
+
 // ── Dashboard home ───────────────────────────────────────────────────────────
 
 function DashboardHome({ studentId }: { studentId: string }) {
@@ -369,6 +378,182 @@ function StudentProfileContent({ studentId }: { studentId: string }) {
   )
 }
 
+// ── History & Civics subject page ────────────────────────────────────────────
+
+function HistoryCivicsSubjectPage({ studentId }: { studentId: string }) {
+  const [progress, setProgress] = useState<Record<number, number>>({})
+  const [scores,   setScores]   = useState<Record<number, number>>({})
+
+  useEffect(() => {
+    const load = async () => {
+      const supabase = createClient()
+      const { data: secs } = await supabase
+        .from('student_lesson_progress')
+        .select('chapter_id')
+        .eq('student_id', studentId)
+        .eq('subject', 'history-civics')
+      const countMap: Record<number, number> = {}
+      secs?.forEach((r: any) => { countMap[r.chapter_id] = (countMap[r.chapter_id] || 0) + 1 })
+      setProgress(countMap)
+
+      const { data: quiz } = await supabase
+        .from('student_quiz_attempts')
+        .select('chapter_id, score')
+        .eq('student_id', studentId)
+        .eq('subject', 'history-civics')
+        .order('created_at', { ascending: false })
+      const scoreMap: Record<number, number> = {}
+      quiz?.forEach((r: any) => { if (!(r.chapter_id in scoreMap)) scoreMap[r.chapter_id] = r.score })
+      setScores(scoreMap)
+    }
+    load()
+  }, [studentId])
+
+  const currentChapter  = HC_CHAPTERS.find(c => (progress[c.id] || 0) < 7)
+  const completedCount  = HC_CHAPTERS.filter(c => (progress[c.id] || 0) >= 7).length
+  const overallProgress = Math.round((completedCount / HC_CHAPTERS.length) * 100)
+
+  const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
+    'History': { bg: '#FEF3C7', text: '#92400E' },
+    'Civics':  { bg: '#EDE9FE', text: '#5B21B6' },
+    'Values':  { bg: '#D8F3DC', text: '#1B4332' },
+  }
+
+  return (
+    <div style={{ width: '100%' }}>
+      {/* Page header */}
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '28px', color: '#1B4332', marginBottom: '4px' }}>
+          🏛️ History & Civics
+        </h1>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>
+          Connexion — Class 6, Project 1 · {completedCount} of {HC_CHAPTERS.length} chapters completed
+        </p>
+      </div>
+
+      {/* Stats + progress bar */}
+      <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '20px 24px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>
+            Ancient history, Hinduism, great preachers, the Preamble and rural governance
+          </p>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ background: '#D8F3DC', borderRadius: '10px', padding: '10px 16px', textAlign: 'center' }}>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '18px', color: '#1B4332', lineHeight: 1 }}>{completedCount}/{HC_CHAPTERS.length}</p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#40916C', marginTop: '2px' }}>Chapters</p>
+            </div>
+            {Object.keys(scores).length > 0 && (
+              <div style={{ background: '#FEF3C7', borderRadius: '10px', padding: '10px 16px', textAlign: 'center' }}>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '18px', color: '#92400E', lineHeight: 1 }}>
+                  {Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length)}%
+                </p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#B45309', marginTop: '2px' }}>Avg score</p>
+              </div>
+            )}
+          </div>
+        </div>
+        <div style={{ height: '8px', background: '#E5E7EB', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${overallProgress}%`, background: 'linear-gradient(90deg,#2D6A4F,#52B788)', borderRadius: '4px', transition: 'width 0.8s ease' }}/>
+        </div>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF', marginTop: '6px' }}>
+          {overallProgress}% complete — keep going!
+        </p>
+      </div>
+
+      {/* Continue card */}
+      {currentChapter && (
+        <div style={{ marginBottom: '20px' }}>
+          <style>{`@keyframes gp-b{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}.gp-b{animation:gp-b 2.5s ease-in-out infinite}`}</style>
+          <div className="gp-b">
+            <Link href={`/student/hc-chapter/${currentChapter.id}`} style={{ textDecoration: 'none' }}>
+              <div style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '18px', padding: '22px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: '#74C69D', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '5px' }}>
+                    {(progress[currentChapter.id] || 0) > 0 ? '📖 Continue reading' : '▶️ Start reading'}
+                  </p>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '20px', color: 'white', lineHeight: 1.3, marginBottom: '4px' }}>
+                    {currentChapter.title}
+                  </p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.55)' }}>
+                    Chapter {currentChapter.id} · {currentChapter.type} · {currentChapter.estimatedReadMins} min read
+                  </p>
+                  {(progress[currentChapter.id] || 0) > 0 && (
+                    <div style={{ marginTop: '10px', height: '4px', background: 'rgba(255,255,255,0.15)', borderRadius: '2px', width: '180px' }}>
+                      <div style={{ height: '100%', width: `${((progress[currentChapter.id] || 0) / 7) * 100}%`, background: '#74C69D', borderRadius: '2px' }}/>
+                    </div>
+                  )}
+                </div>
+                <div style={{ width: '44px', height: '44px', background: '#74C69D', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M6 3l7 6-7 6" stroke="#1B4332" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Chapter list */}
+      <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>
+        All chapters
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {HC_CHAPTERS.map(chapter => {
+          const secsDone    = progress[chapter.id] || 0
+          const isCompleted = secsDone >= 7
+          const isStarted   = secsDone > 0 && !isCompleted
+          const isCurrent   = chapter.id === currentChapter?.id
+          const isLocked    = !isCurrent && !isStarted && !isCompleted && chapter.id > (currentChapter?.id || 1)
+          const typeStyle   = TYPE_COLORS[chapter.type] || { bg: '#F3F4F6', text: '#374151' }
+          const score       = scores[chapter.id]
+          const ctaLabel    = isCompleted ? 'Review' : isStarted ? 'Resume' : isCurrent ? 'Start' : '—'
+
+          return (
+            <Link
+              key={chapter.id}
+              href={isLocked ? '#' : `/student/hc-chapter/${chapter.id}`}
+              onClick={e => isLocked && e.preventDefault()}
+              style={{ textDecoration: 'none', display: 'block' }}
+            >
+              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', opacity: isLocked ? 0.45 : 1, position: 'relative', overflow: 'hidden', cursor: isLocked ? 'not-allowed' : 'pointer', transition: 'box-shadow 0.15s' }}
+                onMouseEnter={e => { if (!isLocked) e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}
+              >
+                {(isCompleted || isCurrent) && (
+                  <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: isCompleted ? '#10B981' : '#2D6A4F', borderRadius: '16px 0 0 16px' }}/>
+                )}
+                <div style={{ width: '40px', height: '40px', minWidth: '40px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isCompleted ? '#D8F3DC' : isCurrent ? '#2D6A4F' : '#F3F4F6', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: isCompleted ? '#1B4332' : isCurrent ? 'white' : '#9CA3AF' }}>
+                  {isCompleted ? '✓' : chapter.id}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: isLocked ? '#9CA3AF' : '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
+                    {isCurrent && !isCompleted && <span style={{ background: '#2D6A4F', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '2px 8px', borderRadius: '10px', flexShrink: 0 }}>UP NEXT</span>}
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontFamily: 'var(--font-heading)', fontWeight: 700, background: typeStyle.bg, color: typeStyle.text }}>{chapter.type}</span>
+                    <span style={{ fontSize: '12px', color: '#9CA3AF' }}>⏱ {chapter.estimatedReadMins} min</span>
+                    <span style={{ fontSize: '12px', color: '#9CA3AF' }}>📋 7 sections</span>
+                    {isStarted && <span style={{ fontSize: '12px', color: '#F59E0B', fontWeight: 600 }}>{secsDone}/7 read</span>}
+                    {score != null && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444' }}>Score: {score}%</span>}
+                  </div>
+                </div>
+                {!isLocked && (
+                  <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6', color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #D8F3DC' : 'none' }}>
+                    {ctaLabel}
+                  </span>
+                )}
+                {isLocked && <span style={{ fontSize: '16px', flexShrink: 0 }}>🔒</span>}
+              </div>
+            </Link>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ── Coming soon ──────────────────────────────────────────────────────────────
 
 function ComingSoon({ subject }: { subject: string }) {
@@ -396,7 +581,7 @@ export default function StudentMainPage() {
           case 'english':   return <EnglishSubjectPage      studentId={studentId}/>
           case 'maths':     return <ComingSoon subject="Mathematics"/>
           case 'science':   return <ComingSoon subject="Science"/>
-          case 'history':   return <ComingSoon subject="History & Civics"/>
+          case 'history':   return <HistoryCivicsSubjectPage studentId={studentId}/>
           case 'geo':       return <ComingSoon subject="Geography"/>
           case 'sanskrit':  return <ComingSoon subject="Sanskrit"/>
           case 'ict':       return <ComingSoon subject="ICT"/>
