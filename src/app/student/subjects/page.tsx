@@ -166,7 +166,7 @@ export default function SubjectsPage() {
         .subject-card { transition: all 0.2s; cursor: pointer; }
         .subject-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
       `}</style>
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '28px 32px 60px' }}>
+      <div style={{ padding: '28px 36px 60px' }}>
 
         {/* Page title */}
         <div className="slide-up" style={{ marginBottom: '24px' }}>

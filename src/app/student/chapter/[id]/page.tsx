@@ -324,9 +324,12 @@ export default function ChapterReaderPage() {
 
   if (showSummary) return (
     <div style={{ minHeight: '100vh', background: '#F8FAF9' }}>
-      <div style={{ background: '#1B4332', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <button onClick={() => router.push('/student/dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-body)', fontSize: '13px' }}>← Dashboard</button>
-        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: 'white', opacity: 0.8 }}>{chapter.title}</p>
+      <div style={{ background: '#1B4332', padding: '14px 28px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <button onClick={() => router.push('/student/dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-body)', fontSize: '13px', padding: '4px 8px' }}>Dashboard</button>
+        <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>›</span>
+        <button onClick={() => router.push('/student/subjects')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-body)', fontSize: '13px', padding: '4px 8px' }}>English</button>
+        <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>›</span>
+        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: 'white' }}>{chapter.title}</p>
       </div>
       <SummaryScreen chapter={chapter} onStartQuiz={() => router.push(`/student/quiz/${chapterId}`)}/>
     </div>
@@ -337,15 +340,20 @@ export default function ChapterReaderPage() {
       <style>{`@media(max-width:900px){.reader-layout{flex-direction:column !important}.reader-sidebar{width:100% !important;flex-direction:row !important;overflow-x:auto}}`}</style>
 
       {/* Top bar */}
-      <div style={{ background: '#1B4332', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <button onClick={() => router.push('/student/dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-body)', fontSize: '13px' }}>
-            ← Dashboard
+      <div style={{ background: '#1B4332', padding: '14px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {/* Breadcrumb: Dashboard → English → Chapter */}
+          <button onClick={() => router.push('/student/dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-body)', fontSize: '13px', padding: '4px 8px', borderRadius: '6px' }}>
+            Dashboard
           </button>
-          <div style={{ width: '1px', height: '16px', background: 'rgba(255,255,255,0.2)' }}/>
-          <div>
+          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>›</span>
+          <button onClick={() => router.push('/student/subjects')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-body)', fontSize: '13px', padding: '4px 8px', borderRadius: '6px' }}>
+            English
+          </button>
+          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>›</span>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: 'white', lineHeight: 1 }}>{chapter.title}</p>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>{chapter.type} · {chapter.estimatedReadMins} min read</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginTop: '2px' }}>{chapter.type} · {chapter.estimatedReadMins} min read</p>
           </div>
         </div>
         {/* Progress */}
@@ -361,7 +369,7 @@ export default function ChapterReaderPage() {
       </div>
 
       {/* Body */}
-      <div className="reader-layout" style={{ display: 'flex', gap: '24px', padding: '28px 24px 60px', maxWidth: '1100px', margin: '0 auto' }}>
+      <div className="reader-layout" style={{ display: 'flex', gap: '28px', padding: '28px 36px 60px' }}>
 
         {/* Sidebar */}
         <div className="reader-sidebar">
