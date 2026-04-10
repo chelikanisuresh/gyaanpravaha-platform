@@ -207,6 +207,12 @@ export default function LoginPage() {
           </Link>
           {' '}— no account needed
         </p>
+      <p style={{ textAlign: 'center', fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--gray-400)', marginTop: '8px' }}>
+          Can&apos;t log in?{' '}
+          <Link href="/help" style={{ color: 'var(--green-dark)', fontWeight: 600, textDecoration: 'none' }}>
+            Get help →
+          </Link>
+        </p>
       </div>
 
       <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '20px', fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--gray-500)', textDecoration: 'none' }}>
