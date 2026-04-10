@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import StudentSidebarLayout from '@/components/StudentSidebarLayout'
 import StudentDashboardPanel from '@/components/StudentDashboardPanel'
-import WordGames from '@/components/WordGames'
+import WordGames, { WordSearch, MeaningMatch } from '@/components/WordGames'
 
 // ── Chapter data ─────────────────────────────────────────────────────────────
 
@@ -91,6 +91,8 @@ function DashboardHome({ studentId }: { studentId: string }) {
           </div>
 
           <WordGames/>
+          <WordSearch/>
+          <MeaningMatch/>
 
         </div>
       </div>

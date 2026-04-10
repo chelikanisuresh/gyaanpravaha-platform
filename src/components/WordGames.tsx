@@ -541,3 +541,212 @@ export default function WordGames() {
     </div>
   )
 }
+
+// ─── WORD SEARCH ─────────────────────────────────────────────────────────────
+
+const SEARCH_WORDS = ['EFFICIENT','RESILIENT','EMPATHY','FLEETING','COURAGE','WISDOM','CONTENT','SCHOLAR']
+const GRID_SIZE = 10
+
+function buildSearchGrid() {
+  const grid: string[][] = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''))
+  const placed: { word: string; cells: [number,number][] }[] = []
+
+  SEARCH_WORDS.forEach(word => {
+    for (let tries = 0; tries < 100; tries++) {
+      const dir = Math.random() > 0.5 ? 'across' : 'down'
+      const r = Math.floor(Math.random() * (GRID_SIZE - (dir === 'down' ? word.length : 0)))
+      const c = Math.floor(Math.random() * (GRID_SIZE - (dir === 'across' ? word.length : 0)))
+      let ok = true
+      const cells: [number,number][] = []
+      word.split('').forEach((l, i) => {
+        const nr = r + (dir === 'down' ? i : 0)
+        const nc = c + (dir === 'across' ? i : 0)
+        if (grid[nr][nc] && grid[nr][nc] !== l) ok = false
+        cells.push([nr, nc])
+      })
+      if (ok) {
+        word.split('').forEach((l, i) => { grid[cells[i][0]][cells[i][1]] = l })
+        placed.push({ word, cells })
+        break
+      }
+    }
+  })
+  for (let r = 0; r < GRID_SIZE; r++)
+    for (let c = 0; c < GRID_SIZE; c++)
+      if (!grid[r][c]) grid[r][c] = String.fromCharCode(65 + Math.floor(Math.random() * 26))
+  return { grid, placed }
+}
+
+export function WordSearch() {
+  const [{ grid, placed }] = useState(() => buildSearchGrid())
+  const [found, setFound]   = useState<Set<string>>(new Set())
+  const [selecting, setSelecting] = useState(false)
+  const [startCell, setStartCell] = useState<[number,number] | null>(null)
+  const [highlight, setHighlight] = useState<[number,number][]>([])
+  const [foundCells, setFoundCells] = useState<Set<string>>(new Set())
+
+  const getCells = (start: [number,number], end: [number,number]): [number,number][] => {
+    const cells: [number,number][] = [start]
+    const dr = end[0] - start[0], dc = end[1] - start[1]
+    if (dr === 0 && dc === 0) return cells
+    if (dr === 0) { for (let i = 1; i <= Math.abs(dc); i++) cells.push([start[0], start[1] + i * (dc > 0 ? 1 : -1)]) }
+    else if (dc === 0) { for (let i = 1; i <= Math.abs(dr); i++) cells.push([start[0] + i * (dr > 0 ? 1 : -1), start[1]]) }
+    return cells
+  }
+
+  const endSelect = (end: [number,number]) => {
+    if (!startCell) return
+    const cells = getCells(startCell, end)
+    const word = cells.map(([r,c]) => grid[r][c]).join('')
+    const revWord = [...word].reverse().join('')
+    const match = placed.find(p => p.word === word || p.word === revWord)
+    if (match && !found.has(match.word)) {
+      const newFound = new Set(found); newFound.add(match.word)
+      setFound(newFound)
+      const newFC = new Set(foundCells)
+      match.cells.forEach(([r,c]) => newFC.add(`${r},${c}`))
+      setFoundCells(newFC)
+    }
+    setSelecting(false); setStartCell(null); setHighlight([])
+  }
+
+  const isHighlighted = (r: number, c: number) => highlight.some(([hr,hc]) => hr===r && hc===c)
+  const isFound = (r: number, c: number) => foundCells.has(`${r},${c}`)
+
+  return (
+    <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#1B4332' }}>🔍 Word search</p>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF' }}>Found: {found.size}/{SEARCH_WORDS.length}</p>
+      </div>
+
+      <div style={{ overflowX: 'auto', marginBottom: '12px' }}>
+        <div style={{ display: 'inline-block', lineHeight: 0, userSelect: 'none' }}
+          onMouseLeave={() => { if (selecting && startCell) { setSelecting(false); setStartCell(null); setHighlight([]) } }}>
+          {grid.map((row, r) => (
+            <div key={r} style={{ display: 'flex' }}>
+              {row.map((letter, c) => (
+                <div key={c}
+                  onMouseDown={() => { setSelecting(true); setStartCell([r,c]); setHighlight([[r,c]]) }}
+                  onMouseEnter={() => { if (selecting && startCell) setHighlight(getCells(startCell, [r,c])) }}
+                  onMouseUp={() => endSelect([r,c])}
+                  style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 600, cursor: 'pointer', borderRadius: '4px', background: isFound(r,c) ? '#2D6A4F' : isHighlighted(r,c) ? '#D8F3DC' : 'transparent', color: isFound(r,c) ? 'white' : isHighlighted(r,c) ? '#1B4332' : '#374151', transition: 'background 0.1s', fontFamily: 'monospace' }}>
+                  {letter}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+        {SEARCH_WORDS.map(w => (
+          <span key={w} style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontFamily: 'var(--font-heading)', fontWeight: 600, background: found.has(w) ? '#D8F3DC' : '#F3F4F6', color: found.has(w) ? '#1B4332' : '#9CA3AF', textDecoration: found.has(w) ? 'line-through' : 'none', transition: 'all 0.2s' }}>
+            {w}
+          </span>
+        ))}
+      </div>
+
+      {found.size === SEARCH_WORDS.length && (
+        <div style={{ marginTop: '12px', padding: '10px 14px', borderRadius: '10px', background: '#D8F3DC', border: '1px solid #2D6A4F', color: '#1B4332', fontSize: '13px', fontWeight: 700 }}>
+          All words found! Amazing! 🎉
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── MEANING MATCH ────────────────────────────────────────────────────────────
+
+const ALL_PAIRS = [
+  { word: 'Resilience',   meaning: 'Bouncing back from hardship' },
+  { word: 'Empathy',      meaning: 'Feeling what others feel' },
+  { word: 'Fleeting',     meaning: 'Gone in a moment' },
+  { word: 'Courage',      meaning: 'Acting despite fear' },
+  { word: 'Wisdom',       meaning: 'Deep understanding from experience' },
+  { word: 'Contentment',  meaning: 'Peace with what you have' },
+  { word: 'Efficiency',   meaning: 'No wasted time or effort' },
+  { word: 'Scornful',     meaning: 'Looking down on something' },
+]
+
+export function MeaningMatch() {
+  const [pairs, setPairs]       = useState(() => shuffle(ALL_PAIRS).slice(0, 6))
+  const [words, setWords]       = useState<typeof ALL_PAIRS>([])
+  const [meanings, setMeanings] = useState<typeof ALL_PAIRS>([])
+  const [selected, setSelected] = useState<{ item: typeof ALL_PAIRS[0]; type: 'word'|'meaning' } | null>(null)
+  const [matched, setMatched]   = useState<Set<string>>(new Set())
+  const [wrong, setWrong]       = useState<string | null>(null)
+
+  useEffect(() => {
+    setWords(shuffle([...pairs]))
+    setMeanings(shuffle([...pairs]))
+    setSelected(null); setMatched(new Set()); setWrong(null)
+  }, [pairs])
+
+  const pick = (item: typeof ALL_PAIRS[0], type: 'word'|'meaning') => {
+    if (matched.has(item.word)) return
+    if (!selected) { setSelected({ item, type }); return }
+    if (selected.item === item && selected.type === type) { setSelected(null); return }
+    if (selected.type === type) { setSelected({ item, type }); return }
+
+    // Check match
+    if (selected.item.word === item.word) {
+      const newMatched = new Set(matched); newMatched.add(item.word)
+      setMatched(newMatched); setSelected(null)
+    } else {
+      setWrong(`${selected.item.word}-${item.word}`)
+      setTimeout(() => { setWrong(null); setSelected(null) }, 700)
+    }
+  }
+
+  const isWrong = (item: typeof ALL_PAIRS[0]) => wrong?.includes(item.word)
+  const isSelected = (item: typeof ALL_PAIRS[0], type: 'word'|'meaning') =>
+    selected?.item.word === item.word && selected?.type === type
+
+  const chipStyle = (item: typeof ALL_PAIRS[0], type: 'word'|'meaning'): React.CSSProperties => ({
+    padding: '9px 12px', borderRadius: '10px', cursor: matched.has(item.word) ? 'default' : 'pointer',
+    fontSize: '13px', fontFamily: 'var(--font-heading)', fontWeight: 600, lineHeight: 1.4,
+    transition: 'all 0.15s', textAlign: 'left' as const, width: '100%', border: '1px solid',
+    background: matched.has(item.word) ? '#2D6A4F' : isWrong(item) ? '#FEE2E2' : isSelected(item, type) ? '#D8F3DC' : 'white',
+    borderColor: matched.has(item.word) ? '#2D6A4F' : isWrong(item) ? '#EF4444' : isSelected(item, type) ? '#2D6A4F' : '#E5E7EB',
+    color: matched.has(item.word) ? 'white' : isWrong(item) ? '#991B1B' : isSelected(item, type) ? '#1B4332' : '#374151',
+  })
+
+  return (
+    <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#1B4332' }}>🃏 Meaning match</p>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF' }}>{matched.size}/{pairs.length} matched</p>
+      </div>
+      <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF', marginBottom: '12px' }}>Tap a word then tap its meaning</p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {words.map(item => (
+            <button key={item.word} onClick={() => pick(item, 'word')} style={chipStyle(item, 'word')}>
+              {item.word}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {meanings.map(item => (
+            <button key={item.word} onClick={() => pick(item, 'meaning')} style={chipStyle(item, 'meaning')}>
+              {item.meaning}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {matched.size === pairs.length && (
+        <div style={{ padding: '10px 14px', borderRadius: '10px', background: '#D8F3DC', border: '1px solid #2D6A4F', color: '#1B4332', fontSize: '13px', fontWeight: 700, marginBottom: '10px' }}>
+          All matched! You know your words! 🎉
+        </div>
+      )}
+
+      <button onClick={() => setPairs(shuffle(ALL_PAIRS).slice(0, 6))}
+        style={{ padding: '7px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', background: 'white', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit', fontWeight: 600 }}>
+        New round
+      </button>
+    </div>
+  )
+}
