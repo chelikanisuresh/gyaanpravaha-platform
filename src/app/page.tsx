@@ -213,9 +213,9 @@ export default function HomePage() {
     return () => obs.disconnect()
   }, [])
 
-  const chapters  = useCounter(8,   1200, statsVisible)
-  const sections  = useCounter(56,  1400, statsVisible)
-  const questions = useCounter(200, 1600, statsVisible)
+  const chapters  = useCounter(54,  1200, statsVisible)
+  const sections  = useCounter(378, 1400, statsVisible)
+  const questions = useCounter(864, 1600, statsVisible)
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--white)', overflowX: 'hidden' }}>
@@ -427,7 +427,7 @@ export default function HomePage() {
             <div className="card" style={{ padding:'44px 36px', border:'2.5px solid var(--green-dark)', position:'relative', overflow:'hidden' }}>
               <div style={{ position:'absolute', top:'-40px', right:'-40px', width:'120px', height:'120px', borderRadius:'50%', background:'var(--green-pale)' }}/>
               <div className="badge badge-green" style={{ marginBottom:'20px' }}>Annual plan</div>
-              <p style={{ fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'56px', color:'var(--green-deepest)', lineHeight:1 }}>₹2,499</p>
+              <p style={{ fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'56px', color:'var(--green-deepest)', lineHeight:1 }}>₹4,999</p>
               <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'var(--gray-400)', marginBottom:'32px' }}>per student · per academic year</p>
               {['All subjects — chapter by chapter', '7 sections + quiz per chapter', 'Writing prompts and AI evaluation', 'Parent progress dashboard', 'AI doubt solver', 'Full academic year access'].map(item => (
                 <div key={item} style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'12px', textAlign:'left' }}>

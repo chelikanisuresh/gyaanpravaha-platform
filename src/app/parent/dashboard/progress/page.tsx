@@ -5,136 +5,190 @@ import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import ParentSidebarLayout from '@/components/ParentSidebarLayout'
 import ChildTabs from '@/components/ChildTabs'
-import ParentRightPanel from '@/components/ParentRightPanel'
 
-interface Child { id:string; full_name:string; email:string }
+interface Child { id: string; full_name: string; email: string }
 
-const CHAPTERS = [
-  { id:1, title:'Whistles and Shaving Bristles', type:'Prose',     completed:true,  score:88, timeSpent:18, attempts:1, sectionsRead:7 },
-  { id:2, title:'If I Were Lord of Tartary',     type:'Poetry',    completed:true,  score:76, timeSpent:14, attempts:2, sectionsRead:7 },
-  { id:3, title:'The Fun They Had',              type:'Story',     completed:true,  score:92, timeSpent:20, attempts:1, sectionsRead:7 },
-  { id:4, title:'In Morning Dew',                type:'Poetry',    completed:false, score:null, timeSpent:8, attempts:0, sectionsRead:3 },
-  { id:5, title:'The Boy Who Outran the Wind',   type:'Biography', completed:false, score:null, timeSpent:0, attempts:0, sectionsRead:0 },
-  { id:6, title:'The Blind Boy',                 type:'Poetry',    completed:false, score:null, timeSpent:0, attempts:0, sectionsRead:0 },
-  { id:7, title:'Three Questions',               type:'Story',     completed:false, score:null, timeSpent:0, attempts:0, sectionsRead:0 },
-  { id:8, title:'From a Railway Carriage',       type:'Poetry',    completed:false, score:null, timeSpent:0, attempts:0, sectionsRead:0 },
-]
-const TYPE_COLORS: Record<string,{bg:string;text:string}> = {
-  Prose:{bg:'#D8F3DC',text:'#1B4332'},Poetry:{bg:'#FEF3C7',text:'#92400E'},
-  Story:{bg:'#EDE9FE',text:'#5B21B6'},Biography:{bg:'#FFE4E6',text:'#9F1239'},
+const SUBJECT_META: Record<string, { label: string; emoji: string; color: string; total: number }> = {
+  english:   { label: 'English',          emoji: '📚', color: '#7C3AED', total: 8  },
+  maths:     { label: 'Mathematics',      emoji: '📐', color: '#1E40AF', total: 11 },
+  science:   { label: 'Science',          emoji: '🔬', color: '#065F46', total: 9  },
+  history:   { label: 'History & Civics', emoji: '🏛️', color: '#92400E', total: 6  },
+  geography: { label: 'Geography',        emoji: '🌍', color: '#065F46', total: 7  },
+  sanskrit:  { label: 'Sanskrit',         emoji: '🕉️', color: '#B45309', total: 8  },
+  ict:       { label: 'ICT',              emoji: '💻', color: '#0369A1', total: 5  },
 }
 
-function ScoreBar({ score, max=100 }:{ score:number; max?:number }) {
-  const pct=Math.round((score/max)*100); const c=pct>=80?'#10B981':pct>=60?'#F59E0B':'#EF4444'
-  return (
-    <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-      <div style={{ flex:1, height:'7px', background:'#E5E7EB', borderRadius:'4px', overflow:'hidden' }}>
-        <div style={{ height:'100%', width:`${pct}%`, background:c, borderRadius:'4px', transition:'width 0.6s ease' }}/>
-      </div>
-      <span style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', color:c, minWidth:'36px', textAlign:'right' }}>{score}/{max}</span>
-    </div>
-  )
+const CHAPTER_NAMES: Record<string, Record<number, string>> = {
+  english:   { 1:'Whistles and Shaving Bristles', 2:'If I Were Lord of Tartary', 3:'The Fun They Had', 4:'In Morning Dew', 5:'The Boy Who Outran the Wind', 6:'The Blind Boy', 7:'Three Questions', 8:'From a Railway Carriage' },
+  maths:     { 1:'Whole Numbers', 2:'HCF and LCM', 3:'Area and Perimeter', 4:'Volume', 5:'Fractions', 6:'Percentage', 7:'Ratio and Proportion', 8:'Basic Geometrical Concepts', 9:'Angles', 10:'Circles', 11:'Vedic Knowledge' },
+  science:   { 1:'Magnetism', 2:'Simple Machines', 3:'Work and Energy', 4:'Intro to Chemistry', 5:'Structure of Atom', 6:'Physical & Chemical Changes', 7:'Cell', 8:'The Leaf', 9:'Respiratory System' },
+  history:   { 1:'The Vedas', 2:'Essence of Hinduism', 3:'The Great Preachers', 4:'The Preamble', 5:'India Lives in Villages', 6:'The Power of Determination' },
+  geography: { 1:'Earth Structure', 2:'Latitudes and Longitudes', 3:'Motions of the Earth', 4:'Maps', 5:'Natural Vegetation', 6:'Our Country India', 7:'Climate and Wildlife' },
+  sanskrit:  { 1:'Prarthana', 2:'Vivekananda', 3:'Sanchalana Geetam', 4:'Sanskritabhasha Grihe Grihe', 5:'Sankhyah', 6:'Sandhi', 7:'Bhutakalah', 8:'Sambhashanam' },
+  ict:       { 1:'Intro to Computers', 2:'Input and Output Devices', 3:'Storage Devices', 4:'MS Word', 5:'The Internet' },
+}
+
+function scoreColor(score: number) {
+  if (score >= 80) return '#10B981'
+  if (score >= 60) return '#F59E0B'
+  return '#EF4444'
 }
 
 function ProgressInner() {
-  const searchParams = useSearchParams()
-  const [children, setChildren] = useState<Child[]>([])
+  const searchParams                = useSearchParams()
+  const [children, setChildren]     = useState<Child[]>([])
   const [selectedId, setSelectedId] = useState('')
   const [parentName, setParentName] = useState('Parent')
+  const [loading, setLoading]       = useState(true)
+  const [openSubject, setOpenSubject] = useState<string | null>(null)
+
+  // Real data
+  const [secMap,   setSecMap]   = useState<Record<string, number>>({})
+  const [scoreMap, setScoreMap] = useState<Record<string, number>>({})
 
   useEffect(() => {
     const load = async () => {
       const supabase = createClient()
-      const { data:{ user } } = await supabase.auth.getUser()
+      const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
-      const { data:p } = await supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
+      const { data: p } = await supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
       if (p?.full_name) setParentName(p.full_name)
-      const { data:links } = await supabase.from('parent_student_links').select('student_id').eq('parent_id', user.id)
-      if (!links?.length) return
-      const { data:profiles } = await supabase.from('profiles').select('id, full_name, email').in('id', links.map(l=>l.student_id))
-      if (profiles?.length) { setChildren(profiles as Child[]); setSelectedId(searchParams.get('child') || profiles[0].id) }
+      const { data: links } = await supabase.from('parent_student_links').select('student_id').eq('parent_id', user.id)
+      if (!links?.length) { setLoading(false); return }
+      const { data: profiles } = await supabase.from('profiles').select('id, full_name, email').in('id', links.map((l: any) => l.student_id))
+      if (profiles?.length) {
+        setChildren(profiles as Child[])
+        setSelectedId(searchParams.get('child') || profiles[0].id)
+      }
     }
     load()
   }, [searchParams])
 
-  const child = children.find(c=>c.id===selectedId)||children[0]
-  const childName = (child?.full_name||'Student').split(' ')[0]
-  const completed = CHAPTERS.filter(c=>c.completed).length
-  const avg = Math.round(CHAPTERS.filter(c=>c.score).reduce((a,c)=>a+(c.score||0),0)/CHAPTERS.filter(c=>c.score).length)
+  useEffect(() => {
+    if (!selectedId) return
+    loadProgress(selectedId)
+  }, [selectedId])
+
+  const loadProgress = async (studentId: string) => {
+    setLoading(true)
+    const supabase = createClient()
+
+    const [{ data: sections }, { data: quizzes }] = await Promise.all([
+      supabase.from('student_lesson_progress').select('subject, chapter_id').eq('student_id', studentId),
+      supabase.from('student_quiz_attempts').select('subject, chapter_id, score').eq('student_id', studentId),
+    ])
+
+    const sm: Record<string, number> = {}
+    sections?.forEach((s: any) => {
+      const k = `${s.subject}-${s.chapter_id}`
+      sm[k] = (sm[k] || 0) + 1
+    })
+    setSecMap(sm)
+
+    const qm: Record<string, number> = {}
+    quizzes?.forEach((q: any) => {
+      const k = `${q.subject}-${q.chapter_id}`
+      if (!(k in qm) || q.score > qm[k]) qm[k] = q.score
+    })
+    setScoreMap(qm)
+    setLoading(false)
+  }
+
+  const hasAnyData = Object.keys(secMap).length > 0 || Object.keys(scoreMap).length > 0
 
   return (
     <ParentSidebarLayout parentName={parentName}>
-      <style>{`@media(max-width:1100px){.pr-grid{grid-template-columns:1fr !important}}`}</style>
-      <div style={{ padding:'28px 28px 60px' }}>
-        <h1 style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'22px', color:'#1B4332', marginBottom:'4px' }}>Progress</h1>
-        <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#6B7280', marginBottom:'20px' }}>
-          {childName} · {completed} of 8 chapters · {avg}% average score
-        </p>
-        <ChildTabs children={children} selectedId={selectedId} onSelect={setSelectedId}/>
+      <div>
+        {children.length > 1 && (
+          <ChildTabs children={children} selectedId={selectedId} onSelect={setSelectedId}/>
+        )}
 
-        <div className="pr-grid" style={{ display:'grid', gridTemplateColumns:'1fr 260px', gap:'20px', alignItems:'start' }}>
-          <div>
-            {/* Overall bar */}
-            <div style={{ background:'white', borderRadius:'14px', border:'1px solid #E5E7EB', padding:'16px 18px', marginBottom:'14px' }}>
-              <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'8px' }}>
-                <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'14px', color:'#1B4332' }}>English — overall progress</p>
-                <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'13px', color:'#2D6A4F' }}>{completed}/8 chapters</p>
-              </div>
-              <div style={{ height:'8px', background:'#E5E7EB', borderRadius:'4px', overflow:'hidden' }}>
-                <div style={{ height:'100%', width:`${Math.round((completed/8)*100)}%`, background:'linear-gradient(90deg,#2D6A4F,#52B788)', borderRadius:'4px', transition:'width 1s ease' }}/>
-              </div>
-            </div>
-
-            <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
-              {CHAPTERS.map(ch=>{
-                const ts=TYPE_COLORS[ch.type]
-                return (
-                  <div key={ch.id} style={{ background:'white', borderRadius:'14px', border:ch.completed?'1px solid #D8F3DC':'1px solid #E5E7EB', padding:'16px 18px', position:'relative', overflow:'hidden', transition:'box-shadow 0.2s' }}
-                    onMouseEnter={e=>e.currentTarget.style.boxShadow='0 4px 14px rgba(27,67,50,0.08)'}
-                    onMouseLeave={e=>e.currentTarget.style.boxShadow='none'}>
-                    {ch.completed && <div style={{ position:'absolute', left:0, top:0, bottom:0, width:'3px', background:'#10B981', borderRadius:'14px 0 0 14px' }}/>}
-                    {ch.sectionsRead>0&&!ch.completed && <div style={{ position:'absolute', left:0, top:0, bottom:0, width:'3px', background:'#F59E0B', borderRadius:'14px 0 0 14px' }}/>}
-                    <div style={{ display:'flex', alignItems:'flex-start', gap:'12px', flexWrap:'wrap' }}>
-                      <div style={{ width:'34px', height:'34px', minWidth:'34px', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', background:ch.completed?'#D8F3DC':ch.sectionsRead>0?'#FEF3C7':'#F3F4F6', fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'13px', color:ch.completed?'#1B4332':ch.sectionsRead>0?'#92400E':'#9CA3AF' }}>
-                        {ch.completed?'✓':ch.id}
-                      </div>
-                      <div style={{ flex:1 }}>
-                        <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'8px', flexWrap:'wrap' }}>
-                          <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'14px', color:'#1B4332' }}>{ch.title}</p>
-                          <span style={{ padding:'2px 8px', borderRadius:'10px', fontSize:'11px', fontFamily:'var(--font-heading)', fontWeight:700, background:ts.bg, color:ts.text }}>{ch.type}</span>
-                        </div>
-                        <div style={{ display:'flex', gap:'16px', flexWrap:'wrap', marginBottom:ch.score!==null?'8px':0 }}>
-                          {[{l:'Sections',v:`${ch.sectionsRead}/7`},{l:'Time',v:`${ch.timeSpent}m`},{l:'Attempts',v:String(ch.attempts)}].map(({l,v})=>(
-                            <div key={l}><p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color:'#9CA3AF', marginBottom:'1px' }}>{l}</p><p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'13px', color:'#374151' }}>{v}</p></div>
-                          ))}
-                        </div>
-                        {ch.score!==null && <div><p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color:'#9CA3AF', marginBottom:'4px' }}>Quiz score</p><ScoreBar score={ch.score}/></div>}
-                      </div>
-                      <span style={{ padding:'3px 10px', borderRadius:'20px', fontSize:'11px', fontFamily:'var(--font-heading)', fontWeight:700, flexShrink:0, background:ch.completed?'#D8F3DC':ch.sectionsRead>0?'#FEF3C7':'#F3F4F6', color:ch.completed?'#1B4332':ch.sectionsRead>0?'#92400E':'#9CA3AF' }}>
-                        {ch.completed?'Done':ch.sectionsRead>0?'In progress':'Not started'}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          <ParentRightPanel
-            childName={childName}
-            tipText={`${childName} has completed ${completed} of 8 chapters. Celebrate the progress — encouragement matters more than pressure.`}
-            starters={['"Which chapter did you enjoy the most so far?"', '"What is the most interesting fact you have learnt this week?"']}
-            quickActions={[
-              { label:'Writing prompts', emoji:'✍️', href:'/parent/dashboard/writing' },
-              { label:'Overview', emoji:'📊', href:'/parent/dashboard/overview' },
-            ]}
-          />
+        <div style={{ marginBottom:'24px' }}>
+          <h1 style={{ fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'24px', color:'#1B4332', marginBottom:'4px' }}>Chapter Progress</h1>
+          <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#9CA3AF' }}>Detailed breakdown of every chapter across all 7 subjects</p>
         </div>
+
+        {loading && (
+          <p style={{ fontFamily:'var(--font-body)', color:'#9CA3AF', padding:'20px' }}>Loading progress...</p>
+        )}
+
+        {!loading && !hasAnyData && (
+          <div style={{ background:'white', borderRadius:'16px', border:'1px solid #E5E7EB', padding:'56px', textAlign:'center' }}>
+            <p style={{ fontSize:'40px', marginBottom:'12px' }}>📖</p>
+            <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'18px', color:'#1B4332', marginBottom:'8px' }}>No progress yet</p>
+            <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#9CA3AF' }}>
+              Once your child starts reading chapters, their progress will appear here.
+            </p>
+          </div>
+        )}
+
+        {!loading && hasAnyData && Object.entries(SUBJECT_META).map(([key, meta]) => {
+          const completed = Array.from({ length: meta.total }, (_, i) => i + 1)
+            .filter(chId => (secMap[`${key}-${chId}`] || 0) >= 7).length
+          const started = Array.from({ length: meta.total }, (_, i) => i + 1)
+            .filter(chId => (secMap[`${key}-${chId}`] || 0) > 0).length
+          const isOpen = openSubject === key
+
+          return (
+            <div key={key} style={{ background:'white', borderRadius:'16px', border:'1px solid #E5E7EB', marginBottom:'12px', overflow:'hidden' }}>
+              {/* Subject header — clickable to expand */}
+              <button
+                onClick={() => setOpenSubject(isOpen ? null : key)}
+                style={{ width:'100%', padding:'18px 24px', display:'flex', alignItems:'center', gap:'12px', background:'none', border:'none', cursor:'pointer', textAlign:'left' }}>
+                <span style={{ fontSize:'20px' }}>{meta.emoji}</span>
+                <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'15px', color:'#1B4332', flex:1 }}>{meta.label}</p>
+                <span style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', color: completed > 0 ? meta.color : '#9CA3AF', background:'#F3F4F6', padding:'3px 12px', borderRadius:'10px' }}>
+                  {completed}/{meta.total} done
+                </span>
+                <span style={{ color:'#9CA3AF', fontSize:'18px', marginLeft:'4px' }}>{isOpen ? '▾' : '▸'}</span>
+              </button>
+
+              {/* Chapter breakdown */}
+              {isOpen && (
+                <div style={{ borderTop:'1px solid #F3F4F6', padding:'16px 24px' }}>
+                  {Array.from({ length: meta.total }, (_, i) => i + 1).map(chId => {
+                    const secsDone  = secMap[`${key}-${chId}`] || 0
+                    const score     = scoreMap[`${key}-${chId}`]
+                    const isComplete = secsDone >= 7
+                    const isStarted  = secsDone > 0 && !isComplete
+                    const chName     = CHAPTER_NAMES[key]?.[chId] || `Chapter ${chId}`
+
+                    return (
+                      <div key={chId} style={{ display:'flex', alignItems:'center', gap:'12px', padding:'10px 0', borderBottom:'1px solid #F9FAFB' }}>
+                        {/* Status dot */}
+                        <div style={{ width:'28px', height:'28px', borderRadius:'50%', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', background: isComplete ? '#D8F3DC' : isStarted ? '#FEF3C7' : '#F3F4F6', fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'11px', color: isComplete ? '#1B4332' : isStarted ? '#92400E' : '#D1D5DB' }}>
+                          {isComplete ? '✓' : chId}
+                        </div>
+
+                        {/* Chapter name */}
+                        <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color: isComplete ? '#1B4332' : isStarted ? '#374151' : '#9CA3AF', flex:1 }}>{chName}</p>
+
+                        {/* Sections read */}
+                        {(isStarted || isComplete) && (
+                          <span style={{ fontFamily:'var(--font-body)', fontSize:'11px', color:'#9CA3AF' }}>{secsDone}/7 sections</span>
+                        )}
+
+                        {/* Quiz score */}
+                        {score != null ? (
+                          <span style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', color: scoreColor(score), background:'#F3F4F6', padding:'2px 10px', borderRadius:'8px' }}>
+                            {score}%
+                          </span>
+                        ) : isComplete ? (
+                          <span style={{ fontFamily:'var(--font-body)', fontSize:'11px', color:'#D1D5DB' }}>Quiz not taken</span>
+                        ) : null}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </ParentSidebarLayout>
   )
 }
 
 export default function ProgressPage() {
-  return <Suspense fallback={<></>}><ProgressInner/></Suspense>
+  return <Suspense fallback={<div style={{ padding:'40px', fontFamily:'var(--font-body)', color:'#9CA3AF' }}>Loading...</div>}><ProgressInner/></Suspense>
 }

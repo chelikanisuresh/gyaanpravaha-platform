@@ -9,33 +9,38 @@ import { NoTutorCard, SelfRelianceStaircase } from '@/components/ValueProps'
 
 interface Child { id: string; full_name: string; email: string }
 
-const MOCK_STATS: Record<number, { chaptersCompleted:number; totalChapters:number; avgScore:number; streak:number; todayMins:number; lastStudied:string; currentChapter:string }> = {
-  0: { chaptersCompleted:3, totalChapters:8, avgScore:85, streak:5, todayMins:22, lastStudied:'2 hours ago', currentChapter:'In Morning Dew' },
-  1: { chaptersCompleted:1, totalChapters:8, avgScore:91, streak:2, todayMins:14, lastStudied:'1 hour ago',  currentChapter:'If I Were Lord of Tartary' },
+interface Stats {
+  chaptersCompleted: number
+  totalChapters:     number
+  avgScore:          number | null
+  lastStudied:       string
+  currentChapter:    string
 }
 
-const ACTIVITY = [
-  { emoji:'📖', childIdx:0, text:'Read section 3 of "In Morning Dew"',       time:'2h ago' },
-  { emoji:'📖', childIdx:1, text:'Completed section 5 of "If I Were Lord…"', time:'1h ago' },
-  { emoji:'✅', childIdx:0, text:'Completed quiz for "The Fun They Had"',      time:'Yesterday' },
-  { emoji:'📝', childIdx:0, text:'Submitted writing for "The Fun They Had"',  time:'Yesterday' },
-  { emoji:'🔥', childIdx:1, text:'Maintained 2 day study streak',             time:'2 days ago' },
-]
+interface ActivityItem {
+  emoji:   string
+  text:    string
+  time:    string
+}
 
 const STARTERS = [
-  'What do you think the scarecrow in "In Morning Dew" finds most puzzling about the world?',
-  'If you were the king in "Three Questions", what would your three answers be?',
-  'Do you think Milkha Singh would have been as determined without his struggles?',
+  'What is one new thing your child learned today that surprised them?',
+  'Ask your child to explain one chapter they read this week in their own words.',
+  'Which subject does your child find most interesting right now, and why?',
+  'What was the hardest question in the quiz your child took recently?',
+  'Ask your child: if they could change one thing about how they study, what would it be?',
+  'What is one fact your child learned this week that they want to share with you?',
+  'Ask your child to teach you something they learned from their science chapter.',
 ]
 
 function AddChildModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
-  const [step, setStep]           = useState<'form'|'payment'>('form')
-  const [childName, setChildName] = useState('')
+  const [step, setStep]             = useState<'form'|'payment'>('form')
+  const [childName, setChildName]   = useState('')
   const [childEmail, setChildEmail] = useState('')
-  const [password, setPassword]   = useState('')
-  const [confirm, setConfirm]     = useState('')
-  const [loading, setLoading]     = useState(false)
-  const [error, setError]         = useState('')
+  const [password, setPassword]     = useState('')
+  const [confirm, setConfirm]       = useState('')
+  const [loading, setLoading]       = useState(false)
+  const [error, setError]           = useState('')
 
   const handleForm = (e: React.FormEvent) => {
     e.preventDefault(); setError('')
@@ -119,12 +124,44 @@ function AddChildModal({ onClose, onSuccess }: { onClose: () => void; onSuccess:
   )
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins  = Math.floor(diff / 60000)
+  if (mins < 60)   return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24)    return `${hrs}h ago`
+  const days = Math.floor(hrs / 24)
+  if (days === 1)  return 'Yesterday'
+  return `${days} days ago`
+}
+
+const SUBJECT_CHAPTER_COUNTS: Record<string, number> = {
+  english: 8, maths: 11, science: 9, history: 6, geography: 7, sanskrit: 8, ict: 5,
+}
+
+const CHAPTER_NAMES: Record<string, Record<number, string>> = {
+  english:   { 1:'Whistles and Shaving Bristles', 2:'If I Were Lord of Tartary', 3:'The Fun They Had', 4:'In Morning Dew', 5:'The Boy Who Outran the Wind', 6:'The Blind Boy', 7:'Three Questions', 8:'From a Railway Carriage' },
+  maths:     { 1:'Whole Numbers', 2:'HCF and LCM', 3:'Area and Perimeter', 4:'Volume', 5:'Fractions', 6:'Percentage', 7:'Ratio and Proportion', 8:'Basic Geometrical Concepts', 9:'Angles', 10:'Circles', 11:'Vedic Knowledge' },
+  science:   { 1:'Magnetism', 2:'Simple Machines', 3:'Work and Energy', 4:'Intro to Chemistry', 5:'Structure of Atom', 6:'Physical and Chemical Changes', 7:'Cell', 8:'The Leaf', 9:'Respiratory System' },
+  history:   { 1:'The Vedas', 2:'Essence of Hinduism', 3:'The Great Preachers', 4:'The Preamble', 5:'India Lives in Villages', 6:'The Power of Determination' },
+  geography: { 1:'Earth Structure', 2:'Latitudes and Longitudes', 3:'Motions of the Earth', 4:'Maps', 5:'Natural Vegetation', 6:'Our Country India', 7:'Climate and Wildlife' },
+  sanskrit:  { 1:'Prarthana', 2:'Vivekananda', 3:'Sanchalana Geetam', 4:'Sanskritabhasha Grihe Grihe', 5:'Sankhyah', 6:'Sandhi', 7:'Bhutakalah', 8:'Sambhashanam' },
+  ict:       { 1:'Intro to Computers', 2:'Input and Output Devices', 3:'Storage Devices', 4:'MS Word', 5:'The Internet' },
+}
+
+// ── Main dashboard ────────────────────────────────────────────────────────────
+
 export default function ParentDashboard() {
   const router = useRouter()
   const [children,    setChildren]    = useState<Child[]>([])
   const [activeChild, setActiveChild] = useState(0)
   const [showAdd,     setShowAdd]     = useState(false)
   const [parentName,  setParentName]  = useState('Parent')
+  const [stats,       setStats]       = useState<Stats | null>(null)
+  const [activity,    setActivity]    = useState<ActivityItem[]>([])
+  const [loading,     setLoading]     = useState(true)
 
   useEffect(() => {
     const load = async () => {
@@ -134,11 +171,90 @@ export default function ParentDashboard() {
       const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).maybeSingle()
       if (profile?.role !== 'parent') { router.push('/login'); return }
       setParentName(profile?.full_name || 'Parent')
+
+      const { data: links } = await supabase.from('parent_student_links').select('student_id').eq('parent_id', user.id)
+      if (!links?.length) { setLoading(false); return }
+      const { data: profiles } = await supabase.from('profiles').select('id, full_name, email').in('id', links.map((l: any) => l.student_id))
+      if (profiles?.length) setChildren(profiles as Child[])
     }
     load()
   }, [router])
 
-  const stats = MOCK_STATS[activeChild] ?? MOCK_STATS[0]
+  useEffect(() => {
+    if (!children.length) return
+    loadChildData(children[activeChild].id)
+  }, [children, activeChild])
+
+  const loadChildData = async (studentId: string) => {
+    setLoading(true)
+    const supabase = createClient()
+
+    // Sections read per subject-chapter
+    const { data: sections } = await supabase
+      .from('student_lesson_progress')
+      .select('subject, chapter_id, completed_at')
+      .eq('student_id', studentId)
+      .order('completed_at', { ascending: false })
+
+    // Quiz attempts
+    const { data: quizzes } = await supabase
+      .from('student_quiz_attempts')
+      .select('subject, chapter_id, score, created_at')
+      .eq('student_id', studentId)
+      .order('created_at', { ascending: false })
+
+    // ── Compute stats ──
+    const sectionMap: Record<string, number> = {}
+    sections?.forEach((s: any) => {
+      const key = `${s.subject}-${s.chapter_id}`
+      sectionMap[key] = (sectionMap[key] || 0) + 1
+    })
+
+    // Chapters fully completed (7 sections)
+    const completedChapters = Object.keys(sectionMap).filter(k => sectionMap[k] >= 7).length
+
+    // Total chapters across all subjects
+    const totalChapters = Object.values(SUBJECT_CHAPTER_COUNTS).reduce((a, b) => a + b, 0)
+
+    // Avg quiz score
+    const scores = quizzes?.map((q: any) => q.score) || []
+    const avgScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null
+
+    // Last studied
+    const lastDate = sections?.[0]?.completed_at
+    const lastStudied = lastDate ? timeAgo(lastDate) : 'Not yet'
+
+    // Current chapter — most recent incomplete chapter
+    const inProgress = Object.keys(sectionMap)
+      .filter(k => sectionMap[k] < 7 && sectionMap[k] > 0)
+      .sort((a, b) => sectionMap[b] - sectionMap[a])
+    let currentChapter = 'No chapter in progress'
+    if (inProgress.length) {
+      const [subj, chapId] = inProgress[0].split('-')
+      currentChapter = CHAPTER_NAMES[subj]?.[Number(chapId)] || `Chapter ${chapId}`
+    }
+
+    setStats({ chaptersCompleted: completedChapters, totalChapters, avgScore, lastStudied, currentChapter })
+
+    // ── Build activity feed ──
+    const feed: ActivityItem[] = []
+
+    // Recent sections read
+    sections?.slice(0, 3).forEach((s: any) => {
+      const name = CHAPTER_NAMES[s.subject]?.[s.chapter_id] || `Chapter ${s.chapter_id}`
+      feed.push({ emoji: '📖', text: `Read a section of "${name}"`, time: timeAgo(s.completed_at) })
+    })
+
+    // Recent quiz attempts
+    quizzes?.slice(0, 2).forEach((q: any) => {
+      const name = CHAPTER_NAMES[q.subject]?.[q.chapter_id] || `Chapter ${q.chapter_id}`
+      feed.push({ emoji: '✅', text: `Completed quiz for "${name}" — scored ${q.score}%`, time: timeAgo(q.created_at) })
+    })
+
+    // Sort by recency (rough — already ordered from DB)
+    setActivity(feed.slice(0, 5))
+    setLoading(false)
+  }
 
   return (
     <ParentSidebarLayout parentName={parentName}>
@@ -155,45 +271,63 @@ export default function ParentDashboard() {
           </div>
         )}
 
+        {/* No children yet */}
+        {!loading && children.length === 0 && (
+          <div style={{ background:'white', borderRadius:'16px', border:'1px solid #E5E7EB', padding:'48px', textAlign:'center', marginBottom:'20px' }}>
+            <p style={{ fontSize:'40px', marginBottom:'12px' }}>👶</p>
+            <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'18px', color:'#1B4332', marginBottom:'8px' }}>No students linked yet</p>
+            <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#9CA3AF' }}>Your children's accounts will appear here once registered.</p>
+          </div>
+        )}
+
         {/* Stats row */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))', gap:'12px', marginBottom:'24px' }}>
-          {[
-            { label:'Chapters done',  value:`${stats.chaptersCompleted}/${stats.totalChapters}`, color:'#1E40AF', bg:'#DBEAFE' },
-            { label:'Avg quiz score', value:`${stats.avgScore}%`,                                color:'#065F46', bg:'#D8F3DC' },
-            { label:'Study streak',   value:`${stats.streak} days`,                              color:'#92400E', bg:'#FEF3C7' },
-            { label:'Today',          value:`${stats.todayMins} min`,                            color:'#7C3AED', bg:'#F5F3FF' },
-          ].map(s => (
-            <div key={s.label} style={{ background:s.bg, borderRadius:'14px', padding:'16px' }}>
-              <p style={{ fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'22px', color:s.color, lineHeight:1 }}>{s.value}</p>
-              <p style={{ fontFamily:'var(--font-body)', fontSize:'11px', color:s.color, opacity:0.75, marginTop:'4px' }}>{s.label}</p>
-            </div>
-          ))}
-        </div>
+        {stats && (
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))', gap:'12px', marginBottom:'24px' }}>
+            {[
+              { label:'Chapters done',  value:`${stats.chaptersCompleted}/${stats.totalChapters}`, color:'#1E40AF', bg:'#DBEAFE' },
+              { label:'Avg quiz score', value: stats.avgScore != null ? `${stats.avgScore}%` : '—',  color:'#065F46', bg:'#D8F3DC' },
+              { label:'Last studied',   value: stats.lastStudied,                                    color:'#92400E', bg:'#FEF3C7' },
+            ].map(s => (
+              <div key={s.label} style={{ background:s.bg, borderRadius:'14px', padding:'16px' }}>
+                <p style={{ fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'20px', color:s.color, lineHeight:1 }}>{s.value}</p>
+                <p style={{ fontFamily:'var(--font-body)', fontSize:'11px', color:s.color, opacity:0.75, marginTop:'4px' }}>{s.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Current chapter */}
-        <div style={{ background:'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius:'16px', padding:'20px 24px', marginBottom:'20px', display:'flex', alignItems:'center', gap:'16px' }}>
-          <AnimatedBook/>
-          <div>
-            <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'11px', color:'rgba(255,255,255,0.6)', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:'4px' }}>Currently reading</p>
-            <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'17px', color:'white' }}>{stats.currentChapter}</p>
-            <p style={{ fontFamily:'var(--font-body)', fontSize:'12px', color:'rgba(255,255,255,0.55)', marginTop:'3px' }}>Last studied {stats.lastStudied}</p>
+        {stats && (
+          <div style={{ background:'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius:'16px', padding:'20px 24px', marginBottom:'20px', display:'flex', alignItems:'center', gap:'16px' }}>
+            <AnimatedBook/>
+            <div>
+              <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'11px', color:'rgba(255,255,255,0.6)', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:'4px' }}>Currently reading</p>
+              <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'17px', color:'white' }}>{stats.currentChapter}</p>
+              <p style={{ fontFamily:'var(--font-body)', fontSize:'12px', color:'rgba(255,255,255,0.55)', marginTop:'3px' }}>Last studied {stats.lastStudied}</p>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Recent activity */}
         <div style={{ background:'white', borderRadius:'16px', border:'1px solid #E5E7EB', padding:'20px 24px', marginBottom:'20px' }}>
           <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'13px', color:'#1B4332', marginBottom:'14px' }}>Recent activity</p>
-          <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
-            {ACTIVITY.filter(a => children.length <= 1 || a.childIdx === activeChild).slice(0, 4).map((a, i) => (
-              <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:'10px' }}>
-                <span style={{ fontSize:'16px', flexShrink:0 }}>{a.emoji}</span>
-                <div style={{ flex:1 }}>
-                  <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'#374151' }}>{a.text}</p>
-                  <p style={{ fontFamily:'var(--font-body)', fontSize:'11px', color:'#9CA3AF', marginTop:'2px' }}>{a.time}</p>
+          {activity.length === 0 ? (
+            <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#9CA3AF', textAlign:'center', padding:'16px 0' }}>
+              No activity yet — your child hasn't started reading yet.
+            </p>
+          ) : (
+            <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+              {activity.map((a, i) => (
+                <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:'10px' }}>
+                  <span style={{ fontSize:'16px', flexShrink:0 }}>{a.emoji}</span>
+                  <div style={{ flex:1 }}>
+                    <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'#374151' }}>{a.text}</p>
+                    <p style={{ fontFamily:'var(--font-body)', fontSize:'11px', color:'#9CA3AF', marginTop:'2px' }}>{a.time}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Conversation starter */}
@@ -210,7 +344,7 @@ export default function ParentDashboard() {
         {showAdd && (
           <AddChildModal
             onClose={() => setShowAdd(false)}
-            onSuccess={() => setShowAdd(false)}
+            onSuccess={() => { setShowAdd(false); window.location.reload() }}
           />
         )}
       </div>
