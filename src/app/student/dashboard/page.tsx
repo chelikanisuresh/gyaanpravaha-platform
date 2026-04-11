@@ -20,6 +20,14 @@ const CHAPTERS = [
   { id: 8, title: 'From a Railway Carriage',       type: 'Poetry',    emoji: '🚂', estimatedReadMins: 10 },
 ]
 
+const ICT_CHAPTERS = [
+  { id: 1, title: 'File Management — Organization of Data', type: 'Concepts', emoji: '📁', estimatedReadMins: 12 },
+  { id: 2, title: 'Artificial Intelligence',                type: 'AI',       emoji: '🤖', estimatedReadMins: 14 },
+  { id: 3, title: 'Introduction to HTML',                   type: 'HTML',     emoji: '🌐', estimatedReadMins: 15 },
+  { id: 4, title: 'HTML — Formatting a Web Page',           type: 'HTML',     emoji: '🎨', estimatedReadMins: 16 },
+  { id: 5, title: 'Creating Tables in HTML',                type: 'Practical',emoji: '📊', estimatedReadMins: 13 },
+]
+
 const HC_CHAPTERS = [
   { id: 1, title: 'The Vedas — Our Sacred Heritage',             type: 'History', emoji: '📜', estimatedReadMins: 18 },
   { id: 2, title: 'Essence of Hinduism',                         type: 'History', emoji: '🕉️',  estimatedReadMins: 16 },
@@ -554,6 +562,127 @@ function HistoryCivicsSubjectPage({ studentId }: { studentId: string }) {
   )
 }
 
+// ── ICT subject page ──────────────────────────────────────────────────────────
+
+function ICTSubjectPage({ studentId }: { studentId: string }) {
+  const [progress, setProgress] = useState<Record<number, number>>({})
+  const [scores,   setScores]   = useState<Record<number, number>>({})
+
+  useEffect(() => {
+    const load = async () => {
+      const supabase = createClient()
+      const { data: secs } = await supabase.from('student_lesson_progress').select('chapter_id').eq('student_id', studentId).eq('subject', 'ict')
+      const countMap: Record<number, number> = {}
+      secs?.forEach((r: any) => { countMap[r.chapter_id] = (countMap[r.chapter_id] || 0) + 1 })
+      setProgress(countMap)
+      const { data: quiz } = await supabase.from('student_quiz_attempts').select('chapter_id, score').eq('student_id', studentId).eq('subject', 'ict').order('created_at', { ascending: false })
+      const scoreMap: Record<number, number> = {}
+      quiz?.forEach((r: any) => { if (!(r.chapter_id in scoreMap)) scoreMap[r.chapter_id] = r.score })
+      setScores(scoreMap)
+    }
+    load()
+  }, [studentId])
+
+  const currentChapter  = ICT_CHAPTERS.find(c => (progress[c.id] || 0) < 7)
+  const completedCount  = ICT_CHAPTERS.filter(c => (progress[c.id] || 0) >= 7).length
+  const overallProgress = Math.round((completedCount / ICT_CHAPTERS.length) * 100)
+
+  const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
+    'Concepts':  { bg: '#D8F3DC', text: '#1B4332' },
+    'AI':        { bg: '#EDE9FE', text: '#5B21B6' },
+    'HTML':      { bg: '#DBEAFE', text: '#1E40AF' },
+    'Practical': { bg: '#FEF3C7', text: '#92400E' },
+  }
+
+  return (
+    <div style={{ width: '100%' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '28px', color: '#1B4332', marginBottom: '4px' }}>💻 ICT</h1>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>Connexion — Class 6, Project 1 · {completedCount} of {ICT_CHAPTERS.length} chapters completed</p>
+      </div>
+
+      <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '20px 24px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>File management, AI, and HTML web development</p>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ background: '#D8F3DC', borderRadius: '10px', padding: '10px 16px', textAlign: 'center' }}>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '18px', color: '#1B4332', lineHeight: 1 }}>{completedCount}/{ICT_CHAPTERS.length}</p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#40916C', marginTop: '2px' }}>Chapters</p>
+            </div>
+          </div>
+        </div>
+        <div style={{ height: '8px', background: '#E5E7EB', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${overallProgress}%`, background: 'linear-gradient(90deg,#2D6A4F,#52B788)', borderRadius: '4px', transition: 'width 0.8s ease' }}/>
+        </div>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF', marginTop: '6px' }}>{overallProgress}% complete — keep going!</p>
+      </div>
+
+      {currentChapter && (
+        <div style={{ marginBottom: '20px' }}>
+          <style>{`@keyframes gp-b{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}.gp-b{animation:gp-b 2.5s ease-in-out infinite}`}</style>
+          <div className="gp-b">
+            <Link href={`/student/ict-chapter/${currentChapter.id}`} style={{ textDecoration: 'none' }}>
+              <div style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '18px', padding: '22px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: '#74C69D', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '5px' }}>
+                    {(progress[currentChapter.id] || 0) > 0 ? '📖 Continue reading' : '▶️ Start reading'}
+                  </p>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '20px', color: 'white', lineHeight: 1.3, marginBottom: '4px' }}>{currentChapter.title}</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.55)' }}>Chapter {currentChapter.id} · {currentChapter.type} · {currentChapter.estimatedReadMins} min read</p>
+                </div>
+                <div style={{ width: '44px', height: '44px', background: '#74C69D', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 3l7 6-7 6" stroke="#1B4332" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>All chapters</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {ICT_CHAPTERS.map(chapter => {
+          const secsDone = progress[chapter.id] || 0
+          const isCompleted = secsDone >= 7
+          const isStarted = secsDone > 0 && !isCompleted
+          const isCurrent = chapter.id === currentChapter?.id
+          const isLocked = !isCurrent && !isStarted && !isCompleted && chapter.id > (currentChapter?.id || 1)
+          const typeStyle = TYPE_COLORS[chapter.type] || { bg: '#F3F4F6', text: '#374151' }
+          const score = scores[chapter.id]
+          const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : isCurrent ? 'Start' : '—'
+          return (
+            <Link key={chapter.id} href={isLocked ? '#' : `/student/ict-chapter/${chapter.id}`} onClick={e => isLocked && e.preventDefault()} style={{ textDecoration: 'none', display: 'block' }}>
+              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', opacity: isLocked ? 0.45 : 1, position: 'relative', overflow: 'hidden', cursor: isLocked ? 'not-allowed' : 'pointer', transition: 'box-shadow 0.15s' }}
+                onMouseEnter={e => { if (!isLocked) e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}>
+                {(isCompleted || isCurrent) && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: isCompleted ? '#10B981' : '#2D6A4F', borderRadius: '16px 0 0 16px' }}/>}
+                <div style={{ width: '40px', height: '40px', minWidth: '40px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isCompleted ? '#D8F3DC' : isCurrent ? '#2D6A4F' : '#F3F4F6', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: isCompleted ? '#1B4332' : isCurrent ? 'white' : '#9CA3AF' }}>
+                  {isCompleted ? '✓' : chapter.id}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: isLocked ? '#9CA3AF' : '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
+                    {isCurrent && !isCompleted && <span style={{ background: '#2D6A4F', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '2px 8px', borderRadius: '10px', flexShrink: 0 }}>UP NEXT</span>}
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontFamily: 'var(--font-heading)', fontWeight: 700, background: typeStyle.bg, color: typeStyle.text }}>{chapter.type}</span>
+                    <span style={{ fontSize: '12px', color: '#9CA3AF' }}>⏱ {chapter.estimatedReadMins} min</span>
+                    <span style={{ fontSize: '12px', color: '#9CA3AF' }}>📋 7 sections</span>
+                    {isStarted && <span style={{ fontSize: '12px', color: '#F59E0B', fontWeight: 600 }}>{secsDone}/7 read</span>}
+                    {score != null && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444' }}>Score: {score}%</span>}
+                  </div>
+                </div>
+                {!isLocked && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6', color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #D8F3DC' : 'none' }}>{ctaLabel}</span>}
+                {isLocked && <span style={{ fontSize: '16px', flexShrink: 0 }}>🔒</span>}
+              </div>
+            </Link>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ── Coming soon ──────────────────────────────────────────────────────────────
 
 function ComingSoon({ subject }: { subject: string }) {
@@ -584,7 +713,7 @@ export default function StudentMainPage() {
           case 'history':   return <HistoryCivicsSubjectPage studentId={studentId}/>
           case 'geo':       return <ComingSoon subject="Geography"/>
           case 'sanskrit':  return <ComingSoon subject="Sanskrit"/>
-          case 'ict':       return <ComingSoon subject="ICT"/>
+          case 'ict':       return <ICTSubjectPage         studentId={studentId}/>
           case 'profile':   return <StudentProfileContent   studentId={studentId}/>
           default:          return <DashboardHome           studentId={studentId}/>
         }
