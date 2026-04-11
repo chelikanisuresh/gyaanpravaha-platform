@@ -469,6 +469,7 @@ export default function HomePage() {
         </div>
         <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'rgba(255,255,255,0.45)' }}>Learn it. Know it. Flow with it.</p>
         <p style={{ fontFamily:'var(--font-body)', fontSize:'12px', color:'rgba(255,255,255,0.28)' }}>© 2026 Gyaanpravaha · gyaanpravaha.in</p>
+        <Link href="/admin/login" style={{ fontFamily:'var(--font-body)', fontSize:'11px', color:'rgba(255,255,255,0.18)', textDecoration:'none', marginTop:'4px' }}>Admin</Link>
       </footer>
     </div>
   )
