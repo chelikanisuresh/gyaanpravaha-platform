@@ -284,17 +284,15 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
           const isCompleted = secsDone >= 7
           const isStarted   = secsDone > 0 && !isCompleted
           const isCurrent   = chapter.id === currentChapter?.id
-          const isLocked    = !isCurrent && !isStarted && !isCompleted && chapter.id > (currentChapter?.id || 1)
           const typeStyle   = TYPE_COLORS[chapter.type] || { bg: '#F3F4F6', text: '#374151' }
           const score       = scores[chapter.id]
 
-          const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : isCurrent ? 'Start' : '—'
+          const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : 'Start'
 
           return (
             <Link
               key={chapter.id}
-              href={isLocked ? '#' : `/student/chapter/${chapter.id}`}
-              onClick={e => isLocked && e.preventDefault()}
+              href={`/student/chapter/${chapter.id}`}
               style={{ textDecoration: 'none', display: 'block' }}
             >
             <div
@@ -304,12 +302,10 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
                 border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB',
                 padding: '16px 20px',
                 display: 'flex', alignItems: 'center', gap: '14px',
-                opacity: isLocked ? 0.45 : 1,
                 position: 'relative', overflow: 'hidden',
-                transition: 'box-shadow 0.15s',
-                cursor: isLocked ? 'not-allowed' : 'pointer',
+                transition: 'box-shadow 0.15s', cursor: 'pointer',
               }}
-              onMouseEnter={e => { if (!isLocked) e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}
             >
               {/* Left colour bar */}
@@ -325,7 +321,7 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
               {/* Info */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: isLocked ? '#9CA3AF' : '#1B4332', lineHeight: 1.3 }}>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#1B4332', lineHeight: 1.3 }}>
                     {chapter.title}
                   </p>
                   {isCurrent && !isCompleted && (
@@ -346,8 +342,7 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
               </div>
 
               {/* CTA label */}
-              {!isLocked && (
-                <span style={{
+              <span style={{
                   fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px',
                   padding: '8px 18px', borderRadius: '8px', flexShrink: 0,
                   background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6',
@@ -356,8 +351,6 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
                 }}>
                   {ctaLabel}
                 </span>
-              )}
-              {isLocked && <span style={{ fontSize: '16px', flexShrink: 0 }}>🔒</span>}
             </div>
             </Link>
           )
@@ -560,20 +553,18 @@ function HistoryCivicsSubjectPage({ studentId }: { studentId: string }) {
           const isCompleted = secsDone >= 7
           const isStarted   = secsDone > 0 && !isCompleted
           const isCurrent   = chapter.id === currentChapter?.id
-          const isLocked    = !isCurrent && !isStarted && !isCompleted && chapter.id > (currentChapter?.id || 1)
           const typeStyle   = TYPE_COLORS[chapter.type] || { bg: '#F3F4F6', text: '#374151' }
           const score       = scores[chapter.id]
-          const ctaLabel    = isCompleted ? 'Review' : isStarted ? 'Resume' : isCurrent ? 'Start' : '—'
+          const ctaLabel    = isCompleted ? 'Review' : isStarted ? 'Resume' : 'Start'
 
           return (
             <Link
               key={chapter.id}
-              href={isLocked ? '#' : `/student/hc-chapter/${chapter.id}`}
-              onClick={e => isLocked && e.preventDefault()}
+              href={`/student/hc-chapter/${chapter.id}`}
               style={{ textDecoration: 'none', display: 'block' }}
             >
-              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', opacity: isLocked ? 0.45 : 1, position: 'relative', overflow: 'hidden', cursor: isLocked ? 'not-allowed' : 'pointer', transition: 'box-shadow 0.15s' }}
-                onMouseEnter={e => { if (!isLocked) e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
+              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', position: 'relative', overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
                 onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}
               >
                 {(isCompleted || isCurrent) && (
@@ -584,7 +575,7 @@ function HistoryCivicsSubjectPage({ studentId }: { studentId: string }) {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: isLocked ? '#9CA3AF' : '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
                     {isCurrent && !isCompleted && <span style={{ background: '#2D6A4F', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '2px 8px', borderRadius: '10px', flexShrink: 0 }}>UP NEXT</span>}
                   </div>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -595,12 +586,9 @@ function HistoryCivicsSubjectPage({ studentId }: { studentId: string }) {
                     {score != null && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444' }}>Score: {score}%</span>}
                   </div>
                 </div>
-                {!isLocked && (
-                  <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6', color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #D8F3DC' : 'none' }}>
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6', color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #D8F3DC' : 'none' }}>
                     {ctaLabel}
                   </span>
-                )}
-                {isLocked && <span style={{ fontSize: '16px', flexShrink: 0 }}>🔒</span>}
               </div>
             </Link>
           )
@@ -692,13 +680,12 @@ function GeographySubjectPage({ studentId }: { studentId: string }) {
           const secsDone = progress[chapter.id] || 0
           const isCompleted = secsDone >= 7; const isStarted = secsDone > 0 && !isCompleted
           const isCurrent = chapter.id === currentChapter?.id
-          const isLocked = !isCurrent && !isStarted && !isCompleted && chapter.id > (currentChapter?.id || 1)
           const typeStyle = TYPE_COLORS[chapter.type] || { bg: '#F3F4F6', text: '#374151' }
-          const score = scores[chapter.id]; const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : isCurrent ? 'Start' : '—'
+          const score = scores[chapter.id]; const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : 'Start'
           return (
-            <Link key={chapter.id} href={isLocked ? '#' : `/student/geo-chapter/${chapter.id}`} onClick={e => isLocked && e.preventDefault()} style={{ textDecoration: 'none', display: 'block' }}>
-              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', opacity: isLocked ? 0.45 : 1, position: 'relative', overflow: 'hidden', cursor: isLocked ? 'not-allowed' : 'pointer', transition: 'box-shadow 0.15s' }}
-                onMouseEnter={e => { if (!isLocked) e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
+            <Link key={chapter.id} href={`/student/geo-chapter/${chapter.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', position: 'relative', overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
                 onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}>
                 {(isCompleted || isCurrent) && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: isCompleted ? '#10B981' : '#2D6A4F', borderRadius: '16px 0 0 16px' }}/>}
                 <div style={{ width: '40px', height: '40px', minWidth: '40px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isCompleted ? '#D8F3DC' : isCurrent ? '#2D6A4F' : '#F3F4F6', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: isCompleted ? '#1B4332' : isCurrent ? 'white' : '#9CA3AF' }}>
@@ -706,7 +693,7 @@ function GeographySubjectPage({ studentId }: { studentId: string }) {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: isLocked ? '#9CA3AF' : '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
                     {isCurrent && !isCompleted && <span style={{ background: '#2D6A4F', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '2px 8px', borderRadius: '10px', flexShrink: 0 }}>UP NEXT</span>}
                   </div>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -717,8 +704,7 @@ function GeographySubjectPage({ studentId }: { studentId: string }) {
                     {score != null && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444' }}>Score: {score}%</span>}
                   </div>
                 </div>
-                {!isLocked && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6', color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #D8F3DC' : 'none' }}>{ctaLabel}</span>}
-                {isLocked && <span style={{ fontSize: '16px', flexShrink: 0 }}>🔒</span>}
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6', color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #D8F3DC' : 'none' }}>{ctaLabel}</span>
               </div>
             </Link>
           )
@@ -814,14 +800,13 @@ function ICTSubjectPage({ studentId }: { studentId: string }) {
           const isCompleted = secsDone >= 7
           const isStarted = secsDone > 0 && !isCompleted
           const isCurrent = chapter.id === currentChapter?.id
-          const isLocked = !isCurrent && !isStarted && !isCompleted && chapter.id > (currentChapter?.id || 1)
           const typeStyle = TYPE_COLORS[chapter.type] || { bg: '#F3F4F6', text: '#374151' }
           const score = scores[chapter.id]
-          const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : isCurrent ? 'Start' : '—'
+          const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : 'Start'
           return (
-            <Link key={chapter.id} href={isLocked ? '#' : `/student/ict-chapter/${chapter.id}`} onClick={e => isLocked && e.preventDefault()} style={{ textDecoration: 'none', display: 'block' }}>
-              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', opacity: isLocked ? 0.45 : 1, position: 'relative', overflow: 'hidden', cursor: isLocked ? 'not-allowed' : 'pointer', transition: 'box-shadow 0.15s' }}
-                onMouseEnter={e => { if (!isLocked) e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
+            <Link key={chapter.id} href={`/student/ict-chapter/${chapter.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', position: 'relative', overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
                 onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}>
                 {(isCompleted || isCurrent) && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: isCompleted ? '#10B981' : '#2D6A4F', borderRadius: '16px 0 0 16px' }}/>}
                 <div style={{ width: '40px', height: '40px', minWidth: '40px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isCompleted ? '#D8F3DC' : isCurrent ? '#2D6A4F' : '#F3F4F6', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: isCompleted ? '#1B4332' : isCurrent ? 'white' : '#9CA3AF' }}>
@@ -829,7 +814,7 @@ function ICTSubjectPage({ studentId }: { studentId: string }) {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: isLocked ? '#9CA3AF' : '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
                     {isCurrent && !isCompleted && <span style={{ background: '#2D6A4F', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '2px 8px', borderRadius: '10px', flexShrink: 0 }}>UP NEXT</span>}
                   </div>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -840,8 +825,7 @@ function ICTSubjectPage({ studentId }: { studentId: string }) {
                     {score != null && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444' }}>Score: {score}%</span>}
                   </div>
                 </div>
-                {!isLocked && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6', color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #D8F3DC' : 'none' }}>{ctaLabel}</span>}
-                {isLocked && <span style={{ fontSize: '16px', flexShrink: 0 }}>🔒</span>}
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6', color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #D8F3DC' : 'none' }}>{ctaLabel}</span>
               </div>
             </Link>
           )
@@ -934,13 +918,12 @@ function SanskritSubjectPage({ studentId }: { studentId: string }) {
           const secsDone = progress[chapter.id] || 0
           const isCompleted = secsDone >= 7; const isStarted = secsDone > 0 && !isCompleted
           const isCurrent = chapter.id === currentChapter?.id
-          const isLocked = !isCurrent && !isStarted && !isCompleted && chapter.id > (currentChapter?.id || 1)
           const typeStyle = TYPE_COLORS[chapter.type] || { bg: '#F3F4F6', text: '#374151' }
-          const score = scores[chapter.id]; const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : isCurrent ? 'Start' : '—'
+          const score = scores[chapter.id]; const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : 'Start'
           return (
-            <Link key={chapter.id} href={isLocked ? '#' : `/student/skt-chapter/${chapter.id}`} onClick={e => isLocked && e.preventDefault()} style={{ textDecoration: 'none', display: 'block' }}>
-              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', opacity: isLocked ? 0.45 : 1, position: 'relative', overflow: 'hidden', cursor: isLocked ? 'not-allowed' : 'pointer', transition: 'box-shadow 0.15s' }}
-                onMouseEnter={e => { if (!isLocked) e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
+            <Link key={chapter.id} href={`/student/skt-chapter/${chapter.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', position: 'relative', overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
                 onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}>
                 {(isCompleted || isCurrent) && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: isCompleted ? '#10B981' : '#2D6A4F', borderRadius: '16px 0 0 16px' }}/>}
                 <div style={{ width: '40px', height: '40px', minWidth: '40px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isCompleted ? '#D8F3DC' : isCurrent ? '#2D6A4F' : '#F3F4F6', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: isCompleted ? '#1B4332' : isCurrent ? 'white' : '#9CA3AF' }}>
@@ -948,7 +931,7 @@ function SanskritSubjectPage({ studentId }: { studentId: string }) {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: isLocked ? '#9CA3AF' : '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
                     {isCurrent && !isCompleted && <span style={{ background: '#2D6A4F', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '2px 8px', borderRadius: '10px', flexShrink: 0 }}>UP NEXT</span>}
                   </div>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -959,7 +942,7 @@ function SanskritSubjectPage({ studentId }: { studentId: string }) {
                     {score != null && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444' }}>Score: {score}%</span>}
                   </div>
                 </div>
-                {!isLocked && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6', color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #D8F3DC' : 'none' }}>{ctaLabel}</span>}
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6', color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #D8F3DC' : 'none' }}>{ctaLabel}</span>
               </div>
             </Link>
           )
@@ -1048,13 +1031,12 @@ function ScienceSubjectPage({ studentId }: { studentId: string }) {
           const secsDone = progress[chapter.id] || 0
           const isCompleted = secsDone >= 7; const isStarted = secsDone > 0 && !isCompleted
           const isCurrent = chapter.id === currentChapter?.id
-          const isLocked = !isCurrent && !isStarted && !isCompleted && chapter.id > (currentChapter?.id || 1)
           const typeStyle = TYPE_COLORS[chapter.type] || { bg: '#F3F4F6', text: '#374151' }
-          const score = scores[chapter.id]; const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : isCurrent ? 'Start' : '—'
+          const score = scores[chapter.id]; const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : 'Start'
           return (
-            <Link key={chapter.id} href={isLocked ? '#' : `/student/sci-chapter/${chapter.id}`} onClick={e => isLocked && e.preventDefault()} style={{ textDecoration: 'none', display: 'block' }}>
-              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', opacity: isLocked ? 0.45 : 1, position: 'relative', overflow: 'hidden', cursor: isLocked ? 'not-allowed' : 'pointer', transition: 'box-shadow 0.15s' }}
-                onMouseEnter={e => { if (!isLocked) e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
+            <Link key={chapter.id} href={`/student/sci-chapter/${chapter.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+              <div style={{ background: isCompleted ? '#F0FDF4' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #2D6A4F' : isCompleted ? '1px solid #D8F3DC' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', position: 'relative', overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
                 onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}>
                 {(isCompleted || isCurrent) && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: isCompleted ? '#10B981' : '#2D6A4F', borderRadius: '16px 0 0 16px' }}/>}
                 <div style={{ width: '40px', height: '40px', minWidth: '40px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isCompleted ? '#D8F3DC' : isCurrent ? '#2D6A4F' : '#F3F4F6', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: isCompleted ? '#1B4332' : isCurrent ? 'white' : '#9CA3AF' }}>
@@ -1062,7 +1044,7 @@ function ScienceSubjectPage({ studentId }: { studentId: string }) {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: isLocked ? '#9CA3AF' : '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
                     {isCurrent && !isCompleted && <span style={{ background: '#2D6A4F', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '2px 8px', borderRadius: '10px', flexShrink: 0 }}>UP NEXT</span>}
                   </div>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -1073,7 +1055,7 @@ function ScienceSubjectPage({ studentId }: { studentId: string }) {
                     {score != null && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444' }}>Score: {score}%</span>}
                   </div>
                 </div>
-                {!isLocked && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6', color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #D8F3DC' : 'none' }}>{ctaLabel}</span>}
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#2D6A4F' : '#F3F4F6', color: isCompleted ? '#2D6A4F' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #D8F3DC' : 'none' }}>{ctaLabel}</span>
               </div>
             </Link>
           )
@@ -1164,14 +1146,13 @@ function MathsSubjectPage({ studentId }: { studentId: string }) {
           const isCompleted = secsDone >= 7
           const isStarted   = secsDone > 0 && !isCompleted
           const isCurrent   = chapter.id === currentChapter?.id
-          const isLocked    = !isCurrent && !isStarted && !isCompleted && chapter.id > (currentChapter?.id || 1)
           const typeStyle   = TYPE_COLORS[chapter.type] || { bg: '#F3F4F6', text: '#374151' }
           const score       = scores[chapter.id]
-          const ctaLabel    = isCompleted ? 'Review' : isStarted ? 'Resume' : isCurrent ? 'Start' : '—'
+          const ctaLabel    = isCompleted ? 'Review' : isStarted ? 'Resume' : 'Start'
           return (
-            <Link key={chapter.id} href={isLocked ? '#' : `/student/mth-chapter/${chapter.id}`} onClick={e => isLocked && e.preventDefault()} style={{ textDecoration: 'none', display: 'block' }}>
-              <div style={{ background: isCompleted ? '#EFF6FF' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #1E40AF' : isCompleted ? '1px solid #BFDBFE' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', opacity: isLocked ? 0.45 : 1, position: 'relative', overflow: 'hidden', cursor: isLocked ? 'not-allowed' : 'pointer', transition: 'box-shadow 0.15s' }}
-                onMouseEnter={e => { if (!isLocked) e.currentTarget.style.boxShadow = '0 4px 14px rgba(30,64,175,0.08)' }}
+            <Link key={chapter.id} href={`/student/mth-chapter/${chapter.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+              <div style={{ background: isCompleted ? '#EFF6FF' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #1E40AF' : isCompleted ? '1px solid #BFDBFE' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', position: 'relative', overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
                 onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}>
                 {(isCompleted || isCurrent) && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: isCompleted ? '#3B82F6' : '#1E40AF', borderRadius: '16px 0 0 16px' }}/>}
                 <div style={{ width: '40px', height: '40px', minWidth: '40px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isCompleted ? '#DBEAFE' : isCurrent ? '#1E40AF' : '#F3F4F6', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: isCompleted ? '#1E40AF' : isCurrent ? 'white' : '#9CA3AF' }}>
@@ -1179,7 +1160,7 @@ function MathsSubjectPage({ studentId }: { studentId: string }) {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: isLocked ? '#9CA3AF' : '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
                     {isCurrent && !isCompleted && <span style={{ background: '#1E40AF', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '2px 8px', borderRadius: '10px', flexShrink: 0 }}>UP NEXT</span>}
                   </div>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -1190,7 +1171,7 @@ function MathsSubjectPage({ studentId }: { studentId: string }) {
                     {score != null && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444' }}>Score: {score}%</span>}
                   </div>
                 </div>
-                {!isLocked && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#1E40AF' : '#F3F4F6', color: isCompleted ? '#1E40AF' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #BFDBFE' : 'none' }}>{ctaLabel}</span>}
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#1E40AF' : '#F3F4F6', color: isCompleted ? '#1E40AF' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #BFDBFE' : 'none' }}>{ctaLabel}</span>
               </div>
             </Link>
           )
