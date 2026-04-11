@@ -16,6 +16,7 @@ const DASHBOARD_CHILDREN = [
 ]
 
 const OTHER_LINKS = [
+  { label: 'Invoices',     href: '/parent/dashboard/invoices', emoji: '🧾' },
   { label: 'Password',     href: '/parent/password',     emoji: '🔑' },
   { label: 'Subscription', href: '/parent/subscription', emoji: '📅' },
   { label: 'Help',         href: '/parent/help',         emoji: '🎫' },
