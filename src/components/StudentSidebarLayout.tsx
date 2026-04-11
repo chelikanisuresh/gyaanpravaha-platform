@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const SUBJECTS = [
-  { id: 'english',  label: 'English',          emoji: '📖', available: true  },
-  { id: 'maths',    label: 'Mathematics',       emoji: '🔢', available: false },
-  { id: 'science',  label: 'Science',           emoji: '🔬', available: false },
-  { id: 'history',  label: 'History & Civics',  emoji: '🏛️', available: false },
-  { id: 'geo',      label: 'Geography',         emoji: '🌍', available: false },
-  { id: 'sanskrit', label: 'Sanskrit',          emoji: '📜', available: false },
-  { id: 'ict',      label: 'ICT',               emoji: '💻', available: false },
+  { id: 'english',  label: 'English',          emoji: '📖', available: true },
+  { id: 'maths',    label: 'Mathematics',       emoji: '🔢', available: true },
+  { id: 'science',  label: 'Science',           emoji: '🔬', available: true },
+  { id: 'history',  label: 'History & Civics',  emoji: '🏛️', available: true },
+  { id: 'geo',      label: 'Geography',         emoji: '🌍', available: true },
+  { id: 'sanskrit', label: 'Sanskrit',          emoji: '📜', available: true },
+  { id: 'ict',      label: 'ICT',               emoji: '💻', available: true },
 ]
 
 type ActiveSection = 'dashboard' | 'english' | 'maths' | 'science' | 'history' | 'geo' | 'sanskrit' | 'ict' | 'profile'
