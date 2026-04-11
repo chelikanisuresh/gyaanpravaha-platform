@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import StudentSidebarLayout from '@/components/StudentSidebarLayout'
 import StudentDashboardPanel from '@/components/StudentDashboardPanel'
 import WordGames, { WordSearch, MeaningMatch } from '@/components/WordGames'
+import ClassQuestionsWidget from '@/components/ClassQuestionsWidget'
 
 // ── Chapter data ─────────────────────────────────────────────────────────────
 
@@ -364,6 +365,8 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
           )
         })}
       </div>
+
+      <ClassQuestionsWidget subject="english" studentId={studentId}/>
     </div>
   )
 }
@@ -605,6 +608,8 @@ function HistoryCivicsSubjectPage({ studentId }: { studentId: string }) {
           )
         })}
       </div>
+
+      <ClassQuestionsWidget subject="history" studentId={studentId}/>
     </div>
   )
 }
@@ -721,6 +726,8 @@ function GeographySubjectPage({ studentId }: { studentId: string }) {
           )
         })}
       </div>
+
+      <ClassQuestionsWidget subject="geography" studentId={studentId}/>
     </div>
   )
 }
@@ -842,6 +849,8 @@ function ICTSubjectPage({ studentId }: { studentId: string }) {
           )
         })}
       </div>
+
+      <ClassQuestionsWidget subject="ict" studentId={studentId}/>
     </div>
   )
 }
@@ -958,6 +967,8 @@ function SanskritSubjectPage({ studentId }: { studentId: string }) {
           )
         })}
       </div>
+
+      <ClassQuestionsWidget subject="sanskrit" studentId={studentId}/>
     </div>
   )
 }
@@ -1070,6 +1081,8 @@ function ScienceSubjectPage({ studentId }: { studentId: string }) {
           )
         })}
       </div>
+
+      <ClassQuestionsWidget subject="science" studentId={studentId}/>
     </div>
   )
 }
@@ -1185,6 +1198,8 @@ function MathsSubjectPage({ studentId }: { studentId: string }) {
           )
         })}
       </div>
+
+      <ClassQuestionsWidget subject="maths" studentId={studentId}/>
     </div>
   )
 }
