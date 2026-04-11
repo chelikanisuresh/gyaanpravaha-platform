@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220" role="img">
+  <title>GyaanPravaha — Learn, Know, Flow</title>
+  <desc>Gyaanpravaha logo — open book with lotus blooming from its centre</desc>
+
+  <!-- Book base -->
+  <path d="M20 138 C20 124 32 118 100 118 C168 118 180 124 180 138 L180 156 C180 156 164 149 100 149 C36 149 20 156 20 156Z"
+        fill="#1B4332"/>
+  <!-- Book spine -->
+  <line x1="100" y1="118" x2="100" y2="156" stroke="#74C69D" stroke-width="2"/>
+  <!-- Left page lines -->
+  <line x1="30"  y1="128" x2="92"  y2="127" stroke="#74C69D" stroke-width="1.2" opacity="0.5"/>
+  <line x1="30"  y1="136" x2="92"  y2="135" stroke="#74C69D" stroke-width="1.2" opacity="0.5"/>
+  <line x1="30"  y1="144" x2="92"  y2="143" stroke="#74C69D" stroke-width="1.2" opacity="0.5"/>
+  <!-- Right page lines -->
+  <line x1="108" y1="127" x2="170" y2="128" stroke="#74C69D" stroke-width="1.2" opacity="0.5"/>
+  <line x1="108" y1="135" x2="170" y2="136" stroke="#74C69D" stroke-width="1.2" opacity="0.5"/>
+  <line x1="108" y1="143" x2="170" y2="144" stroke="#74C69D" stroke-width="1.2" opacity="0.5"/>
+
+  <!-- Lotus — back petals -->
+  <path d="M100 118 C88 96 78 80 80 66 C82 54 92 50 100 56 C108 50 118 54 120 66 C122 80 112 96 100 118Z"
+        fill="#2D6A4F"/>
+  <!-- Lotus — side petals -->
+  <path d="M100 118 C82 103 70 95 67 83 C64 72 70 65 77 67 C84 69 92 83 100 118Z"
+        fill="#52B788"/>
+  <path d="M100 118 C118 103 130 95 133 83 C136 72 130 65 123 67 C116 69 108 83 100 118Z"
+        fill="#52B788"/>
+  <!-- Lotus — far side petals -->
+  <path d="M100 118 C76 106 60 100 56 87 C53 76 59 69 66 72 C73 75 84 90 100 118Z"
+        fill="#40916C" opacity="0.7"/>
+  <path d="M100 118 C124 106 140 100 144 87 C147 76 141 69 134 72 C127 75 116 90 100 118Z"
+        fill="#40916C" opacity="0.7"/>
+  <!-- Lotus — front centre petal -->
+  <path d="M100 114 C94 100 92 88 96 81 C97 77 103 77 104 81 C108 88 106 100 100 114Z"
+        fill="#74C69D"/>
+  <!-- Gold centre -->
+  <circle cx="100" cy="108" r="10" fill="#F59E0B"/>
+  <circle cx="100" cy="108" r="5"  fill="#FDE68A"/>
+  <circle cx="100" cy="108" r="2"  fill="#F59E0B"/>
+
+  <!-- Wordmark -->
+  <text x="100" y="178"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="22" font-weight="bold"
+        fill="#1B4332" text-anchor="middle">GyaanPravaha</text>
+
+  <!-- Divider line -->
+  <line x1="30" y1="187" x2="170" y2="187" stroke="#D8F3DC" stroke-width="1.5"/>
+
+  <!-- Sanskrit -->
+  <text x="100" y="200"
+        font-family="Georgia, serif"
+        font-size="13"
+        fill="#52B788" text-anchor="middle">ज्ञानप्रवाह</text>
+
+  <!-- Tagline -->
+  <text x="100" y="215"
+        font-family="Georgia, serif"
+        font-size="8"
+        fill="#9CA3AF" text-anchor="middle" letter-spacing="2">LEARN · KNOW · FLOW</text>
+</svg>
