@@ -61,6 +61,20 @@ const SCI_CHAPTERS = [
   { id: 9, title: 'Human Body: Respiratory System',   branch: 'Biology',    type: 'Biology',    emoji: '🫁', estimatedReadMins: 12 },
 ]
 
+const MTH_CHAPTERS = [
+  { id: 1,  title: 'Whole Numbers',               type: 'Numbers',    emoji: '🔢', estimatedReadMins: 14 },
+  { id: 2,  title: 'H.C.F. and L.C.M.',           type: 'Numbers',    emoji: '➗', estimatedReadMins: 16 },
+  { id: 3,  title: 'Area and Perimeter',           type: 'Measurement',emoji: '📐', estimatedReadMins: 12 },
+  { id: 4,  title: 'Volume',                       type: 'Measurement',emoji: '📦', estimatedReadMins: 12 },
+  { id: 5,  title: 'Fractions',                    type: 'Numbers',    emoji: '½',  estimatedReadMins: 14 },
+  { id: 6,  title: 'Percentage',                   type: 'Numbers',    emoji: '💯', estimatedReadMins: 12 },
+  { id: 7,  title: 'Ratio and Proportion',         type: 'Numbers',    emoji: '⚖️', estimatedReadMins: 12 },
+  { id: 8,  title: 'Basic Geometrical Concepts',   type: 'Geometry',   emoji: '📏', estimatedReadMins: 10 },
+  { id: 9,  title: 'Angles',                       type: 'Geometry',   emoji: '📐', estimatedReadMins: 12 },
+  { id: 10, title: 'Circles',                      type: 'Geometry',   emoji: '⭕', estimatedReadMins: 10 },
+  { id: 11, title: 'Vedic Knowledge',              type: 'Vedic Maths',emoji: '🕉️', estimatedReadMins: 10 },
+]
+
 const HC_CHAPTERS = [
   { id: 1, title: 'The Vedas — Our Sacred Heritage',             type: 'History', emoji: '📜', estimatedReadMins: 18 },
   { id: 2, title: 'Essence of Hinduism',                         type: 'History', emoji: '🕉️',  estimatedReadMins: 16 },
@@ -1060,6 +1074,121 @@ function ScienceSubjectPage({ studentId }: { studentId: string }) {
   )
 }
 
+// ── Maths subject page ────────────────────────────────────────────────────────
+
+function MathsSubjectPage({ studentId }: { studentId: string }) {
+  const [progress, setProgress] = useState<Record<number, number>>({})
+  const [scores,   setScores]   = useState<Record<number, number>>({})
+
+  useEffect(() => {
+    const load = async () => {
+      const supabase = createClient()
+      const { data: secs } = await supabase.from('student_lesson_progress').select('chapter_id').eq('student_id', studentId).eq('subject', 'maths')
+      const countMap: Record<number, number> = {}
+      secs?.forEach((r: any) => { countMap[r.chapter_id] = (countMap[r.chapter_id] || 0) + 1 })
+      setProgress(countMap)
+      const { data: quiz } = await supabase.from('student_quiz_attempts').select('chapter_id, score').eq('student_id', studentId).eq('subject', 'maths').order('created_at', { ascending: false })
+      const scoreMap: Record<number, number> = {}
+      quiz?.forEach((r: any) => { if (!(r.chapter_id in scoreMap)) scoreMap[r.chapter_id] = r.score })
+      setScores(scoreMap)
+    }
+    load()
+  }, [studentId])
+
+  const currentChapter  = MTH_CHAPTERS.find(c => (progress[c.id] || 0) < 7)
+  const completedCount  = MTH_CHAPTERS.filter(c => (progress[c.id] || 0) >= 7).length
+  const overallProgress = Math.round((completedCount / MTH_CHAPTERS.length) * 100)
+
+  const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
+    'Numbers':     { bg: '#DBEAFE', text: '#1E40AF' },
+    'Measurement': { bg: '#FEF3C7', text: '#92400E' },
+    'Geometry':    { bg: '#D8F3DC', text: '#1B4332' },
+    'Vedic Maths': { bg: '#FDF4FF', text: '#7E22CE' },
+  }
+
+  return (
+    <div style={{ width: '100%' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '28px', color: '#1B4332', marginBottom: '4px' }}>📐 Mathematics</h1>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>Maths Connexion — Class 6 · Numbers · Measurement · Geometry · Vedic Maths · {completedCount} of {MTH_CHAPTERS.length} chapters completed</p>
+      </div>
+
+      <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '20px 24px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>Whole Numbers, HCF & LCM, Area, Volume, Fractions, Percentage, Ratio, Geometry, Angles, Circles, Vedic Maths</p>
+          <div style={{ background: '#DBEAFE', borderRadius: '10px', padding: '10px 16px', textAlign: 'center' }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '18px', color: '#1E40AF', lineHeight: 1 }}>{completedCount}/{MTH_CHAPTERS.length}</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#3B82F6', marginTop: '2px' }}>Chapters</p>
+          </div>
+        </div>
+        <div style={{ height: '8px', background: '#E5E7EB', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${overallProgress}%`, background: 'linear-gradient(90deg,#1E40AF,#3B82F6)', borderRadius: '4px', transition: 'width 0.8s ease' }}/>
+        </div>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF', marginTop: '6px' }}>{overallProgress}% complete — keep going!</p>
+      </div>
+
+      {currentChapter && (
+        <div style={{ marginBottom: '20px' }}>
+          <Link href={`/student/mth-chapter/${currentChapter.id}`} style={{ textDecoration: 'none' }}>
+            <div style={{ background: 'linear-gradient(135deg,#1E3A8A,#1E40AF)', borderRadius: '18px', padding: '22px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: '#93C5FD', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '5px' }}>
+                  {(progress[currentChapter.id] || 0) > 0 ? '📖 Continue reading' : '▶️ Start reading'}
+                </p>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '20px', color: 'white', lineHeight: 1.3, marginBottom: '4px' }}>{currentChapter.title}</p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.55)' }}>Chapter {currentChapter.id} · {currentChapter.type} · {currentChapter.estimatedReadMins} min read</p>
+              </div>
+              <div style={{ width: '44px', height: '44px', background: '#93C5FD', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 3l7 6-7 6" stroke="#1E3A8A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </div>
+            </div>
+          </Link>
+        </div>
+      )}
+
+      <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>All chapters</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {MTH_CHAPTERS.map(chapter => {
+          const secsDone    = progress[chapter.id] || 0
+          const isCompleted = secsDone >= 7
+          const isStarted   = secsDone > 0 && !isCompleted
+          const isCurrent   = chapter.id === currentChapter?.id
+          const isLocked    = !isCurrent && !isStarted && !isCompleted && chapter.id > (currentChapter?.id || 1)
+          const typeStyle   = TYPE_COLORS[chapter.type] || { bg: '#F3F4F6', text: '#374151' }
+          const score       = scores[chapter.id]
+          const ctaLabel    = isCompleted ? 'Review' : isStarted ? 'Resume' : isCurrent ? 'Start' : '—'
+          return (
+            <Link key={chapter.id} href={isLocked ? '#' : `/student/mth-chapter/${chapter.id}`} onClick={e => isLocked && e.preventDefault()} style={{ textDecoration: 'none', display: 'block' }}>
+              <div style={{ background: isCompleted ? '#EFF6FF' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #1E40AF' : isCompleted ? '1px solid #BFDBFE' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', opacity: isLocked ? 0.45 : 1, position: 'relative', overflow: 'hidden', cursor: isLocked ? 'not-allowed' : 'pointer', transition: 'box-shadow 0.15s' }}
+                onMouseEnter={e => { if (!isLocked) e.currentTarget.style.boxShadow = '0 4px 14px rgba(30,64,175,0.08)' }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}>
+                {(isCompleted || isCurrent) && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: isCompleted ? '#3B82F6' : '#1E40AF', borderRadius: '16px 0 0 16px' }}/>}
+                <div style={{ width: '40px', height: '40px', minWidth: '40px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isCompleted ? '#DBEAFE' : isCurrent ? '#1E40AF' : '#F3F4F6', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: isCompleted ? '#1E40AF' : isCurrent ? 'white' : '#9CA3AF' }}>
+                  {isCompleted ? '✓' : chapter.emoji}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: isLocked ? '#9CA3AF' : '#1B4332', lineHeight: 1.3 }}>{chapter.title}</p>
+                    {isCurrent && !isCompleted && <span style={{ background: '#1E40AF', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '2px 8px', borderRadius: '10px', flexShrink: 0 }}>UP NEXT</span>}
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontFamily: 'var(--font-heading)', fontWeight: 700, background: typeStyle.bg, color: typeStyle.text }}>{chapter.type}</span>
+                    <span style={{ fontSize: '12px', color: '#9CA3AF' }}>⏱ {chapter.estimatedReadMins} min</span>
+                    <span style={{ fontSize: '12px', color: '#9CA3AF' }}>📋 7 sections</span>
+                    {isStarted && <span style={{ fontSize: '12px', color: '#F59E0B', fontWeight: 600 }}>{secsDone}/7 read</span>}
+                    {score != null && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444' }}>Score: {score}%</span>}
+                  </div>
+                </div>
+                {!isLocked && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#1E40AF' : '#F3F4F6', color: isCompleted ? '#1E40AF' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #BFDBFE' : 'none' }}>{ctaLabel}</span>}
+              </div>
+            </Link>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ── Coming soon ──────────────────────────────────────────────────────────────
 
 function ComingSoon({ subject }: { subject: string }) {
@@ -1085,7 +1214,7 @@ export default function StudentMainPage() {
         switch (activeSection) {
           case 'dashboard': return <DashboardHome           studentId={studentId}/>
           case 'english':   return <EnglishSubjectPage      studentId={studentId}/>
-          case 'maths':     return <ComingSoon subject="Mathematics"/>
+          case 'maths':     return <MathsSubjectPage studentId={studentId}/>
           case 'science':   return <ScienceSubjectPage studentId={studentId}/>
           case 'history':   return <HistoryCivicsSubjectPage studentId={studentId}/>
           case 'geo':       return <GeographySubjectPage    studentId={studentId}/>
