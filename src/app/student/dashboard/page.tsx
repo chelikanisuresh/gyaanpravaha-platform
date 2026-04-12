@@ -7,6 +7,7 @@ import StudentSidebarLayout from '@/components/StudentSidebarLayout'
 import StudentDashboardPanel from '@/components/StudentDashboardPanel'
 import DailyActivities from '@/components/DailyActivities'
 import ClassQuestionsWidget from '@/components/ClassQuestionsWidget'
+import { getAllMarChapters } from '@/lib/mar-chapter-content'
 
 // ── Chapter data ─────────────────────────────────────────────────────────────
 
@@ -1183,6 +1184,123 @@ function MathsSubjectPage({ studentId }: { studentId: string }) {
   )
 }
 
+// ── Marathi Subject Page ─────────────────────────────────────────────────────
+
+function MarathiSubjectPage({ studentId }: { studentId: string }) {
+  const MAR_CHAPTERS = getAllMarChapters()
+  const [progress, setProgress] = useState<Record<number, number>>({})
+  const [scores,   setScores]   = useState<Record<number, number>>({})
+
+  useEffect(() => {
+    const load = async () => {
+      const supabase = createClient()
+      const { data: secs } = await supabase.from('student_lesson_progress').select('chapter_id').eq('student_id', studentId).eq('subject', 'marathi')
+      const countMap: Record<number, number> = {}
+      secs?.forEach((r: any) => { countMap[r.chapter_id] = (countMap[r.chapter_id] || 0) + 1 })
+      setProgress(countMap)
+      const { data: quiz } = await supabase.from('student_quiz_attempts').select('chapter_id, score').eq('student_id', studentId).eq('subject', 'marathi').order('created_at', { ascending: false })
+      const scoreMap: Record<number, number> = {}
+      quiz?.forEach((r: any) => { if (!(r.chapter_id in scoreMap)) scoreMap[r.chapter_id] = r.score })
+      setScores(scoreMap)
+    }
+    load()
+  }, [studentId])
+
+  const currentChapter  = MAR_CHAPTERS.find(c => (progress[c.id] || 0) < 7)
+  const completedCount  = MAR_CHAPTERS.filter(c => (progress[c.id] || 0) >= 7).length
+  const overallProgress = Math.round((completedCount / MAR_CHAPTERS.length) * 100)
+
+  const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
+    'गद्य':       { bg: '#FEF3C7', text: '#92400E' },
+    'कविता':      { bg: '#D8F3DC', text: '#1B4332' },
+    'गाणे':       { bg: '#DBEAFE', text: '#1E40AF' },
+    'एकांकिका':   { bg: '#FDF4FF', text: '#7E22CE' },
+  }
+
+  return (
+    <div style={{ width: '100%' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '28px', color: '#1B4332', marginBottom: '4px' }}>📝 मराठी</h1>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>सुलभभारती — इयत्ता सहावी · गद्य · कविता · गाणे · {completedCount} of {MAR_CHAPTERS.length} chapters completed</p>
+      </div>
+
+      <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '20px 24px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>भारतमाता · माझा अनुभव · पाऊस आला · सुगरणीचे घरटे · घर · बाबांचं पत्र · अप्पाजींचे चातुर्य आणि बरेच काही</p>
+          <div style={{ background: '#FEF3C7', borderRadius: '10px', padding: '10px 16px', textAlign: 'center' }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '18px', color: '#92400E', lineHeight: 1 }}>{completedCount}/{MAR_CHAPTERS.length}</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#B45309', marginTop: '2px' }}>पाठ</p>
+          </div>
+        </div>
+        <div style={{ height: '8px', background: '#E5E7EB', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${overallProgress}%`, background: 'linear-gradient(90deg,#92400E,#B45309)', borderRadius: '4px', transition: 'width 0.8s ease' }}/>
+        </div>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF', marginTop: '6px' }}>{overallProgress}% पूर्ण — पुढे चला!</p>
+      </div>
+
+      {currentChapter && (
+        <div style={{ marginBottom: '20px' }}>
+          <Link href={`/student/mar-chapter/${currentChapter.id}`} style={{ textDecoration: 'none' }}>
+            <div style={{ background: 'linear-gradient(135deg,#78350F,#92400E)', borderRadius: '18px', padding: '22px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: '#FDE68A', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '5px' }}>
+                  {(progress[currentChapter.id] || 0) > 0 ? '📖 पुढे वाचा' : '▶️ वाचायला सुरुवात करा'}
+                </p>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '20px', color: 'white', lineHeight: 1.3, marginBottom: '4px' }}>{currentChapter.titleMarathi}</p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.55)' }}>पाठ {currentChapter.id} · {currentChapter.type} · {currentChapter.author} · {currentChapter.estimatedReadMins} मिनिटे</p>
+              </div>
+              <div style={{ width: '44px', height: '44px', background: '#FDE68A', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M6 3l7 6-7 6" stroke="#78350F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </div>
+            </div>
+          </Link>
+        </div>
+      )}
+
+      <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>सर्व पाठ</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {MAR_CHAPTERS.map(chapter => {
+          const secsDone    = progress[chapter.id] || 0
+          const isCompleted = secsDone >= 7
+          const isStarted   = secsDone > 0 && !isCompleted
+          const isCurrent   = chapter.id === currentChapter?.id
+          const typeStyle   = TYPE_COLORS[chapter.type] || { bg: '#F3F4F6', text: '#374151' }
+          const score       = scores[chapter.id]
+          const ctaLabel    = isCompleted ? 'Review' : isStarted ? 'Resume' : 'Start'
+          return (
+            <Link key={chapter.id} href={`/student/mar-chapter/${chapter.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+              <div style={{ background: isCompleted ? '#FFFBEB' : 'white', borderRadius: '16px', border: isCurrent ? '2px solid #92400E' : isCompleted ? '1px solid #FDE68A' : '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px', position: 'relative', overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(27,67,50,0.08)' }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}>
+                {(isCompleted || isCurrent) && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: isCompleted ? '#F59E0B' : '#92400E', borderRadius: '16px 0 0 16px' }}/>}
+                <div style={{ width: '40px', height: '40px', minWidth: '40px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isCompleted ? '#FEF3C7' : isCurrent ? '#92400E' : '#F3F4F6', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: isCompleted ? '#92400E' : isCurrent ? 'white' : '#9CA3AF' }}>
+                  {isCompleted ? '✓' : chapter.id}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px', flexWrap: 'wrap' }}>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#1B4332', lineHeight: 1.3 }}>{chapter.titleMarathi}</p>
+                    {isCurrent && !isCompleted && <span style={{ background: '#92400E', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '2px 8px', borderRadius: '10px', flexShrink: 0 }}>UP NEXT</span>}
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontFamily: 'var(--font-heading)', fontWeight: 700, background: typeStyle.bg, color: typeStyle.text }}>{chapter.type}</span>
+                    <span style={{ fontSize: '12px', color: '#9CA3AF' }}>✍️ {chapter.author}</span>
+                    <span style={{ fontSize: '12px', color: '#9CA3AF' }}>⏱ {chapter.estimatedReadMins} min</span>
+                    <span style={{ fontSize: '12px', color: '#9CA3AF' }}>📋 7 sections</span>
+                    {isStarted && <span style={{ fontSize: '12px', color: '#F59E0B', fontWeight: 600 }}>{secsDone}/7 read</span>}
+                    {score != null && <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: score >= 80 ? '#10B981' : score >= 60 ? '#F59E0B' : '#EF4444' }}>Score: {score}%</span>}
+                  </div>
+                </div>
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '8px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? '#92400E' : '#F3F4F6', color: isCompleted ? '#92400E' : isCurrent ? 'white' : '#6B7280', border: isCompleted ? '1px solid #FDE68A' : 'none' }}>{ctaLabel}</span>
+              </div>
+            </Link>
+          )
+        })}
+      </div>
+      <ClassQuestionsWidget subject="marathi" studentId={studentId}/>
+    </div>
+  )
+}
+
 // ── Coming soon ──────────────────────────────────────────────────────────────
 
 function ComingSoon({ subject }: { subject: string }) {
@@ -1214,6 +1332,7 @@ export default function StudentMainPage() {
           case 'geo':       return <GeographySubjectPage    studentId={studentId}/>
           case 'sanskrit':  return <SanskritSubjectPage  studentId={studentId}/>
           case 'ict':       return <ICTSubjectPage         studentId={studentId}/>
+          case 'marathi':   return <MarathiSubjectPage     studentId={studentId}/>
           case 'profile':   return <StudentProfileContent   studentId={studentId}/>
           default:          return <DashboardHome           studentId={studentId}/>
         }
