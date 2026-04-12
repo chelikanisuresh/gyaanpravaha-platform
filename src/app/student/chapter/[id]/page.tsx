@@ -397,8 +397,9 @@ export default function ChapterReaderPage() {
       student_id:   user.id,
       chapter_id:   chapterId,
       section_id:   sectionId,
+      subject:      'english',
       completed_at: new Date().toISOString(),
-    })
+    }, { onConflict: 'student_id,chapter_id,section_id' })
 
     // Move to next section or show summary
     if (!chapter) return
