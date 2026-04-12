@@ -12,9 +12,10 @@ const SUBJECTS = [
   { id: 'geo',      label: 'Geography',         emoji: '🌍', available: true },
   { id: 'sanskrit', label: 'Sanskrit',          emoji: '📜', available: true },
   { id: 'ict',      label: 'ICT',               emoji: '💻', available: true },
+  { id: 'marathi',  label: 'मराठी',              emoji: '📝', available: true },
 ]
 
-type ActiveSection = 'dashboard' | 'english' | 'maths' | 'science' | 'history' | 'geo' | 'sanskrit' | 'ict' | 'profile'
+type ActiveSection = 'dashboard' | 'english' | 'maths' | 'science' | 'history' | 'geo' | 'sanskrit' | 'ict' | 'marathi' | 'profile'
 
 interface Props {
   children: (activeSection: ActiveSection, studentId: string) => React.ReactNode
