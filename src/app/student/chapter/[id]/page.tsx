@@ -72,7 +72,7 @@ function renderWithTooltips(text: string, wordMap: WordMap): React.ReactNode {
 
   // Build regex that matches any known word/phrase (word boundary aware)
   const escaped = phrases.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-  const pattern  = new RegExp(`(${escaped.join('|')})`, 'gi')
+  const pattern  = new RegExp(`\\b(${escaped.join('|')})\\b`, 'gi')
 
   const parts = text.split(pattern)
   return (

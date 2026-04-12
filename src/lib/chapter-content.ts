@@ -252,7 +252,7 @@ In his imaginary court, peacocks would flaunt — meaning they would show off th
 Mood: Grand, rich, and majestic. The poet is creating a picture of absolute luxury and power.
 
 Poetic device: Flaunt — peacocks showing off their feathers — this gives the peacock a human quality. It is called personification.
-The rhyme scheme is ABABCCCB — notice how flaunt, haunt, slant all rhyme.
+The rhyme scheme alternates lines — notice how flaunt, haunt, slant all rhyme at the end of their lines.
 
 ─────
 
