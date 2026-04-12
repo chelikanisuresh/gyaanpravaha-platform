@@ -371,6 +371,7 @@ export default function ChapterReaderPage() {
         .select('section_id')
         .eq('student_id', user.id)
         .eq('chapter_id', chapterId)
+        .eq('subject', 'sanskrit')
 
       if (progress?.length) {
         const done = new Set(progress.map((r: any) => r.section_id))
@@ -397,7 +398,6 @@ export default function ChapterReaderPage() {
       student_id:   user.id,
       chapter_id:   chapterId,
       section_id:   sectionId,
-      subject:      'sanskrit',
       completed_at: new Date().toISOString(),
     })
 

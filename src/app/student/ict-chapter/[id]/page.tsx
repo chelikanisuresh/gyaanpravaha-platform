@@ -371,6 +371,7 @@ export default function ChapterReaderPage() {
         .select('section_id')
         .eq('student_id', user.id)
         .eq('chapter_id', chapterId)
+        .eq('subject', 'ict')
 
       if (progress?.length) {
         const done = new Set(progress.map((r: any) => r.section_id))
