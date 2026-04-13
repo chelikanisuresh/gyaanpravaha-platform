@@ -306,7 +306,7 @@ export default function HomePage() {
 
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
               style={{ fontFamily: 'var(--font-body)', fontSize: '16px', color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, marginBottom: '36px', maxWidth: '460px' }}>
-              Every chapter from your Maharashtra State Board textbooks — explained in simple language, assessed thoroughly, tracked by parents. Not generic content. Your exact syllabus.
+              Every chapter from your school's textbooks — explained in simple language, assessed thoroughly, tracked by parents. Not generic content. Your exact syllabus.
             </motion.p>
 
             {/* CTAs */}
@@ -339,7 +339,7 @@ export default function HomePage() {
       <section ref={statsRef} style={{ background: '#0D2B1F', padding: '48px 5%' }}>
         <div className="stats-grid" style={{ maxWidth: '900px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '24px', textAlign: 'center' }}>
           {[
-            { value: chapterCount, suffix: '', label: 'Chapters covered', sub: 'All 8 subjects · MSB syllabus' },
+            { value: chapterCount, suffix: '', label: 'Chapters covered', sub: 'All 8 subjects · Your curriculum' },
             { value: sectionCount, suffix: '+', label: 'Lesson sections', sub: '7 sections per chapter' },
             { value: questionCount, suffix: '+', label: 'Quiz questions', sub: 'MCQ, fill in blanks & more' },
           ].map(({ value, suffix, label, sub }) => (
@@ -361,7 +361,7 @@ export default function HomePage() {
               Every subject. Every chapter.<br/>Your exact textbooks.
             </h2>
             <p style={{ textAlign: 'center', fontFamily: 'var(--font-body)', fontSize: '15px', color: '#64748B', maxWidth: '560px', margin: '0 auto 52px', lineHeight: 1.7 }}>
-              Built chapter by chapter from Maharashtra State Board textbooks — Balbharati English, Maths Connexion, Sulabhbharati Marathi & Sanskrit, and more.
+              Built chapter by chapter from your school's textbooks — every subject, every chapter, mapped exactly to what your students study in class.
             </p>
           </FadeUp>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
@@ -458,12 +458,12 @@ export default function HomePage() {
               A platform that works alongside your teachers
             </h2>
             <p style={{ textAlign: 'center', fontFamily: 'var(--font-body)', fontSize: '15px', color: '#64748B', maxWidth: '520px', margin: '0 auto 52px', lineHeight: 1.7 }}>
-              Gyaanpravaha does not replace classroom teaching — it reinforces it. Everything is aligned to the Maharashtra State Board curriculum your school already follows.
+              Gyaanpravaha does not replace classroom teaching — it reinforces it. Everything is aligned to the curriculum your school already follows.
             </p>
           </FadeUp>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
             {[
-              { emoji:'📋', title:'State Board curriculum', color:'#4338CA', bg:'#EEF2FF', desc:'Every chapter, section and quiz question is drawn directly from MSB textbooks. No mismatch between school and platform.' },
+              { emoji:'📋', title:'Your school curriculum', color:'#4338CA', bg:'#EEF2FF', desc:'Every chapter, section and quiz question is drawn directly from your school textbooks. No mismatch between school and platform.' },
               { emoji:'✏️', title:'Teachers assign questions', color:'#0F766E', bg:'#F0FDFA', desc:'Teachers can post class questions and writing prompts directly to students on the platform from their school panel.' },
               { emoji:'👨‍👩‍👦', title:'Parent–school alignment', color:'#78350F', bg:'#FFFBEB', desc:'Parents see the same chapter sequence as school. Progress tracking is based on the school\'s own syllabus order.' },
               { emoji:'📈', title:'School-level insights', color:'#4C1D95', bg:'#F5F3FF', desc:'Schools can view aggregate performance across students, identify common weak areas and plan revision sessions accordingly.' },
@@ -490,7 +490,7 @@ export default function HomePage() {
             </h2>
             <div style={{ background: 'white', borderRadius: '24px', border: '2px solid #1B4332', padding: '44px 40px', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '120px', height: '120px', borderRadius: '50%', background: '#F0FDF4' }}/>
-              <div style={{ background: '#D8F3DC', color: '#1B4332', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', padding: '4px 14px', borderRadius: '20px', display: 'inline-block', marginBottom: '20px' }}>Annual plan · Academic year 2025–26</div>
+              <div style={{ background: '#D8F3DC', color: '#1B4332', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', padding: '4px 14px', borderRadius: '20px', display: 'inline-block', marginBottom: '20px' }}>Annual plan · Full academic year</div>
               <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '64px', color: '#1B4332', lineHeight: 1 }}>₹4,999</p>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#9CA3AF', marginBottom: '8px' }}>per student · per academic year</p>
               <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#40916C', marginBottom: '32px' }}>That's less than ₹14 per day</p>
@@ -553,7 +553,7 @@ export default function HomePage() {
           </div>
           <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: 'white' }}>Gyaanpravaha</p>
         </div>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>Maharashtra State Board · Class 6 · All subjects · ₹4,999/year</p>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>All subjects · All chapters · ₹4,999/year</p>
         <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>© 2026 Gyaanpravaha · gyaanpravaha.in</p>
         <Link href="/admin/login" style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.15)', textDecoration: 'none', marginTop: '4px' }}>Admin</Link>
       </footer>
