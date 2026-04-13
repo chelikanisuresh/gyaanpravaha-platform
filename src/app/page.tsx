@@ -541,7 +541,6 @@ export default function HomePage() {
       {/* ── Footer ── */}
       <footer style={{ background: '#0D2B1F', padding: '40px 5%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', textAlign: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 5 C12 5 7 4 3 5.5 L3 17 C7 15.5 12 16.5 12 16.5 C12 16.5 17 15.5 21 17 L21 5.5 C17 4 12 5 12 5Z" fill="white" fillOpacity="0.85"/>
@@ -551,7 +550,6 @@ export default function HomePage() {
               <ellipse cx="15.5" cy="21.5" rx="1.8" ry="2.6" fill="#74C69D" fillOpacity="0.7" transform="rotate(28 15.5 21.5)"/>
               <path d="M3 23 Q7.5 21.5 12 23 Q16.5 24.5 21 23" stroke="#74C69D" strokeWidth="0.8" strokeOpacity="0.5" fill="none" strokeLinecap="round"/>
             </svg>
-          </div>
           </div>
           <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: 'white' }}>Gyaanpravaha</p>
         </div>
