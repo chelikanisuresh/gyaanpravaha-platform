@@ -2,179 +2,218 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { motion, useInView, AnimatePresence } from 'framer-motion'
 
-function useTypingEffect(words: string[], speed = 80, pause = 1800) {
-  const [displayed, setDisplayed] = useState('')
-  const [wordIndex, setWordIndex] = useState(0)
-  const [charIndex, setCharIndex] = useState(0)
-  const [deleting, setDeleting] = useState(false)
-
-  useEffect(() => {
-    const current = words[wordIndex]
-    let timeout: ReturnType<typeof setTimeout>
-    if (!deleting && charIndex < current.length) {
-      timeout = setTimeout(() => setCharIndex(i => i + 1), speed)
-    } else if (!deleting && charIndex === current.length) {
-      timeout = setTimeout(() => setDeleting(true), pause)
-    } else if (deleting && charIndex > 0) {
-      timeout = setTimeout(() => setCharIndex(i => i - 1), speed / 2)
-    } else if (deleting && charIndex === 0) {
-      setDeleting(false)
-      setWordIndex(i => (i + 1) % words.length)
-    }
-    setDisplayed(current.slice(0, charIndex))
-    return () => clearTimeout(timeout)
-  }, [charIndex, deleting, wordIndex, words, speed, pause])
-
-  return displayed
-}
-
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect() } },
-      { threshold: 0.15 }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
-  return { ref, visible }
-}
-
-function useCounter(target: number, duration = 1500, start = false) {
+// ── Hooks ──────────────────────────────────────────────────────────────────────
+function useCounter(target: number, duration = 1400, active = false) {
   const [count, setCount] = useState(0)
   useEffect(() => {
-    if (!start) return
-    let startTime: number
-    const step = (timestamp: number) => {
-      if (!startTime) startTime = timestamp
-      const progress = Math.min((timestamp - startTime) / duration, 1)
-      setCount(Math.floor(progress * target))
-      if (progress < 1) requestAnimationFrame(step)
+    if (!active) return
+    let start: number
+    const step = (ts: number) => {
+      if (!start) start = ts
+      const p = Math.min((ts - start) / duration, 1)
+      setCount(Math.floor(p * target))
+      if (p < 1) requestAnimationFrame(step)
     }
     requestAnimationFrame(step)
-  }, [start, target, duration])
+  }, [active, target, duration])
   return count
 }
 
-function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const { ref, visible } = useScrollReveal()
+function useTypingEffect(words: string[], speed = 90, pause = 1800) {
+  const [displayed, setDisplayed] = useState('')
+  const [wordIdx, setWordIdx] = useState(0)
+  const [charIdx, setCharIdx] = useState(0)
+  const [deleting, setDeleting] = useState(false)
+  useEffect(() => {
+    const current = words[wordIdx]
+    let t: ReturnType<typeof setTimeout>
+    if (!deleting && charIdx < current.length)
+      t = setTimeout(() => setCharIdx(i => i + 1), speed)
+    else if (!deleting && charIdx === current.length)
+      t = setTimeout(() => setDeleting(true), pause)
+    else if (deleting && charIdx > 0)
+      t = setTimeout(() => setCharIdx(i => i - 1), speed / 2)
+    else { setDeleting(false); setWordIdx(i => (i + 1) % words.length) }
+    setDisplayed(current.slice(0, charIdx))
+    return () => clearTimeout(t)
+  }, [charIdx, deleting, wordIdx, words, speed, pause])
+  return displayed
+}
+
+// ── Animated section wrapper ──────────────────────────────────────────────────
+function FadeUp({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: '-60px' })
   return (
-    <div ref={ref} style={{
-      opacity: visible ? 1 : 0,
-      transform: visible ? 'translateY(0)' : 'translateY(32px)',
-      transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
-    }}>
+    <motion.div ref={ref} initial={{ opacity: 0, y: 28 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }} className={className}>
       {children}
+    </motion.div>
+  )
+}
+
+// ── Subject tiles ─────────────────────────────────────────────────────────────
+const SUBJECTS = [
+  { emoji:'📖', label:'English',       chapters:8,  color:'#4338CA', light:'#EEF2FF' },
+  { emoji:'📐', label:'Mathematics',   chapters:11, color:'#1E3A8A', light:'#DBEAFE' },
+  { emoji:'🔬', label:'Science',       chapters:9,  color:'#0F766E', light:'#CCFBF1' },
+  { emoji:'🏛️', label:'History',       chapters:6,  color:'#78350F', light:'#FEF3C7' },
+  { emoji:'🌍', label:'Geography',     chapters:7,  color:'#075985', light:'#DBEAFE' },
+  { emoji:'🕉️', label:'Sanskrit',      chapters:8,  color:'#713F12', light:'#FEF9C3' },
+  { emoji:'💻', label:'ICT',           chapters:5,  color:'#4C1D95', light:'#EDE9FE' },
+  { emoji:'📝', label:'मराठी',         chapters:17, color:'#701A75', light:'#FAE8FF' },
+]
+
+// ── Platform mockup ───────────────────────────────────────────────────────────
+function PlatformMockup() {
+  return (
+    <div style={{ position: 'relative', maxWidth: '520px', width: '100%' }}>
+      {/* Glow */}
+      <div style={{ position: 'absolute', inset: '-20px', background: 'radial-gradient(ellipse at center, rgba(116,198,157,0.2) 0%, transparent 70%)', pointerEvents: 'none' }}/>
+      {/* Browser chrome */}
+      <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 32px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1)', position: 'relative' }}>
+        {/* Title bar */}
+        <div style={{ background: '#1B4332', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#EF4444' }}/>
+            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#F59E0B' }}/>
+            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10B981' }}/>
+          </div>
+          <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: '6px', padding: '4px 10px' }}>
+            <p style={{ fontFamily: 'monospace', fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>gyaanpravaha.in/student/dashboard</p>
+          </div>
+        </div>
+        {/* Mock dashboard */}
+        <div style={{ background: '#F0FDF4', padding: '16px', display: 'flex', gap: '12px' }}>
+          {/* Sidebar */}
+          <div style={{ width: '48px', background: '#1B4332', borderRadius: '10px', padding: '8px 6px', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+            {['🏠','📖','📐','🔬','🌍','👤'].map((e, i) => (
+              <div key={i} style={{ width: '32px', height: '32px', borderRadius: '8px', background: i === 1 ? 'rgba(116,198,157,0.3)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>{e}</div>
+            ))}
+          </div>
+          {/* Main content */}
+          <div style={{ flex: 1 }}>
+            {/* Greeting */}
+            <div style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '12px', padding: '14px', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: '#74C69D' }}>Good morning 👋</p>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '14px', color: 'white', marginTop: '2px' }}>Let's go, Arjun!</p>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <svg width="44" height="44" viewBox="0 0 44 44">
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="4"/>
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="#74C69D" strokeWidth="4" strokeLinecap="round"
+                    strokeDasharray={`${2*Math.PI*18}`} strokeDashoffset={`${2*Math.PI*18*0.65}`} transform="rotate(-90 22 22)"/>
+                  <text x="22" y="22" textAnchor="middle" dominantBaseline="central" fill="white" fontSize="10" fontWeight="800" fontFamily="var(--font-heading)">35%</text>
+                </svg>
+              </div>
+            </div>
+            {/* Subject cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '6px' }}>
+              {SUBJECTS.slice(0, 4).map((s, i) => (
+                <motion.div key={s.label} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + i * 0.08 }}
+                  style={{ background: `linear-gradient(135deg,${s.color},${s.color}CC)`, borderRadius: '8px', padding: '8px 6px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '16px', marginBottom: '3px' }}>{s.emoji}</div>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '8px', color: 'white', lineHeight: 1.2 }}>{s.label}</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '7px', color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>{s.chapters} ch</p>
+                </motion.div>
+              ))}
+            </div>
+            {/* Chapter progress */}
+            <div style={{ background: 'white', borderRadius: '8px', padding: '10px', marginTop: '10px' }}>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '9px', color: '#1B4332', marginBottom: '8px' }}>📖 English — Chapter 3</p>
+              {['Introduction','Story context','Key vocabulary','Analysis'].map((sec, i) => (
+                <div key={sec} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: i < 2 ? '#2D6A4F' : i === 2 ? '#E5E7EB' : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {i < 2 && <svg width="7" height="7" viewBox="0 0 7 7" fill="none"><path d="M1 3.5l1.5 1.5 3.5-3" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  </div>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '8px', color: i < 2 ? '#2D6A4F' : '#9CA3AF' }}>{sec}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Floating badges */}
+      <motion.div animate={{ y: [0,-8,0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ position: 'absolute', top: '-16px', right: '-20px', background: 'white', borderRadius: '12px', padding: '10px 14px', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '20px' }}>⭐</span>
+        <div>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: '#1B4332', lineHeight: 1 }}>92%</p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#6B7280' }}>Quiz score</p>
+        </div>
+      </motion.div>
+
+      <motion.div animate={{ y: [0,-6,0] }} transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
+        style={{ position: 'absolute', bottom: '20px', left: '-24px', background: 'white', borderRadius: '12px', padding: '10px 14px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '20px' }}>🔥</span>
+        <div>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: '#1B4332', lineHeight: 1 }}>7 day</p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#6B7280' }}>Study streak</p>
+        </div>
+      </motion.div>
     </div>
   )
 }
 
-function StudentIllustration() {
+// ── Parent mockup ─────────────────────────────────────────────────────────────
+function ParentMockup() {
   return (
-    <svg viewBox="0 0 320 320" width="100%" style={{ maxWidth: '380px' }} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="40" y="220" width="240" height="14" rx="7" fill="#1B4332" opacity="0.15"/>
-      <rect x="60" y="234" width="8" height="40" rx="4" fill="#1B4332" opacity="0.12"/>
-      <rect x="252" y="234" width="8" height="40" rx="4" fill="#1B4332" opacity="0.12"/>
-      <rect x="90" y="195" width="70" height="28" rx="4" fill="#D8F3DC" stroke="#2D6A4F" strokeWidth="1.5"/>
-      <rect x="160" y="195" width="70" height="28" rx="4" fill="#F0FDF4" stroke="#2D6A4F" strokeWidth="1.5"/>
-      <line x1="160" y1="196" x2="160" y2="222" stroke="#2D6A4F" strokeWidth="2"/>
-      <line x1="100" y1="204" x2="150" y2="204" stroke="#40916C" strokeWidth="1" opacity="0.5"/>
-      <line x1="100" y1="210" x2="145" y2="210" stroke="#40916C" strokeWidth="1" opacity="0.5"/>
-      <line x1="100" y1="216" x2="148" y2="216" stroke="#40916C" strokeWidth="1" opacity="0.5"/>
-      <line x1="170" y1="204" x2="220" y2="204" stroke="#40916C" strokeWidth="1" opacity="0.5"/>
-      <line x1="170" y1="210" x2="215" y2="210" stroke="#40916C" strokeWidth="1" opacity="0.5"/>
-      <line x1="170" y1="216" x2="218" y2="216" stroke="#40916C" strokeWidth="1" opacity="0.5"/>
-      <rect x="128" y="150" width="64" height="70" rx="12" fill="#2D6A4F"/>
-      <path d="M148 150 L160 165 L172 150" stroke="white" strokeWidth="2" fill="none"/>
-      <rect x="95" y="158" width="36" height="14" rx="7" fill="#2D6A4F" transform="rotate(20 95 158)"/>
-      <rect x="182" y="155" width="36" height="14" rx="7" fill="#2D6A4F" transform="rotate(-20 182 155)"/>
-      <circle cx="108" cy="196" r="10" fill="#F5C4B3"/>
-      <circle cx="210" cy="193" r="10" fill="#F5C4B3"/>
-      <rect x="152" y="110" width="16" height="20" rx="8" fill="#F5C4B3"/>
-      <circle cx="160" cy="92" r="36" fill="#F5C4B3"/>
-      <path d="M124 84 Q130 50 160 52 Q190 50 196 84 Q190 60 160 62 Q130 60 124 84Z" fill="#1B4332"/>
-      <ellipse cx="148" cy="90" rx="5" ry="6" fill="white"/>
-      <ellipse cx="172" cy="90" rx="5" ry="6" fill="white"/>
-      <circle cx="149" cy="91" r="3" fill="#1B4332"/>
-      <circle cx="173" cy="91" r="3" fill="#1B4332"/>
-      <circle cx="150" cy="90" r="1" fill="white"/>
-      <circle cx="174" cy="90" r="1" fill="white"/>
-      <path d="M150 104 Q160 112 170 104" stroke="#1B4332" strokeWidth="2" strokeLinecap="round" fill="none"/>
-      <path d="M143 82 Q148 79 153 82" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-      <path d="M167 82 Q172 79 177 82" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-      <g style={{ animation: 'float1 3s ease-in-out infinite' }}>
-        <polygon points="50,60 53,70 63,70 55,76 58,86 50,80 42,86 45,76 37,70 47,70" fill="#F59E0B" opacity="0.9"/>
-      </g>
-      <g style={{ animation: 'float2 3.5s ease-in-out infinite' }}>
-        <circle cx="272" cy="70" r="18" fill="#FEF3C7" stroke="#F59E0B" strokeWidth="2"/>
-        <circle cx="272" cy="70" r="4" fill="#F59E0B"/>
-        <rect x="269" y="79" width="6" height="4" rx="1" fill="#F59E0B" opacity="0.8"/>
-      </g>
-      <g style={{ animation: 'float3 2.8s ease-in-out infinite' }}>
-        <polygon points="280,140 282,147 289,147 284,151 286,158 280,154 274,158 276,151 271,147 278,147" fill="#74C69D" opacity="0.9"/>
-      </g>
-      <g style={{ animation: 'float1 4s ease-in-out infinite 0.5s' }}>
-        <rect x="30" y="140" width="28" height="36" rx="3" fill="#6366F1" opacity="0.8"/>
-        <rect x="34" y="145" width="16" height="2" rx="1" fill="white" opacity="0.7"/>
-        <rect x="34" y="150" width="14" height="2" rx="1" fill="white" opacity="0.7"/>
-        <rect x="34" y="155" width="16" height="2" rx="1" fill="white" opacity="0.7"/>
-      </g>
-      <g style={{ animation: 'float2 3.2s ease-in-out infinite 0.8s' }}>
-        <rect x="285" y="165" width="6" height="28" rx="2" fill="#EF4444" opacity="0.8" transform="rotate(20 285 165)"/>
-        <polygon points="290,191 285,188 288,196" fill="#1B4332" opacity="0.8" transform="rotate(20 285 165)"/>
-      </g>
-      <style>{`
-        @keyframes float1 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
-        @keyframes float2 { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-10px) rotate(5deg); } }
-        @keyframes float3 { 0%, 100% { transform: translateY(0px) scale(1); } 50% { transform: translateY(-8px) scale(1.1); } }
-      `}</style>
-    </svg>
+    <div style={{ background: 'white', borderRadius: '20px', border: '1.5px solid #E2E8F0', padding: '24px', maxWidth: '380px', boxShadow: '0 20px 60px rgba(0,0,0,0.08)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <div>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Parent Dashboard</p>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: '#1B4332' }}>Arjun's progress</p>
+        </div>
+        <div style={{ background: '#D8F3DC', borderRadius: '10px', padding: '8px 12px', textAlign: 'center' }}>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '18px', color: '#1B4332', lineHeight: 1 }}>86%</p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#40916C' }}>Avg score</p>
+        </div>
+      </div>
+      {SUBJECTS.slice(0, 6).map((s, i) => {
+        const pcts = [75, 55, 88, 40, 100, 30]
+        const pct = pcts[i]
+        return (
+          <div key={s.label} style={{ marginBottom: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                <span style={{ fontSize: '14px' }}>{s.emoji}</span>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#374151' }}>{s.label}</p>
+              </div>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: pct >= 80 ? '#059669' : pct >= 50 ? '#D97706' : '#6B7280' }}>{pct}%</p>
+            </div>
+            <div style={{ height: '5px', background: '#F1F5F9', borderRadius: '3px', overflow: 'hidden' }}>
+              <motion.div initial={{ width: 0 }} whileInView={{ width: `${pct}%` }} viewport={{ once: true }} transition={{ duration: 0.8, delay: i * 0.1 }}
+                style={{ height: '100%', background: s.color, borderRadius: '3px' }}/>
+            </div>
+          </div>
+        )
+      })}
+      <div style={{ marginTop: '16px', background: '#FEF3C7', borderRadius: '12px', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <span style={{ fontSize: '18px' }}>⚠️</span>
+        <div>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#92400E' }}>Needs attention</p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#B45309' }}>History & Civics — only 40% done this week</p>
+        </div>
+      </div>
+    </div>
   )
 }
 
-function ParentIllustration() {
-  return (
-    <svg viewBox="0 0 300 240" width="100%" style={{ maxWidth: '340px' }} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="80" y="10" width="140" height="220" rx="20" fill="white" stroke="#E5E7EB" strokeWidth="2"/>
-      <rect x="85" y="20" width="130" height="200" rx="14" fill="#F0FDF4"/>
-      <circle cx="150" cy="15" r="4" fill="#E5E7EB"/>
-      <rect x="85" y="20" width="130" height="36" rx="14" fill="#2D6A4F"/>
-      <rect x="85" y="42" width="130" height="14" fill="#2D6A4F"/>
-      <text x="150" y="40" textAnchor="middle" fill="white" fontSize="9" fontWeight="700" fontFamily="sans-serif">My child's progress</text>
-      <rect x="95" y="75" width="110" height="16" rx="8" fill="#E5E7EB"/>
-      <rect x="95" y="75" width="88" height="16" rx="8" fill="#2D6A4F"/>
-      <text x="95" y="68" fill="#1B4332" fontSize="8" fontWeight="700" fontFamily="sans-serif">English</text>
-      <text x="195" y="87" textAnchor="end" fill="#2D6A4F" fontSize="8" fontWeight="700" fontFamily="sans-serif">88%</text>
-      <rect x="95" y="110" width="110" height="16" rx="8" fill="#E5E7EB"/>
-      <rect x="95" y="110" width="55" height="16" rx="8" fill="#40916C"/>
-      <text x="95" y="103" fill="#1B4332" fontSize="8" fontWeight="700" fontFamily="sans-serif">Mathematics</text>
-      <text x="195" y="122" textAnchor="end" fill="#40916C" fontSize="8" fontWeight="700" fontFamily="sans-serif">72%</text>
-      <rect x="95" y="145" width="110" height="16" rx="8" fill="#E5E7EB"/>
-      <rect x="95" y="145" width="33" height="16" rx="8" fill="#F59E0B"/>
-      <text x="95" y="138" fill="#1B4332" fontSize="8" fontWeight="700" fontFamily="sans-serif">Science</text>
-      <text x="195" y="157" textAnchor="end" fill="#F59E0B" fontSize="8" fontWeight="700" fontFamily="sans-serif">65%</text>
-      <rect x="95" y="175" width="110" height="32" rx="8" fill="#D8F3DC"/>
-      <text x="105" y="188" fill="#1B4332" fontSize="9" fontWeight="700" fontFamily="sans-serif">🔥 7 day streak!</text>
-      <text x="105" y="200" fill="#40916C" fontSize="7" fontFamily="sans-serif">Keep it going!</text>
-      <g style={{ animation: 'floatB 3s ease-in-out infinite' }}>
-        <rect x="180" y="8" width="56" height="28" rx="8" fill="white" stroke="#E5E7EB" strokeWidth="1"/>
-        <circle cx="192" cy="22" r="7" fill="#10B981"/>
-        <text x="192" y="26" textAnchor="middle" fill="white" fontSize="9" fontWeight="700" fontFamily="sans-serif">✓</text>
-        <text x="202" y="19" fill="#1B4332" fontSize="7" fontWeight="700" fontFamily="sans-serif">Quiz</text>
-        <text x="202" y="27" fill="#40916C" fontSize="7" fontFamily="sans-serif">done!</text>
-      </g>
-      <style>{`@keyframes floatB { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }`}</style>
-    </svg>
-  )
-}
-
+// ── Main landing page ─────────────────────────────────────────────────────────
 export default function HomePage() {
   const [dashboardHref, setDashboardHref] = useState('')
+  const [scrolled,      setScrolled]      = useState(false)
+  const statsRef = useRef<HTMLDivElement>(null)
+  const statsInView = useInView(statsRef, { once: true })
+  const typed = useTypingEffect(['Learn it.', 'Know it.', 'Flow with it.'], 90, 1800)
+
+  const chapterCount  = useCounter(54,  1200, statsInView)
+  const sectionCount  = useCounter(378, 1400, statsInView)
+  const questionCount = useCounter(864, 1600, statsInView)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -182,294 +221,321 @@ export default function HomePage() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
-
-      // Check role — parent or student
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .maybeSingle()
-
-      if (profile?.role === 'parent') {
-        setDashboardHref('/parent/dashboard')
-      } else {
-        setDashboardHref('/student/dashboard')
-      }
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
+      setDashboardHref(profile?.role === 'parent' ? '/parent/dashboard' : '/student/dashboard')
     }
     checkAuth()
+    const handleScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
-  const typed = useTypingEffect(['Learn it.', 'Know it.', 'Flow with it.'], 90, 1600)
-  const statsRef = useRef<HTMLDivElement>(null)
-  const [statsVisible, setStatsVisible] = useState(false)
-
-  useEffect(() => {
-    const el = statsRef.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setStatsVisible(true); obs.disconnect() } },
-      { threshold: 0.3 }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
-
-  const chapters  = useCounter(54,  1200, statsVisible)
-  const sections  = useCounter(378, 1400, statsVisible)
-  const questions = useCounter(864, 1600, statsVisible)
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--white)', overflowX: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: 'white', overflowX: 'hidden' }}>
       <style>{`
-        @keyframes fadeInUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes spinSlow { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
-        @keyframes pulseGreen { 0%,100%{box-shadow:0 0 0 0 rgba(45,106,79,0.25);} 50%{box-shadow:0 0 0 14px rgba(45,106,79,0);} }
-        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
-        .hero-anim { animation: fadeInUp 0.8s ease forwards; }
-        .hero-sub  { animation: fadeInUp 0.8s ease 0.2s both; }
-        .hero-btns { animation: fadeInUp 0.8s ease 0.4s both; }
-        .hero-illo { animation: fadeInUp 0.9s ease 0.3s both; }
-        .spin-slow { animation: spinSlow 18s linear infinite; }
-        .btn-pulse { animation: pulseGreen 2.5s ease-in-out infinite; }
-        .cursor { display:inline-block; width:3px; height:1em; background:#74C69D; margin-left:4px; vertical-align:middle; animation:blink 0.8s step-end infinite; }
-        .card-hover { transition:transform 0.25s, box-shadow 0.25s; }
-        .card-hover:hover { transform:translateY(-5px); box-shadow:0 16px 32px rgba(45,106,79,0.12); }
-        @media(max-width:640px){ .hero-grid{grid-template-columns:1fr!important;} .hero-illo{display:none!important;} }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes spinSlow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        .cursor { display:inline-block; width:3px; height:1em; background:#74C69D; margin-left:4px; vertical-align:middle; animation:blink 0.8s step-end infinite; border-radius:2px; }
+        .spin { animation:spinSlow 20s linear infinite; }
+        @media(max-width:768px){ .hero-grid{grid-template-columns:1fr!important} .hide-mobile{display:none!important} .stats-grid{grid-template-columns:repeat(3,1fr)!important} }
+        @media(max-width:520px){ .stats-grid{grid-template-columns:1fr!important} }
       `}</style>
 
-      {/* NAV */}
-      <nav style={{
-        display:'flex', alignItems:'center', justifyContent:'space-between',
-        padding:'0 5%', height:'68px',
-        borderBottom:'1px solid var(--gray-200)',
-        position:'sticky', top:0,
-        background:'rgba(255,255,255,0.96)',
-        backdropFilter:'blur(10px)', zIndex:100,
-      }}>
-        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <div style={{ width:'38px', height:'38px', background:'var(--green-dark)', borderRadius:'11px', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <svg width="22" height="22" viewBox="0 0 20 20" fill="none">
-              <path d="M6 8h8M10 4v8" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-              <circle cx="10" cy="8" r="1.2" fill="#74C69D"/>
-            </svg>
+      {/* ── Sticky Nav ── */}
+      <motion.nav animate={{ boxShadow: scrolled ? '0 2px 24px rgba(0,0,0,0.08)' : 'none' }}
+        style={{ position: 'sticky', top: 0, zIndex: 200, background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', borderBottom: scrolled ? '1px solid #E5E7EB' : '1px solid transparent', padding: '0 5%', height: '66px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '36px', height: '36px', background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(27,67,50,0.25)' }}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M10 4v12" stroke="white" strokeWidth="2.2" strokeLinecap="round"/></svg>
           </div>
           <div>
-            <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'17px', color:'var(--green-deepest)', lineHeight:1 }}>Gyaanpravaha</p>
-            <p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color:'var(--green-mid)', lineHeight:1, marginTop:'2px' }}>ज्ञानप्रवाह</p>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: '#1B4332', lineHeight: 1 }}>Gyaanpravaha</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', color: '#40916C', marginTop: '1px', letterSpacing: '0.04em' }}>ज्ञानप्रवाह · Class 6</p>
           </div>
         </div>
-        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <Link href="/gk" className="btn-secondary" style={{ padding:'8px 18px', fontSize:'13px' }}>Learn for free</Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {dashboardHref ? (
-            <Link href={dashboardHref} className="btn-primary" style={{ padding:'8px 18px', fontSize:'13px' }}>
+            <Link href={dashboardHref} style={{ background: '#1B4332', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '9px 20px', borderRadius: '10px', textDecoration: 'none' }}>
               Go to Dashboard →
             </Link>
           ) : (
             <>
-              <Link href="/login" className="btn-outline" style={{ padding:'8px 18px', fontSize:'13px' }}>Log in</Link>
-              <Link href="/register" className="btn-primary btn-pulse" style={{ padding:'8px 18px', fontSize:'13px' }}>Register</Link>
+              <Link href="/login" style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '13px', color: '#374151', textDecoration: 'none', padding: '9px 16px', borderRadius: '10px', border: '1px solid #E5E7EB' }}>Log in</Link>
+              <Link href="/register" style={{ background: '#1B4332', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '9px 20px', borderRadius: '10px', textDecoration: 'none' }}>Register →</Link>
             </>
           )}
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* HERO */}
-      <section style={{
-        background:'linear-gradient(135deg, var(--green-deepest) 0%, var(--green-dark) 55%, var(--green-mid) 100%)',
-        padding:'80px 5% 100px', position:'relative', overflow:'hidden',
-      }}>
-        <div className="spin-slow" style={{ position:'absolute', top:'-80px', right:'-80px', width:'360px', height:'360px', borderRadius:'50%', border:'2px dashed rgba(116,198,157,0.2)', pointerEvents:'none' }}/>
-        <div style={{ position:'absolute', bottom:'-60px', left:'-60px', width:'280px', height:'280px', borderRadius:'50%', background:'rgba(216,243,220,0.06)', pointerEvents:'none' }}/>
+      {/* ── Hero ── */}
+      <section style={{ background: 'linear-gradient(135deg,#0D2B1F 0%,#1B4332 55%,#2D6A4F 100%)', padding: '80px 5% 100px', position: 'relative', overflow: 'hidden' }}>
+        {/* Background rings */}
+        <div className="spin" style={{ position: 'absolute', top: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', border: '1.5px dashed rgba(116,198,157,0.15)', pointerEvents: 'none' }}/>
+        <div style={{ position: 'absolute', bottom: '-80px', left: '-80px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(82,183,136,0.08), transparent 70%)', pointerEvents: 'none' }}/>
 
-        <div className="hero-grid" style={{ maxWidth:'1100px', margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'48px', alignItems:'center' }}>
+        <div className="hero-grid" style={{ maxWidth: '1160px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
           <div>
-            <div className="hero-anim" style={{ display:'inline-flex', alignItems:'center', gap:'8px', background:'rgba(116,198,157,0.18)', border:'1px solid rgba(116,198,157,0.3)', borderRadius:'20px', padding:'5px 14px', marginBottom:'24px' }}>
-              <span style={{ width:'7px', height:'7px', borderRadius:'50%', background:'#74C69D', display:'inline-block' }}/>
-              <span style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'#74C69D' }}>Now live — start learning today</span>
-            </div>
-            <h1 className="hero-anim" style={{ fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'clamp(40px, 5vw, 62px)', color:'white', lineHeight:1.12, marginBottom:'10px' }}>
-              <span style={{ color:'#74C69D', display:'block', minHeight:'1.15em' }}>
+            {/* Badge */}
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(116,198,157,0.15)', border: '1px solid rgba(116,198,157,0.3)', borderRadius: '20px', padding: '6px 16px', marginBottom: '28px' }}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#74C69D', display: 'inline-block' }}/>
+              <span style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#74C69D' }}>Maharashtra State Board · Class 6 · All subjects</span>
+            </motion.div>
+
+            {/* Headline */}
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
+              style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 'clamp(38px,5vw,60px)', color: 'white', lineHeight: 1.1, marginBottom: '12px' }}>
+              Your syllabus.<br/>
+              <span style={{ color: '#74C69D', display: 'inline-block', minHeight: '1.15em' }}>
                 {typed}<span className="cursor"/>
               </span>
-            </h1>
-            <p className="hero-sub" style={{ fontFamily:'var(--font-body)', fontSize:'17px', color:'rgba(255,255,255,0.78)', lineHeight:1.75, marginBottom:'36px', maxWidth:'480px' }}>
-              A digital learning platform that brings your syllabus to life. Every chapter explained simply, every concept practised smartly, every step tracked closely.
-            </p>
-            <div className="hero-btns" style={{ display:'flex', gap:'12px', flexWrap:'wrap' }}>
-              <Link href="/gk" className="btn-primary" style={{ background:'#74C69D', color:'var(--green-deepest)', fontSize:'15px', padding:'13px 28px', fontWeight:800 }}>
-                Learn for free
+            </motion.h1>
+
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
+              style={{ fontFamily: 'var(--font-body)', fontSize: '16px', color: 'rgba(255,255,255,0.72)', lineHeight: 1.8, marginBottom: '36px', maxWidth: '460px' }}>
+              Every chapter from your Maharashtra State Board textbooks — explained in simple language, assessed thoroughly, tracked by parents. Not generic content. Your exact syllabus.
+            </motion.p>
+
+            {/* CTAs */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}
+              style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <Link href="/register" style={{ background: '#74C69D', color: '#1B4332', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '15px', padding: '14px 30px', borderRadius: '12px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 20px rgba(116,198,157,0.4)' }}>
+                Get started — ₹4,999/yr →
               </Link>
-              <Link href="/register" className="btn-outline" style={{ borderColor:'rgba(255,255,255,0.4)', color:'white', fontSize:'15px', padding:'13px 28px' }}>
-                Register now
+              <Link href="/login" style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '14px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                Already registered? Log in
               </Link>
-            </div>
+            </motion.div>
+
+            {/* Trust line */}
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+              style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(255,255,255,0.35)', marginTop: '20px' }}>
+              54 chapters · 378 sections · 864 quiz questions · 8 subjects
+            </motion.p>
           </div>
-          <div className="hero-illo" style={{ display:'flex', justifyContent:'center' }}>
-            <StudentIllustration />
-          </div>
+
+          {/* Platform mockup */}
+          <motion.div className="hide-mobile" initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.3 }}
+            style={{ display: 'flex', justifyContent: 'center' }}>
+            <PlatformMockup/>
+          </motion.div>
         </div>
       </section>
 
-      {/* STATS */}
-      <section ref={statsRef} style={{ padding:'52px 5%', background:'var(--green-deepest)' }}>
-        <div style={{ maxWidth:'800px', margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'24px', textAlign:'center' }}>
+      {/* ── Stats bar ── */}
+      <section ref={statsRef} style={{ background: '#0D2B1F', padding: '48px 5%' }}>
+        <div className="stats-grid" style={{ maxWidth: '900px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '24px', textAlign: 'center' }}>
           {[
-            { count: chapters,  suffix: '',  label: 'Chapters covered' },
-            { count: sections,  suffix: '+', label: 'Lesson sections' },
-            { count: questions, suffix: '+', label: 'Practice questions' },
-          ].map(({ count, suffix, label }) => (
+            { value: chapterCount, suffix: '', label: 'Chapters covered', sub: 'All 8 subjects · MSB syllabus' },
+            { value: sectionCount, suffix: '+', label: 'Lesson sections', sub: '7 sections per chapter' },
+            { value: questionCount, suffix: '+', label: 'Quiz questions', sub: 'MCQ, fill in blanks & more' },
+          ].map(({ value, suffix, label, sub }) => (
             <div key={label}>
-              <p style={{ fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'clamp(36px,5vw,52px)', color:'#74C69D', lineHeight:1 }}>{count}{suffix}</p>
-              <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'rgba(255,255,255,0.55)', marginTop:'6px' }}>{label}</p>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 'clamp(40px,5vw,56px)', color: '#74C69D', lineHeight: 1 }}>{value}{suffix}</p>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '15px', color: 'white', marginTop: '8px' }}>{label}</p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>{sub}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* FREE GK BANNER */}
-      <section style={{ padding:'48px 5%', background:'var(--amber-light)', borderTop:'1px solid #FDE68A', borderBottom:'1px solid #FDE68A' }}>
-        <div style={{ maxWidth:'860px', margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'24px', flexWrap:'wrap' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:'16px' }}>
-            <span style={{ fontSize:'36px' }}>🎓</span>
-            <div>
-              <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'18px', color:'#92400E', marginBottom:'4px' }}>Try Gyaanpravaha for free — no account needed</p>
-              <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#B45309' }}>Explore our General Knowledge section. No login, no payment. Just learning.</p>
-            </div>
-          </div>
-          <Link href="/gk" className="btn-primary" style={{ background:'#F59E0B', color:'white', flexShrink:0, padding:'12px 28px', fontSize:'15px' }}>
-            Start learning free
-          </Link>
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section style={{ padding:'88px 5%', background:'var(--green-pale)' }}>
-        <div style={{ maxWidth:'960px', margin:'0 auto' }}>
-          <Reveal>
-            <p style={{ textAlign:'center', fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', color:'var(--green-mid)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'10px' }}>How it works</p>
-            <h2 style={{ textAlign:'center', fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'clamp(26px,4vw,38px)', color:'var(--green-deepest)', marginBottom:'52px' }}>Three steps to mastering every chapter</h2>
-          </Reveal>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:'24px' }}>
-            {[
-              { delay:0,   emoji:'📖', step:'01', title:'Learn it',       desc:'Every chapter explained in 7 easy sections — friendly, simple language just like a tuition teacher. Confirm each section as you go.',          color:'var(--green-dark)' },
-              { delay:150, emoji:'✅', step:'02', title:'Know it',        desc:'Unlock the quiz after reading. MCQs, fill in the blanks, sentence forming, and long answers. Wrong answer? Concept re-explained immediately.', color:'#6366F1' },
-              { delay:300, emoji:'🌊', step:'03', title:'Flow with it',   desc:'Track your progress, build daily streaks, and give parents full visibility into how well you are doing. Knowledge that flows stays forever.',   color:'var(--amber)' },
-            ].map(({ delay, emoji, step, title, desc, color }) => (
-              <Reveal key={step} delay={delay}>
-                <div className="card card-hover" style={{ textAlign:'center', padding:'40px 28px', position:'relative', overflow:'hidden' }}>
-                  <div style={{ position:'absolute', top:'-16px', right:'-16px', width:'80px', height:'80px', borderRadius:'50%', background:`${color}12` }}/>
-                  <div style={{ fontSize:'38px', marginBottom:'14px' }}>{emoji}</div>
-                  <div style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', width:'34px', height:'34px', borderRadius:'50%', background:color, color:'white', fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'13px', marginBottom:'12px' }}>{step}</div>
-                  <h3 style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'21px', color:'var(--green-deepest)', marginBottom:'10px' }}>{title}</h3>
-                  <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'var(--gray-600)', lineHeight:1.75 }}>{desc}</p>
+      {/* ── Curriculum coverage ── */}
+      <section style={{ padding: '88px 5%', background: '#F8FAFF' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <FadeUp>
+            <p style={{ textAlign: 'center', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#4338CA', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Complete curriculum</p>
+            <h2 style={{ textAlign: 'center', fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 'clamp(26px,4vw,40px)', color: '#1B4332', marginBottom: '12px' }}>
+              Every subject. Every chapter.<br/>Your exact textbooks.
+            </h2>
+            <p style={{ textAlign: 'center', fontFamily: 'var(--font-body)', fontSize: '15px', color: '#64748B', maxWidth: '560px', margin: '0 auto 52px', lineHeight: 1.7 }}>
+              Built chapter by chapter from Maharashtra State Board textbooks — Balbharati English, Maths Connexion, Sulabhbharati Marathi & Sanskrit, and more.
+            </p>
+          </FadeUp>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+            {SUBJECTS.map((s, i) => (
+              <FadeUp key={s.label} delay={i * 0.06}>
+                <div style={{ background: 'white', borderRadius: '18px', border: '1.5px solid #F1F5F9', padding: '22px', display: 'flex', alignItems: 'center', gap: '14px', transition: 'all 0.2s', cursor: 'default' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = s.color; e.currentTarget.style.boxShadow = `0 8px 24px ${s.color}20`; e.currentTarget.style.transform = 'translateY(-3px)' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#F1F5F9'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none' }}>
+                  <div style={{ width: '48px', height: '48px', minWidth: '48px', borderRadius: '14px', background: s.light, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>
+                    {s.emoji}
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '15px', color: '#1F2937', marginBottom: '3px' }}>{s.label}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '13px', color: s.color }}>{s.chapters}</span>
+                      <span style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#94A3B8' }}>chapters</span>
+                    </div>
+                  </div>
                 </div>
-              </Reveal>
+              </FadeUp>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section style={{ padding:'88px 5%' }}>
-        <div style={{ maxWidth:'960px', margin:'0 auto' }}>
-          <Reveal>
-            <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', color:'var(--green-mid)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'10px', textAlign:'center' }}>What you get</p>
-            <h2 style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'clamp(26px,4vw,38px)', color:'var(--green-deepest)', marginBottom:'52px', textAlign:'center' }}>Everything a student needs to excel</h2>
-          </Reveal>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(280px,1fr))', gap:'16px' }}>
+      {/* ── How it works ── */}
+      <section style={{ padding: '88px 5%' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <FadeUp>
+            <p style={{ textAlign: 'center', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#1B4332', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>How it works</p>
+            <h2 style={{ textAlign: 'center', fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 'clamp(26px,4vw,40px)', color: '#1B4332', marginBottom: '52px' }}>Three steps to mastering every chapter</h2>
+          </FadeUp>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
             {[
-              { emoji:'📚', title:'Chapter-by-chapter lessons',  desc:'Every chapter broken into 7 easy sections with a confirmation gate. Read at your own pace — assessment only unlocks when you are ready.', delay:0 },
-              { emoji:'🎯', title:'Smart assessments',           desc:'MCQs, fill in the blanks, sentence forming, and long answers — all structured in one quiz per chapter. 25 marks, 4 question types.', delay:100 },
-              { emoji:'💡', title:'Instant re-explanation',      desc:'Wrong answer? We immediately show the concept again from the lesson. No red marks. Just better understanding and a second chance.', delay:200 },
-              { emoji:'✍️', title:'Writing practice',            desc:'Writing prompts assigned by your teacher, AI-evaluated instantly, reviewed by admin before your final score is released.', delay:0 },
-              { emoji:'📊', title:'Parent dashboard',            desc:'Parents see chapter scores, time spent studying, weak areas flagged, writing submissions — complete visibility in one place.', delay:100 },
-              { emoji:'🔥', title:'Streak tracking',             desc:'Study every day and watch your streak grow. Small daily habits build the biggest results over a full academic year.', delay:200 },
-            ].map(({ emoji, title, desc, delay }) => (
-              <Reveal key={title} delay={delay}>
-                <div className="card card-hover" style={{ padding:'28px', display:'flex', flexDirection:'column', gap:'10px' }}>
-                  <span style={{ fontSize:'30px' }}>{emoji}</span>
-                  <h3 style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'16px', color:'var(--green-deepest)' }}>{title}</h3>
-                  <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'var(--gray-600)', lineHeight:1.75 }}>{desc}</p>
+              { step:'01', emoji:'📖', title:'Read', color:'#4338CA', bg:'#EEF2FF', border:'#C7D2FE', desc:'Every chapter is split into 7 short sections — written the way a tutor would explain it, not how a textbook does. Confirm each section to unlock the next.' },
+              { step:'02', emoji:'🎯', title:'Quiz', color:'#0F766E', bg:'#F0FDFA', border:'#5EEAD4', desc:'Once all sections are read, take the quiz. Multiple choice, fill in the blanks, sentence forming and long answers. Wrong answer? The concept is explained again immediately.' },
+              { step:'03', emoji:'📊', title:'Track', color:'#78350F', bg:'#FFFBEB', border:'#FDE68A', desc:'Parents see scores, chapters done and time spent — in real time. Students build streaks. Progress is visible to everyone who matters.' },
+            ].map((item, i) => (
+              <FadeUp key={item.step} delay={i * 0.1}>
+                <div style={{ background: item.bg, borderRadius: '20px', border: `1.5px solid ${item.border}`, padding: '32px 28px', height: '100%' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <span style={{ fontSize: '32px' }}>{item.emoji}</span>
+                    <div style={{ background: item.color, color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '11px', padding: '3px 10px', borderRadius: '20px' }}>Step {item.step}</div>
+                  </div>
+                  <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '24px', color: item.color, marginBottom: '10px' }}>{item.title}</h3>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#374151', lineHeight: 1.8 }}>{item.desc}</p>
                 </div>
-              </Reveal>
+              </FadeUp>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FOR PARENTS */}
-      <section style={{ padding:'88px 5%', background:'var(--green-pale)' }}>
-        <div style={{ maxWidth:'980px', margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))', gap:'56px', alignItems:'center' }}>
-          <Reveal>
-            <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', color:'var(--green-mid)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'12px' }}>For parents</p>
-            <h2 style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'clamp(24px,4vw,34px)', color:'var(--green-deepest)', marginBottom:'16px' }}>Stay close to your child's learning</h2>
-            <p style={{ fontFamily:'var(--font-body)', fontSize:'15px', color:'var(--gray-600)', lineHeight:1.75, marginBottom:'28px' }}>You register, you set the password, you stay in control. Your dashboard gives you complete visibility into what your child is studying and how they are performing.</p>
-            {['Chapter-wise scores and progress', 'Time spent studying per subject', 'Weak chapters highlighted clearly', 'Writing prompt submissions and scores', 'Subscription status and renewal date'].map(item => (
-              <div key={item} style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'12px' }}>
-                <div style={{ width:'22px', height:'22px', borderRadius:'50%', background:'var(--green-mint)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5l2.5 2.5L9 3" stroke="#2D6A4F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      {/* ── Parent visibility ── */}
+      <section style={{ padding: '88px 5%', background: '#F8FAFF' }}>
+        <div style={{ maxWidth: '1060px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '64px', alignItems: 'center' }}>
+          <FadeUp>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#1B4332', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>For parents</p>
+            <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 'clamp(24px,4vw,36px)', color: '#1B4332', marginBottom: '16px', lineHeight: 1.2 }}>
+              Full visibility.<br/>Zero guesswork.
+            </h2>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '15px', color: '#64748B', lineHeight: 1.8, marginBottom: '28px' }}>
+              You set the password, you control the account. Your dashboard shows exactly what your child is studying and how well they are doing — no chasing, no wondering.
+            </p>
+            {[
+              'Chapter-by-chapter scores across all 8 subjects',
+              'Quiz scores with subject-wise breakdown',
+              'Time spent studying each subject',
+              'Weak chapters flagged automatically',
+              'Real-time — updates the moment your child studies',
+            ].map(item => (
+              <div key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ width: '20px', height: '20px', minWidth: '20px', borderRadius: '50%', background: '#D8F3DC', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '2px' }}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5L8.5 2" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </div>
-                <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'var(--gray-700)' }}>{item}</p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#374151', lineHeight: 1.6 }}>{item}</p>
               </div>
             ))}
-          </Reveal>
-          <Reveal delay={200}>
-            <div style={{ display:'flex', justifyContent:'center' }}><ParentIllustration /></div>
-          </Reveal>
+          </FadeUp>
+          <FadeUp delay={0.2}>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <ParentMockup/>
+            </div>
+          </FadeUp>
         </div>
       </section>
 
-      {/* PRICING */}
-      <section style={{ padding:'88px 5%' }}>
-        <div style={{ maxWidth:'520px', margin:'0 auto', textAlign:'center' }}>
-          <Reveal>
-            <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', color:'var(--green-mid)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'10px' }}>Pricing</p>
-            <h2 style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'clamp(24px,4vw,36px)', color:'var(--green-deepest)', marginBottom:'40px' }}>One subscription.<br/>Full year of learning.</h2>
-            <div className="card" style={{ padding:'44px 36px', border:'2.5px solid var(--green-dark)', position:'relative', overflow:'hidden' }}>
-              <div style={{ position:'absolute', top:'-40px', right:'-40px', width:'120px', height:'120px', borderRadius:'50%', background:'var(--green-pale)' }}/>
-              <div className="badge badge-green" style={{ marginBottom:'20px' }}>Annual plan</div>
-              <p style={{ fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'56px', color:'var(--green-deepest)', lineHeight:1 }}>₹4,999</p>
-              <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'var(--gray-400)', marginBottom:'32px' }}>per student · per academic year</p>
-              {['All subjects — chapter by chapter', '7 sections + quiz per chapter', 'Writing prompts and AI evaluation', 'Parent progress dashboard', 'AI doubt solver', 'Full academic year access'].map(item => (
-                <div key={item} style={{ display:'flex', alignItems:'center', gap:'12px', marginBottom:'12px', textAlign:'left' }}>
-                  <div style={{ width:'20px', height:'20px', borderRadius:'50%', background:'var(--green-mint)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#2D6A4F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      {/* ── For schools ── */}
+      <section style={{ padding: '88px 5%' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <FadeUp>
+            <p style={{ textAlign: 'center', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#78350F', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>For schools</p>
+            <h2 style={{ textAlign: 'center', fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 'clamp(26px,4vw,40px)', color: '#1B4332', marginBottom: '12px' }}>
+              A platform that works alongside your teachers
+            </h2>
+            <p style={{ textAlign: 'center', fontFamily: 'var(--font-body)', fontSize: '15px', color: '#64748B', maxWidth: '520px', margin: '0 auto 52px', lineHeight: 1.7 }}>
+              Gyaanpravaha does not replace classroom teaching — it reinforces it. Everything is aligned to the Maharashtra State Board curriculum your school already follows.
+            </p>
+          </FadeUp>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
+            {[
+              { emoji:'📋', title:'State Board curriculum', color:'#4338CA', bg:'#EEF2FF', desc:'Every chapter, section and quiz question is drawn directly from MSB textbooks. No mismatch between school and platform.' },
+              { emoji:'✏️', title:'Teachers assign questions', color:'#0F766E', bg:'#F0FDFA', desc:'Teachers can post class questions and writing prompts directly to students on the platform from their school panel.' },
+              { emoji:'👨‍👩‍👦', title:'Parent–school alignment', color:'#78350F', bg:'#FFFBEB', desc:'Parents see the same chapter sequence as school. Progress tracking is based on the school\'s own syllabus order.' },
+              { emoji:'📈', title:'School-level insights', color:'#4C1D95', bg:'#F5F3FF', desc:'Schools can view aggregate performance across students, identify common weak areas and plan revision sessions accordingly.' },
+            ].map((item, i) => (
+              <FadeUp key={item.title} delay={i * 0.08}>
+                <div style={{ background: item.bg, borderRadius: '18px', padding: '24px', height: '100%' }}>
+                  <div style={{ fontSize: '28px', marginBottom: '14px' }}>{item.emoji}</div>
+                  <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: item.color, marginBottom: '10px' }}>{item.title}</h3>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#374151', lineHeight: 1.75 }}>{item.desc}</p>
+                </div>
+              </FadeUp>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing ── */}
+      <section style={{ padding: '88px 5%', background: '#F8FAFF' }}>
+        <div style={{ maxWidth: '560px', margin: '0 auto', textAlign: 'center' }}>
+          <FadeUp>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#1B4332', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>Pricing</p>
+            <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 'clamp(26px,4vw,38px)', color: '#1B4332', marginBottom: '40px', lineHeight: 1.2 }}>
+              One price.<br/>A full year of learning.
+            </h2>
+            <div style={{ background: 'white', borderRadius: '24px', border: '2px solid #1B4332', padding: '44px 40px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '120px', height: '120px', borderRadius: '50%', background: '#F0FDF4' }}/>
+              <div style={{ background: '#D8F3DC', color: '#1B4332', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', padding: '4px 14px', borderRadius: '20px', display: 'inline-block', marginBottom: '20px' }}>Annual plan · Academic year 2025–26</div>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '64px', color: '#1B4332', lineHeight: 1 }}>₹4,999</p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#9CA3AF', marginBottom: '8px' }}>per student · per academic year</p>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#40916C', marginBottom: '32px' }}>That's less than ₹14 per day</p>
+              {[
+                'All 8 subjects — chapter by chapter',
+                '54 chapters · 378 sections · 864 questions',
+                'Quiz after every chapter',
+                'Parent progress dashboard',
+                'Teacher question panel',
+                'Full academic year access',
+              ].map(item => (
+                <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', textAlign: 'left' }}>
+                  <div style={{ width: '20px', height: '20px', minWidth: '20px', borderRadius: '50%', background: '#D8F3DC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5L8.5 2" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </div>
-                  <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'var(--gray-700)' }}>{item}</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#374151' }}>{item}</p>
                 </div>
               ))}
-              <Link href="/register" className="btn-primary" style={{ width:'100%', justifyContent:'center', padding:'15px', fontSize:'16px', marginTop:'20px', display:'flex' }}>Register and get access</Link>
+              <Link href="/register" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1B4332', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '16px', padding: '16px', borderRadius: '14px', textDecoration: 'none', marginTop: '24px', gap: '8px' }}>
+                Register and get access →
+              </Link>
             </div>
-          </Reveal>
+          </FadeUp>
         </div>
       </section>
 
-      {/* CTA */}
-      <section style={{ padding:'80px 5%', background:'linear-gradient(135deg, var(--green-deepest) 0%, var(--green-dark) 100%)', textAlign:'center', position:'relative', overflow:'hidden' }}>
-        <div className="spin-slow" style={{ position:'absolute', top:'-100px', left:'50%', transform:'translateX(-50%)', width:'500px', height:'500px', borderRadius:'50%', border:'1.5px dashed rgba(116,198,157,0.15)', pointerEvents:'none' }}/>
-        <Reveal>
-          <h2 style={{ fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'clamp(28px,4vw,44px)', color:'white', marginBottom:'16px' }}>Ready to start your journey?</h2>
-          <p style={{ fontFamily:'var(--font-body)', fontSize:'16px', color:'rgba(255,255,255,0.7)', marginBottom:'36px', maxWidth:'420px', margin:'0 auto 36px' }}>Join Gyaanpravaha and experience learning that truly flows.</p>
-          <div style={{ display:'flex', gap:'12px', justifyContent:'center', flexWrap:'wrap' }}>
-            <Link href="/gk" className="btn-outline" style={{ borderColor:'rgba(255,255,255,0.4)', color:'white', fontSize:'15px', padding:'13px 28px' }}>Try for free first</Link>
-            <Link href="/register" className="btn-primary" style={{ background:'#74C69D', color:'var(--green-deepest)', fontSize:'15px', padding:'13px 28px', fontWeight:800 }}>Register now</Link>
+      {/* ── Final CTA ── */}
+      <section style={{ padding: '88px 5%', background: 'linear-gradient(135deg,#0D2B1F 0%,#1B4332 60%,#2D6A4F 100%)', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div className="spin" style={{ position: 'absolute', top: '-120px', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '600px', borderRadius: '50%', border: '1.5px dashed rgba(116,198,157,0.12)', pointerEvents: 'none' }}/>
+        <FadeUp>
+          <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 'clamp(28px,4vw,48px)', color: 'white', marginBottom: '16px', lineHeight: 1.2 }}>
+            Ready to transform<br/>how your child learns?
+          </h2>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '16px', color: 'rgba(255,255,255,0.65)', marginBottom: '36px', maxWidth: '440px', margin: '0 auto 36px', lineHeight: 1.7 }}>
+            Join Gyaanpravaha today. Your syllabus, explained simply, assessed thoroughly.
+          </p>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/register" style={{ background: '#74C69D', color: '#1B4332', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '15px', padding: '14px 32px', borderRadius: '12px', textDecoration: 'none', boxShadow: '0 4px 20px rgba(116,198,157,0.35)' }}>
+              Register now →
+            </Link>
+            <Link href="/login" style={{ border: '1.5px solid rgba(255,255,255,0.3)', color: 'rgba(255,255,255,0.85)', fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '15px', padding: '14px 32px', borderRadius: '12px', textDecoration: 'none' }}>
+              Already registered? Log in
+            </Link>
           </div>
-        </Reveal>
+        </FadeUp>
       </section>
 
-      {/* FOOTER */}
-      <footer style={{ background:'var(--green-deepest)', padding:'44px 5%', display:'flex', flexDirection:'column', alignItems:'center', gap:'12px', textAlign:'center' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <div style={{ width:'34px', height:'34px', background:'rgba(255,255,255,0.1)', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-              <path d="M6 8h8M10 4v8" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-              <circle cx="10" cy="8" r="1.2" fill="#74C69D"/>
-            </svg>
+      {/* ── Footer ── */}
+      <footer style={{ background: '#0D2B1F', padding: '40px 5%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M10 4v12" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
           </div>
-          <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'17px', color:'white' }}>Gyaanpravaha</p>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: 'white' }}>Gyaanpravaha</p>
         </div>
-        <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'rgba(255,255,255,0.45)' }}>Learn it. Know it. Flow with it.</p>
-        <p style={{ fontFamily:'var(--font-body)', fontSize:'12px', color:'rgba(255,255,255,0.28)' }}>© 2026 Gyaanpravaha · gyaanpravaha.in</p>
-        <Link href="/admin/login" style={{ fontFamily:'var(--font-body)', fontSize:'11px', color:'rgba(255,255,255,0.18)', textDecoration:'none', marginTop:'4px' }}>Admin</Link>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>Maharashtra State Board · Class 6 · All subjects · ₹4,999/year</p>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>© 2026 Gyaanpravaha · gyaanpravaha.in</p>
+        <Link href="/admin/login" style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.15)', textDecoration: 'none', marginTop: '4px' }}>Admin</Link>
       </footer>
     </div>
   )
