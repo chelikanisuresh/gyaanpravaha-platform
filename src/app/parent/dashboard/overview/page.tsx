@@ -85,8 +85,9 @@ function OverviewInner() {
     })
     setSubjects(data)
     setTotalDone(data.reduce((a,s)=>a+s.done, 0))
-    const allAvgs = data.filter(s=>s.avg!==null).map(s=>s.avg as number)
-    setOverallAvg(allAvgs.length ? Math.round(allAvgs.reduce((a,b)=>a+b,0)/allAvgs.length) : null)
+    // Use all individual scores directly — same method as student dashboard
+    const allScores = quizzes?.map((q: any) => q.score) || []
+    setOverallAvg(allScores.length ? Math.round(allScores.reduce((a:number,b:number)=>a+b,0)/allScores.length) : null)
     setLoading(false)
   }
 
