@@ -13,7 +13,7 @@ const THEME = {
   dark:     '#4C1D95',
 }
 
-export default function RapidReaderSubjectPage() {
+export default function RapidReaderSubjectPage({ studentId }: { studentId?: string }) {
   const router  = useRouter()
   const [completedChapters, setCompletedChapters] = useState<Set<number>>(new Set())
   const [quizScores, setQuizScores]               = useState<Record<number, number>>({})

@@ -159,8 +159,8 @@ function MarathiSubjectPage({ studentId }: { studentId: string }) {
 
 // ── Rapid Reader subject page ────────────────────────────────────────────────
 
-function RapidReaderSubjectPage() {
-  return <RapidReaderSubjectPageComponent/>
+function RapidReaderSubjectPage({ studentId }: { studentId: string }) {
+  return <RapidReaderSubjectPageComponent studentId={studentId}/>
 }
 
 // ── Coming soon ──────────────────────────────────────────────────────────────
@@ -195,7 +195,7 @@ export default function StudentMainPage() {
           case 'sanskrit':  return <SanskritSubjectPage  studentId={studentId}/>
           case 'ict':       return <ICTSubjectPage         studentId={studentId}/>
           case 'marathi':   return <MarathiSubjectPage     studentId={studentId}/>
-          case 'rapid':     return <RapidReaderSubjectPage/>
+          case 'rapid':     return <RapidReaderSubjectPage studentId={studentId}/>
           case 'profile':   return <StudentProfileContent   studentId={studentId}/>
           default:          return <DashboardHome           studentId={studentId} onNavigate={section => window.dispatchEvent(new CustomEvent('gp-navigate', { detail: section }))}/>
         }
