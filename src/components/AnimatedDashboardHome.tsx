@@ -302,6 +302,7 @@ export default function AnimatedDashboardHome({
   const [scoresMap,     setScoresMap]     = useState<Record<string, number | null>>({})
   const [avgScore,      setAvgScore]      = useState<number | null>(null)
   const [loaded,        setLoaded]        = useState(false)
+  const [streak,        setStreak]        = useState(0)
 
   useEffect(() => {
     const load = async () => {
@@ -347,6 +348,26 @@ export default function AnimatedDashboardHome({
       const allScores = quizzes?.map((r: any) => r.score) || []
       setAvgScore(allScores.length ? Math.round(allScores.reduce((a: number, b: number) => a + b, 0) / allScores.length) : null)
 
+      // Compute day streak — count consecutive days with activity (quiz or section)
+      const { data: activityRows } = await supabase
+        .from('student_lesson_progress')
+        .select('completed_at')
+        .eq('student_id', studentId)
+        .order('completed_at', { ascending: false })
+
+      const activeDays = new Set((activityRows || []).map((r: any) => {
+        const d = new Date(r.completed_at); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+      }))
+      let streakCount = 0
+      const today = new Date()
+      for (let i = 0; i < 365; i++) {
+        const d = new Date(today); d.setDate(today.getDate() - i)
+        const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+        if (activeDays.has(key)) streakCount++
+        else if (i > 0) break
+      }
+      setStreak(streakCount)
+
       setLoaded(true)
     }
 
@@ -365,7 +386,7 @@ export default function AnimatedDashboardHome({
     <div>
       <GreetingBanner name={name} totalCompleted={totalCompleted} totalChapters={totalChapters}/>
 
-      <StatsRow totalCompleted={totalCompleted} avgScore={avgScore} streak={1}/>
+      <StatsRow totalCompleted={totalCompleted} avgScore={avgScore} streak={streak}/>
 
       {/* Subject grid */}
       <motion.p

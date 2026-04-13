@@ -35,6 +35,10 @@ export default function StudentSidebarLayout({ children }: Props) {
     if (section && ['english','maths','science','history','geo','sanskrit','ict','marathi','profile'].includes(section)) {
       setActiveSection(section as ActiveSection)
       setSubjectsOpen(true)
+    } else {
+      // No section param — always land on dashboard home (handles fresh logins)
+      setActiveSection('dashboard')
+      setSubjectsOpen(false)
     }
   }, [])
 

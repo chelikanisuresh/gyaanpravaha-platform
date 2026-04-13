@@ -305,7 +305,7 @@ export default function GenericQuizPage({ config }: { config: QuizConfig }) {
     setPhase('feedback')
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!currentFeedback) return
     const newAnswers = [...answers, { questionId: currentQ.id, given: currentFeedback.given, correct: currentFeedback.correct, marksEarned: currentFeedback.marksEarned }]
     setAnswers(newAnswers)
@@ -313,7 +313,8 @@ export default function GenericQuizPage({ config }: { config: QuizConfig }) {
     if (isLast) {
       const total = newAnswers.reduce((s, a) => s + a.marksEarned, 0)
       const pct   = Math.round((total / quiz.totalMarks) * 100)
-      createClient().from('student_quiz_attempts').insert({ student_id: studentId, chapter_id: chapterId, subject: config.subject, score: pct, marks_earned: total, total_marks: quiz.totalMarks, answers: JSON.stringify(newAnswers), created_at: new Date().toISOString() })
+      // await the insert so DB is updated BEFORE the results screen loads
+      await createClient().from('student_quiz_attempts').insert({ student_id: studentId, chapter_id: chapterId, subject: config.subject, score: pct, marks_earned: total, total_marks: quiz.totalMarks, answers: JSON.stringify(newAnswers), created_at: new Date().toISOString() })
       setPhase('results')
     } else { setQuestionIdx(i => i + 1); setPhase('question') }
   }
