@@ -14,7 +14,7 @@ const CHAPTERS: SubjectChapter[] = RAPID_CHAPTERS.map(ch => ({
 const THEME: SubjectTheme = {
   title:       'Rapid Reader',
   emoji:       '📗',
-  subject:     'rapid-reader',
+  subject:     'rapid',
   bookSeries:  'Swami and Friends · R.K. Narayan',
   description: 'Follow Swaminathan through his adventures in Malgudi — a timeless story of friendship, school days, and growing up in colonial India.',
 

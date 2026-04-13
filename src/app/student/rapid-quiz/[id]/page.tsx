@@ -6,7 +6,7 @@ import { getRapidQuiz } from '@/lib/rapid-quiz-content'
 import { getRapidChapter } from '@/lib/rapid-chapter-content'
 
 const CONFIG: QuizConfig = {
-  subject:          'rapid-reader',
+  subject:          'rapid',
   dashboardSection: 'rapid',
   subjectLabel:     'Rapid Reader',
   chapterRoute:     'rapid-chapter',

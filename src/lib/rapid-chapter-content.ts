@@ -7212,9 +7212,7 @@ He paused and added: 'Don't worry. If he has not talked to you, he will write to
 'It is—it is—never mind what.... I have given it to Rajam.'
 Swaminathan looked up and gazed on Mani's face to find out whether Mani
 was joking or was in earnest. But for once Mani's face had become
-inscrutable.
-
-Table of Contents`,
+inscrutable.`,
       },
       {
         id: 6,
@@ -7250,9 +7248,7 @@ He paused and added: 'Don't worry. If he has not talked to you, he will write to
 'It is—it is—never mind what.... I have given it to Rajam.'
 Swaminathan looked up and gazed on Mani's face to find out whether Mani
 was joking or was in earnest. But for once Mani's face had become
-inscrutable.
-
-Table of Contents`,
+inscrutable.`,
       },
       {
         id: 7,
@@ -7288,9 +7284,7 @@ He paused and added: 'Don't worry. If he has not talked to you, he will write to
 'It is—it is—never mind what.... I have given it to Rajam.'
 Swaminathan looked up and gazed on Mani's face to find out whether Mani
 was joking or was in earnest. But for once Mani's face had become
-inscrutable.
-
-Table of Contents`,
+inscrutable.`,
       },
     ],
   },
