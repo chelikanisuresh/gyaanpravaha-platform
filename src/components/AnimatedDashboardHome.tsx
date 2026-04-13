@@ -312,18 +312,6 @@ export default function AnimatedDashboardHome({
       const { data: p } = await supabase.from('profiles').select('full_name').eq('id', studentId).maybeSingle()
       if (p?.full_name) setName(p.full_name.split(' ')[0])
 
-      // Progress per subject
-      const { data: progress } = await supabase
-        .from('student_lesson_progress')
-        .select('subject, chapter_id')
-        .eq('student_id', studentId)
-
-      const completedBySubject: Record<string, Set<number>> = {}
-      progress?.forEach((r: any) => {
-        if (!completedBySubject[r.subject]) completedBySubject[r.subject] = new Set()
-        completedBySubject[r.subject].add(r.chapter_id)
-      })
-
       // Count fully completed chapters (7 sections) per subject
       const { data: sectionCounts } = await supabase
         .from('student_lesson_progress')
@@ -342,29 +330,32 @@ export default function AnimatedDashboardHome({
       })
       setCompletedMap(doneMap)
 
-      // Quiz scores per subject
+      // Quiz scores per subject — use all attempts for avg, most recent per subject for badge
       const { data: quizzes } = await supabase
         .from('student_quiz_attempts')
         .select('subject, chapter_id, score')
         .eq('student_id', studentId)
         .order('created_at', { ascending: false })
 
-      const bestScores: Record<string, number | null> = {}
-      const subjectAvg: Record<string, number[]> = {}
+      const bestScores: Record<string, number> = {}
       quizzes?.forEach((r: any) => {
-        const key = r.subject
-        if (!bestScores[key]) bestScores[key] = r.score
-        if (!subjectAvg[key]) subjectAvg[key] = []
-        subjectAvg[key].push(r.score)
+        // Keep the most recent score per subject (first result since ordered desc)
+        if (!(r.subject in bestScores)) bestScores[r.subject] = r.score
       })
       setScoresMap(bestScores)
 
       const allScores = quizzes?.map((r: any) => r.score) || []
-      if (allScores.length) setAvgScore(Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length))
+      setAvgScore(allScores.length ? Math.round(allScores.reduce((a: number, b: number) => a + b, 0) / allScores.length) : null)
 
       setLoaded(true)
     }
+
     load()
+
+    // Re-fetch when student returns to this tab after completing a quiz
+    const handleVisibility = () => { if (!document.hidden) load() }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [studentId])
 
   const totalCompleted = Object.values(completedMap).reduce((a, b) => a + b, 0)
