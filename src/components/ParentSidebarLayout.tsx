@@ -12,7 +12,9 @@ const NAV_ITEMS = [
   { label: 'Dashboard', href: '/parent/dashboard',          emoji: '🏠' },
   { label: 'Overview',  href: '/parent/dashboard/overview', emoji: '📊' },
   { label: 'Progress',  href: '/parent/dashboard/progress', emoji: '📚' },
+  { label: 'Writing',   href: '/parent/dashboard/writing',  emoji: '✍️' },
   { label: 'Invoices',  href: '/parent/dashboard/invoices', emoji: '🧾' },
+  { label: 'Feedback',  href: '/parent/feedback',           emoji: '💬' },
 ]
 
 const LOGO = (

@@ -37,7 +37,7 @@ export default function ParentDashboardHome() {
   const [parentName,  setParentName]  = useState('Parent')
   const [children,    setChildren]    = useState<Child[]>([])
   const [activeChild, setActiveChild] = useState(0)
-  const [stats, setStats] = useState({ chaptersCompleted: 0, totalChapters: 61, avgScore: null as number | null, quizzesTaken: 0 })
+  const [stats, setStats] = useState({ chaptersCompleted: 0, totalChapters: 71, avgScore: null as number | null, quizzesTaken: 0 })
   const [subjectProgress, setSubjectProgress] = useState<{ key: string; done: number; total: number; avg: number | null }[]>([])
   const [recentActivity, setRecentActivity]   = useState<{ emoji: string; text: string; time: string }[]>([])
   const [loading, setLoading] = useState(true)
@@ -88,7 +88,7 @@ export default function ParentDashboardHome() {
     const totalDone = subjectData.reduce((a, s) => a + s.done, 0)
     const allScores = quizzes?.map((q: any) => q.score) || []
     const avgScore  = allScores.length ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length) : null
-    setStats({ chaptersCompleted: totalDone, totalChapters: 61, avgScore, quizzesTaken: quizzes?.length || 0 })
+    setStats({ chaptersCompleted: totalDone, totalChapters: 71, avgScore, quizzesTaken: quizzes?.length || 0 })
 
     // Build recent activity
     const activity: { emoji: string; text: string; time: string }[] = []
@@ -134,13 +134,19 @@ export default function ParentDashboardHome() {
 
         {/* Child tabs */}
         {children.length > 1 && (
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-            {children.map((c, i) => (
-              <button key={c.id} onClick={() => setActiveChild(i)}
-                style={{ padding: '8px 20px', borderRadius: '20px', border: activeChild === i ? '2px solid #1B4332' : '1.5px solid #E5E7EB', background: activeChild === i ? '#1B4332' : 'white', color: activeChild === i ? 'white' : '#374151', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
-                {c.full_name}
-              </button>
-            ))}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+            {children.map((c, i) => {
+              const isActive = activeChild === i
+              return (
+                <button key={c.id} onClick={() => setActiveChild(i)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 18px', borderRadius: '20px', border: isActive ? '2px solid #1B4332' : '1.5px solid #E5E7EB', background: isActive ? '#1B4332' : 'white', color: isActive ? 'white' : '#374151', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s' }}>
+                  <div style={{ width: '22px', height: '22px', minWidth: '22px', borderRadius: '50%', background: isActive ? 'rgba(255,255,255,0.2)' : '#D8F3DC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '10px', color: isActive ? 'white' : '#1B4332', flexShrink: 0 }}>
+                    {c.full_name.charAt(0).toUpperCase()}
+                  </div>
+                  {c.full_name.split(' ')[0]}
+                </button>
+              )
+            })}
           </div>
         )}
 

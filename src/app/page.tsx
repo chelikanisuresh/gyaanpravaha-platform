@@ -211,8 +211,8 @@ export default function HomePage() {
   const statsInView = useInView(statsRef, { once: true })
   const typed = useTypingEffect(['Learn it.', 'Know it.', 'Flow with it.'], 90, 1800)
 
-  const chapterCount  = useCounter(54,  1200, statsInView)
-  const sectionCount  = useCounter(378, 1400, statsInView)
+  const chapterCount  = useCounter(71,  1200, statsInView)
+  const sectionCount  = useCounter(497, 1400, statsInView)
   const questionCount = useCounter(864, 1600, statsInView)
 
   useEffect(() => {
@@ -323,7 +323,7 @@ export default function HomePage() {
             {/* Trust line */}
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
               style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(255,255,255,0.35)', marginTop: '20px' }}>
-              54 chapters · 378 sections · 864 quiz questions · 8 subjects
+              71 chapters · 497 sections · 864+ quiz questions · 8 subjects
             </motion.p>
           </div>
 
@@ -496,7 +496,7 @@ export default function HomePage() {
               <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#40916C', marginBottom: '32px' }}>That's less than ₹14 per day</p>
               {[
                 'All 8 subjects — chapter by chapter',
-                '54 chapters · 378 sections · 864 questions',
+                '71 chapters · 497 sections · 864+ questions',
                 'Quiz after every chapter',
                 'Parent progress dashboard',
                 'Teacher question panel',

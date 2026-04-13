@@ -83,7 +83,7 @@ export default function StudentSidebarLayout({ children }: Props) {
           </div>
           <div style={{ textAlign: 'left' }}>
             <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: 'white', lineHeight: 1 }}>Gyaanpravaha</p>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', color: 'rgba(255,255,255,0.35)', marginTop: '2px', letterSpacing: '0.03em' }}>ज्ञानप्रवाह · Class 6</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', color: 'rgba(255,255,255,0.35)', marginTop: '2px', letterSpacing: '0.03em' }}>ज्ञानप्रवाह</p>
           </div>
         </button>
       </div>

@@ -82,13 +82,19 @@ function ProgressInner() {
         </motion.div>
 
         {children.length > 1 && (
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-            {children.map(c => (
-              <button key={c.id} onClick={() => setSelectedId(c.id)}
-                style={{ padding: '8px 20px', borderRadius: '20px', border: selectedId === c.id ? '2px solid #1B4332' : '1.5px solid #E5E7EB', background: selectedId === c.id ? '#1B4332' : 'white', color: selectedId === c.id ? 'white' : '#374151', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
-                {c.full_name}
-              </button>
-            ))}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+            {children.map(c => {
+              const isActive = selectedId === c.id
+              return (
+                <button key={c.id} onClick={() => setSelectedId(c.id)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 18px', borderRadius: '20px', border: isActive ? '2px solid #1B4332' : '1.5px solid #E5E7EB', background: isActive ? '#1B4332' : 'white', color: isActive ? 'white' : '#374151', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s' }}>
+                  <div style={{ width: '22px', height: '22px', minWidth: '22px', borderRadius: '50%', background: isActive ? 'rgba(255,255,255,0.2)' : '#D8F3DC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '10px', color: isActive ? 'white' : '#1B4332', flexShrink: 0 }}>
+                    {c.full_name.charAt(0).toUpperCase()}
+                  </div>
+                  {c.full_name.split(' ')[0]}
+                </button>
+              )
+            })}
           </div>
         )}
 
