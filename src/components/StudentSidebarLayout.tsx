@@ -63,8 +63,8 @@ export default function StudentSidebarLayout({ children }: Props) {
       const { data: p } = await supabase.from('profiles').select('full_name, email, session_token, role').eq('id', user.id).maybeSingle()
 
       if (p?.role === 'student' && localToken && p?.session_token && localToken !== p.session_token) {
-        // Another device has logged in — kick this session out
-        await supabase.auth.signOut()
+        // Another device has logged in — kick THIS session only (local scope)
+        await supabase.auth.signOut({ scope: 'local' })
         localStorage.removeItem('gp_session_token')
         router.push('/login?reason=session_conflict')
         return
