@@ -51,6 +51,17 @@ export default function StudentSidebarLayout({ children }: Props) {
     load()
   }, [router])
 
+  // Listen for navigation events fired by the animated dashboard subject cards
+  useEffect(() => {
+    const handler = (e: CustomEvent) => {
+      setActiveSection(e.detail as ActiveSection)
+      setSubjectsOpen(true)
+      setMobileNavOpen(false)
+    }
+    window.addEventListener('gp-navigate', handler as EventListener)
+    return () => window.removeEventListener('gp-navigate', handler as EventListener)
+  }, [])
+
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()

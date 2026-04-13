@@ -8,6 +8,7 @@ import StudentDashboardPanel from '@/components/StudentDashboardPanel'
 import DailyActivities from '@/components/DailyActivities'
 import ClassQuestionsWidget from '@/components/ClassQuestionsWidget'
 import { getAllMarChapters } from '@/lib/mar-chapter-content'
+import AnimatedDashboardHome from '@/components/AnimatedDashboardHome'
 
 // ── Chapter data ─────────────────────────────────────────────────────────────
 
@@ -88,80 +89,8 @@ const HC_CHAPTERS = [
 
 // ── Dashboard home ───────────────────────────────────────────────────────────
 
-function DashboardHome({ studentId }: { studentId: string }) {
-  const [name, setName] = useState('')
-
-  useEffect(() => {
-    const load = async () => {
-      const supabase = createClient()
-      const { data: p } = await supabase.from('profiles').select('full_name').eq('id', studentId).maybeSingle()
-      if (p?.full_name) setName(p.full_name.split(' ')[0])
-    }
-    load()
-  }, [studentId])
-
-  const h = new Date().getHours()
-  const greeting = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'
-
-  return (
-    <div>
-      <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '24px', color: '#1B4332', marginBottom: '4px' }}>
-          {greeting}{name ? `, ${name}` : ''}! 👋
-        </h1>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280' }}>
-          Here is how you are doing today.
-        </p>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,340px) minmax(0,1fr)', gap: '20px', alignItems: 'start' }}>
-
-        {/* Left — gamification panel */}
-        <StudentDashboardPanel studentId={studentId}/>
-
-        {/* Right — guide cards + word games */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-
-          <div style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '16px', padding: '22px' }}>
-            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: '#74C69D', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>📚 Ready to study?</p>
-            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '17px', color: 'white', marginBottom: '10px', lineHeight: 1.4 }}>
-              Go to Subjects → English to start reading
-            </p>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
-              Your chapters, section progress and quiz are all waiting for you there.
-            </p>
-          </div>
-
-          <div style={{ background: '#F0FDF4', borderRadius: '16px', border: '1px solid #D8F3DC', padding: '20px' }}>
-            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#2D6A4F', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '14px' }}>How it works</p>
-            {[
-              { n:'1', t:'Click Subjects → English in the left menu' },
-              { n:'2', t:'Read all 7 sections of a chapter' },
-              { n:'3', t:'Take the quiz when all sections are done' },
-              { n:'4', t:'Watch your mango tree grow! 🥭' },
-            ].map(({ n, t }) => (
-              <div key={n} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '10px' }}>
-                <div style={{ width: '24px', height: '24px', minWidth: '24px', borderRadius: '50%', background: '#2D6A4F', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>
-                  <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: 'white' }}>{n}</span>
-                </div>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#374151', lineHeight: 1.6 }}>{t}</p>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '18px' }}>
-            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>💡 Study tip</p>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#374151', lineHeight: 1.7 }}>
-              Read at least one section every day. Even 10 minutes beats an hour of distracted studying.
-            </p>
-          </div>
-
-          <DailyActivities/>
-
-        </div>
-      </div>
-    </div>
-  )
+function DashboardHome({ studentId, onNavigate }: { studentId: string; onNavigate: (s: string) => void }) {
+  return <AnimatedDashboardHome studentId={studentId} onNavigate={onNavigate}/>
 }
 
 // ── English subject page ─────────────────────────────────────────────────────
@@ -1324,7 +1253,7 @@ export default function StudentMainPage() {
     <StudentSidebarLayout>
       {(activeSection, studentId) => {
         switch (activeSection) {
-          case 'dashboard': return <DashboardHome           studentId={studentId}/>
+          case 'dashboard': return <DashboardHome           studentId={studentId} onNavigate={section => window.dispatchEvent(new CustomEvent('gp-navigate', { detail: section }))}/>
           case 'english':   return <EnglishSubjectPage      studentId={studentId}/>
           case 'maths':     return <MathsSubjectPage studentId={studentId}/>
           case 'science':   return <ScienceSubjectPage studentId={studentId}/>
@@ -1334,7 +1263,7 @@ export default function StudentMainPage() {
           case 'ict':       return <ICTSubjectPage         studentId={studentId}/>
           case 'marathi':   return <MarathiSubjectPage     studentId={studentId}/>
           case 'profile':   return <StudentProfileContent   studentId={studentId}/>
-          default:          return <DashboardHome           studentId={studentId}/>
+          default:          return <DashboardHome           studentId={studentId} onNavigate={section => window.dispatchEvent(new CustomEvent('gp-navigate', { detail: section }))}/>
         }
       }}
     </StudentSidebarLayout>
