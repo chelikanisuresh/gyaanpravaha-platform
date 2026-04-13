@@ -245,7 +245,27 @@ export default function HomePage() {
       <motion.nav animate={{ boxShadow: scrolled ? '0 2px 24px rgba(0,0,0,0.08)' : 'none' }}
         style={{ position: 'sticky', top: 0, zIndex: 200, background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', borderBottom: scrolled ? '1px solid #E5E7EB' : '1px solid transparent', padding: '0 5%', height: '66px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/gyaanpravaha-logo" alt="Gyaanpravaha" style={{ width: '36px', height: '36px', borderRadius: '10px', objectFit: 'contain' }}/>
+          <div style={{ width: '38px', height: '38px', background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(27,67,50,0.3)' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Open book */}
+              <path d="M12 5 C12 5 7 4 3 5.5 L3 17 C7 15.5 12 16.5 12 16.5 C12 16.5 17 15.5 21 17 L21 5.5 C17 4 12 5 12 5Z" fill="white" fillOpacity="0.9"/>
+              <line x1="12" y1="5" x2="12" y2="16.5" stroke="#1B4332" strokeWidth="0.8" strokeOpacity="0.4"/>
+              <line x1="5" y1="7.5" x2="10.5" y2="7" stroke="#1B4332" strokeWidth="0.6" strokeOpacity="0.35"/>
+              <line x1="5" y1="9.5" x2="10.5" y2="9" stroke="#1B4332" strokeWidth="0.6" strokeOpacity="0.35"/>
+              <line x1="5" y1="11.5" x2="10.5" y2="11" stroke="#1B4332" strokeWidth="0.6" strokeOpacity="0.35"/>
+              <line x1="13.5" y1="7" x2="19" y2="7.5" stroke="#1B4332" strokeWidth="0.6" strokeOpacity="0.35"/>
+              <line x1="13.5" y1="9" x2="19" y2="9.5" stroke="#1B4332" strokeWidth="0.6" strokeOpacity="0.35"/>
+              <line x1="13.5" y1="11" x2="19" y2="11.5" stroke="#1B4332" strokeWidth="0.6" strokeOpacity="0.35"/>
+              {/* Lotus petals */}
+              <ellipse cx="12" cy="21" rx="2.2" ry="3.2" fill="#74C69D" fillOpacity="0.95"/>
+              <ellipse cx="8.5" cy="21.5" rx="1.8" ry="2.6" fill="#74C69D" fillOpacity="0.75" transform="rotate(-28 8.5 21.5)"/>
+              <ellipse cx="15.5" cy="21.5" rx="1.8" ry="2.6" fill="#74C69D" fillOpacity="0.75" transform="rotate(28 15.5 21.5)"/>
+              <ellipse cx="5.5" cy="22" rx="1.4" ry="2" fill="#74C69D" fillOpacity="0.5" transform="rotate(-50 5.5 22)"/>
+              <ellipse cx="18.5" cy="22" rx="1.4" ry="2" fill="#74C69D" fillOpacity="0.5" transform="rotate(50 18.5 22)"/>
+              {/* Water line */}
+              <path d="M3 23 Q7.5 21.5 12 23 Q16.5 24.5 21 23" stroke="#74C69D" strokeWidth="0.8" strokeOpacity="0.6" fill="none" strokeLinecap="round"/>
+            </svg>
+          </div>
           <div>
             <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: '#1B4332', lineHeight: 1 }}>Gyaanpravaha</p>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', color: '#40916C', marginTop: '1px', letterSpacing: '0.04em' }}>ज्ञानप्रवाह</p>
@@ -522,7 +542,16 @@ export default function HomePage() {
       <footer style={{ background: '#0D2B1F', padding: '40px 5%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', textAlign: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img src="/gyaanpravaha-logo" alt="" style={{ width: '18px', height: '18px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}/>
+          <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5 C12 5 7 4 3 5.5 L3 17 C7 15.5 12 16.5 12 16.5 C12 16.5 17 15.5 21 17 L21 5.5 C17 4 12 5 12 5Z" fill="white" fillOpacity="0.85"/>
+              <line x1="12" y1="5" x2="12" y2="16.5" stroke="rgba(27,67,50,0.5)" strokeWidth="0.8"/>
+              <ellipse cx="12" cy="21" rx="2.2" ry="3.2" fill="#74C69D" fillOpacity="0.9"/>
+              <ellipse cx="8.5" cy="21.5" rx="1.8" ry="2.6" fill="#74C69D" fillOpacity="0.7" transform="rotate(-28 8.5 21.5)"/>
+              <ellipse cx="15.5" cy="21.5" rx="1.8" ry="2.6" fill="#74C69D" fillOpacity="0.7" transform="rotate(28 15.5 21.5)"/>
+              <path d="M3 23 Q7.5 21.5 12 23 Q16.5 24.5 21 23" stroke="#74C69D" strokeWidth="0.8" strokeOpacity="0.5" fill="none" strokeLinecap="round"/>
+            </svg>
+          </div>
           </div>
           <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: 'white' }}>Gyaanpravaha</p>
         </div>
