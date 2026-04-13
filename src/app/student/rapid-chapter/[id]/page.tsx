@@ -1,5 +1,5 @@
 'use client'
-import { getRapidChapter } from '@/lib/rapid-chapter-content'
+import { getRapidChapter } from '@/lib/rapid-chapter-index'
 import GenericChapterReader, { ReaderConfig } from '@/components/GenericChapterReader'
 
 const CONFIG: ReaderConfig = {

@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation'
 import GenericQuizPage, { QuizConfig } from '@/components/GenericQuizPage'
 import { getRapidQuiz } from '@/lib/rapid-quiz-content'
-import { getRapidChapter } from '@/lib/rapid-chapter-content'
+import { getRapidChapter } from '@/lib/rapid-chapter-index'
 
 const CONFIG: QuizConfig = {
   subject:          'rapid',

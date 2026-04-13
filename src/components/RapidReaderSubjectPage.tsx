@@ -1,7 +1,7 @@
 'use client'
 
 import GenericSubjectPage, { SubjectChapter, SubjectTheme } from '@/components/GenericSubjectPage'
-import { RAPID_CHAPTERS } from '@/lib/rapid-chapter-content'
+import { RAPID_CHAPTERS } from '@/lib/rapid-chapter-index'
 
 const CHAPTERS: SubjectChapter[] = RAPID_CHAPTERS.map(ch => ({
   id:                ch.id,
