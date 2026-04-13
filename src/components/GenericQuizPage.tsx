@@ -97,9 +97,9 @@ function QuestionCard({ question, onSubmit, theme }: { question: any; onSubmit: 
   const [selected, setSelected] = useState('')
   const [textVal,  setTextVal]  = useState('')
   const isSentence = question.type === 'sentence', isLong = question.type === 'long_answer'
-  const canSubmit  = question.type === 'mcq' ? selected !== '' : question.type === 'single_word' ? textVal.trim().length > 0 : textVal.trim().split(/\s+/).length >= 3
   const wordCount  = textVal.trim().split(/\s+/).filter(Boolean).length
   const minWords   = isLong ? 60 : isSentence ? 5 : 0
+  const canSubmit  = question.type === 'mcq' ? selected !== '' : question.type === 'single_word' ? textVal.trim().length > 0 : wordCount >= minWords
 
   return (
     <div style={{ maxWidth: '680px', margin: '32px auto', padding: '0 24px' }}>
@@ -136,7 +136,6 @@ function QuestionCard({ question, onSubmit, theme }: { question: any; onSubmit: 
 
       {question.type === 'single_word' && (
         <input type="text" value={textVal} onChange={e => setTextVal(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && canSubmit && onSubmit(textVal.trim())}
           placeholder="Type your answer..."
           style={{ width: '100%', padding: '14px 18px', borderRadius: '14px', border: `1.5px solid ${theme.accent}60`, fontFamily: 'var(--font-body)', fontSize: '15px', color: '#1F2937', outline: 'none', boxSizing: 'border-box', marginBottom: '20px', background: 'white' }}/>
       )}
@@ -144,6 +143,7 @@ function QuestionCard({ question, onSubmit, theme }: { question: any; onSubmit: 
       {(isSentence || isLong) && (
         <div style={{ marginBottom: '14px' }}>
           <textarea value={textVal} onChange={e => setTextVal(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !isLong) e.preventDefault() }}
             placeholder={isLong ? 'Write your answer here (min. 60 words)...' : 'Write your sentence here...'}
             rows={isLong ? 8 : 4}
             style={{ width: '100%', padding: '16px 18px', borderRadius: '14px', border: `1.5px solid ${theme.accent}60`, fontFamily: 'var(--font-body)', fontSize: '15px', color: '#1F2937', outline: 'none', resize: 'vertical', lineHeight: 1.8, boxSizing: 'border-box', background: 'white' }}/>

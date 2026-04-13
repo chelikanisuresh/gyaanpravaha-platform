@@ -115,9 +115,9 @@ function QuestionCard({ question, questionIndex, totalQuestions, onSubmit }: { q
   const [textValue, setTextValue] = useState('')
   const isSentence = question.type === 'sentence'
   const isLong     = question.type === 'long_answer'
-  const canSubmit  = question.type === 'mcq' ? selected !== '' : question.type === 'single_word' ? textValue.trim().length > 0 : textValue.trim().split(/\s+/).length >= 3
   const wordCount  = textValue.trim().split(/\s+/).filter(Boolean).length
   const minWords   = isLong ? 60 : isSentence ? 5 : 0
+  const canSubmit  = question.type === 'mcq' ? selected !== '' : question.type === 'single_word' ? textValue.trim().length > 0 : wordCount >= minWords
 
   const OPTION_COLORS = ['#EEF2FF', '#F0FDF4', '#FFF7ED', '#FDF4FF']
   const OPTION_BORDERS = ['#C7D2FE', '#BBF7D0', '#FED7AA', '#E9D5FF']
@@ -161,7 +161,6 @@ function QuestionCard({ question, questionIndex, totalQuestions, onSubmit }: { q
       {question.type === 'single_word' && (
         <motion.input initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
           type="text" value={textValue} onChange={e => setTextValue(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && canSubmit && onSubmit(textValue.trim())}
           placeholder="Type your answer here..."
           style={{ width: '100%', padding: '14px 18px', borderRadius: '14px', border: '1.5px solid #E2E8F0', fontFamily: 'var(--font-body)', fontSize: '15px', color: '#1E1B4B', outline: 'none', boxSizing: 'border-box', marginBottom: '20px', background: 'white' }}/>
       )}
@@ -170,6 +169,7 @@ function QuestionCard({ question, questionIndex, totalQuestions, onSubmit }: { q
       {(isSentence || isLong) && (
         <div style={{ marginBottom: '14px' }}>
           <textarea value={textValue} onChange={e => setTextValue(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !isLong) e.preventDefault() }}
             placeholder={isLong ? 'Write your answer here (min. 60 words)...' : 'Write your sentence here...'}
             rows={isLong ? 8 : 4}
             style={{ width: '100%', padding: '16px 18px', borderRadius: '14px', border: '1.5px solid #E2E8F0', fontFamily: 'var(--font-body)', fontSize: '15px', color: '#1E1B4B', outline: 'none', resize: 'vertical', lineHeight: 1.8, boxSizing: 'border-box', background: 'white' }}/>
