@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useReadTimer, formatTime } from '@/hooks/useReadTimer'
+import { useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -138,8 +139,7 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>{completedSections.size}/7</p>
           <div style={{ width: '80px', height: '4px', background: 'rgba(255,255,255,0.15)', borderRadius: '2px', overflow: 'hidden' }}>
-            <motion.div animate={{ width: `${(completedSections.size/7)*100}%` }} transition={{ duration: 0.4 }}
-              style={{ height: '100%', background: theme.accent, borderRadius: '2px' }}/>
+            <div style={{ height: '100%', background: theme.accent, borderRadius: '2px', width: `${(completedSections.size/7)*100}%`, transition: 'width 0.4s ease' }}/>
           </div>
         </div>
         <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: theme.accent }}>⏱ {Math.floor(elapsed/60)}:{String(elapsed%60).padStart(2,"0")} min</span>
@@ -229,7 +229,7 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
         {currentSec && (
           <div style={{ flex: 1, minWidth: 0 }}>
             <AnimatePresence mode="wait">
-              <motion.div key={currentSection} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
+              <div key={currentSection}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                   <div style={{ width: '32px', height: '32px', minWidth: '32px', borderRadius: '50%', background: `linear-gradient(135deg,${theme.primary},${theme.mid})`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '12px', color: 'white' }}>{currentSec.id}</span>
@@ -254,13 +254,12 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
                 </div>
 
                 {minRead > 0 && !readGateMet && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '12px', padding: '14px 18px', marginBottom: '16px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '12px', padding: '14px 18px', marginBottom: '16px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <span style={{ fontSize: '18px' }}>⏱</span>
                     <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#92400E', lineHeight: 1.5 }}>
                       Please read for at least <strong>{(() => { const rem = Math.max(0, minRead - elapsed); const m = Math.floor(rem/60); const s = rem%60; return m > 0 ? `${m}m ${s}s` : `${s}s` })()} more</strong> before moving on.
                     </p>
-                  </motion.div>
+                  </div>
                 )}
 
                 {!completedSections.has(currentSection) && (
@@ -279,7 +278,7 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
                     <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: theme.primary }}>Section complete</p>
                   </motion.div>
                 )}
-              </motion.div>
+              </div>
             </AnimatePresence>
           </div>
         )}

@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
 
@@ -40,8 +40,10 @@ function InputField({ label, type, value, onChange, placeholder, hint }: {
   )
 }
 
-export default function LoginPage() {
-  const router = useRouter()
+function LoginPageInner() {
+  const router  = useRouter()
+  const params  = useSearchParams()
+  const kicked  = params.get('reason') === 'session_conflict'
   const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
   const [loading,  setLoading]  = useState(false)
@@ -58,7 +60,13 @@ export default function LoginPage() {
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).maybeSingle()
     if (profile?.role === 'parent')  router.push('/parent/dashboard')
     else if (profile?.role === 'admin') router.push('/admin')
-    else router.push('/student/dashboard')
+    else {
+      // Generate a unique session token — kicks out any other active session
+      const sessionToken = crypto.randomUUID()
+      await supabase.from('profiles').update({ session_token: sessionToken }).eq('id', data.user.id)
+      localStorage.setItem('gp_session_token', sessionToken)
+      router.push('/student/dashboard')
+    }
   }
 
   return (
@@ -131,6 +139,15 @@ export default function LoginPage() {
             <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '18px', color: '#1B4332' }}>Gyaanpravaha</p>
           </Link>
 
+          {kicked && (
+            <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '12px', padding: '12px 16px', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '18px', flexShrink: 0 }}>⚠️</span>
+              <div>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#92400E', marginBottom: '2px' }}>You were signed out</p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#B45309', lineHeight: 1.5 }}>This account was signed in on another device. Please log in again.</p>
+              </div>
+            </div>
+          )}
           <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '28px', color: '#1B4332', marginBottom: '6px' }}>Log in</h1>
           <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#64748B', marginBottom: '24px' }}>
             Welcome back! Use the same form whether you are a student or a parent.
@@ -204,4 +221,8 @@ export default function LoginPage() {
       </div>
     </div>
   )
+}
+
+export default function LoginPage() {
+  return <Suspense><LoginPageInner /></Suspense>
 }

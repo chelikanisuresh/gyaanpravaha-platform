@@ -57,8 +57,20 @@ export default function StudentSidebarLayout({ children }: Props) {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
+
+      // ── Session validation: ensure only one active session ──
+      const localToken = localStorage.getItem('gp_session_token')
+      const { data: p } = await supabase.from('profiles').select('full_name, email, session_token, role').eq('id', user.id).maybeSingle()
+
+      if (p?.role === 'student' && localToken && p?.session_token && localToken !== p.session_token) {
+        // Another device has logged in — kick this session out
+        await supabase.auth.signOut()
+        localStorage.removeItem('gp_session_token')
+        router.push('/login?reason=session_conflict')
+        return
+      }
+
       setStudentId(user.id)
-      const { data: p } = await supabase.from('profiles').select('full_name, email').eq('id', user.id).maybeSingle()
       if (p?.full_name) setStudentName(p.full_name.split(' ')[0])
       if (p?.email) setStudentEmail(p.email)
     }
