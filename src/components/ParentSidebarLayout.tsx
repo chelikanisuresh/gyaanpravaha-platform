@@ -36,7 +36,7 @@ export default function ParentSidebarLayout({ children, parentName = 'Parent' }:
   const pathname = usePathname()
   const router   = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const initials = parentName.slice(0, 2).toUpperCase()
+  const initials = (parentName || 'P').slice(0, 2).toUpperCase()
 
   const handleLogout = async () => {
     await createClient().auth.signOut()
