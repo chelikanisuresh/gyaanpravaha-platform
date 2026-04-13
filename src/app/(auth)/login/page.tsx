@@ -46,6 +46,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading,  setLoading]  = useState(false)
   const [error,    setError]    = useState('')
+  const [role,     setRole]     = useState<'student'|'parent'>('student')
 
   const handleLogin = async () => {
     setError('')
@@ -136,20 +137,26 @@ export default function LoginPage() {
           </p>
 
           {/* Role tabs */}
-          <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: '12px', padding: '4px', marginBottom: '28px', gap: '4px' }}>
-            {[
-              { label: '🎓 Student', hint: 'Class 6 learner' },
-              { label: '👨‍👩‍👦 Parent', hint: 'Track your child' },
-            ].map((tab, i) => (
-              <div key={tab.label} style={{ flex: 1, background: i === 0 ? 'white' : 'transparent', borderRadius: '10px', padding: '10px 12px', textAlign: 'center', boxShadow: i === 0 ? '0 1px 4px rgba(0,0,0,0.08)' : 'none', border: i === 0 ? '1px solid #E5E7EB' : 'none', cursor: 'default' }}>
-                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: i === 0 ? '#1B4332' : '#94A3B8' }}>{tab.label}</p>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: i === 0 ? '#40916C' : '#CBD5E1', marginTop: '1px' }}>{tab.hint}</p>
-              </div>
-            ))}
+          <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: '12px', padding: '4px', marginBottom: '20px', gap: '4px' }}>
+            {([
+              { key: 'student' as const, label: '🎓 Student', hint: 'Class 6 learner' },
+              { key: 'parent'  as const, label: '👨‍👩‍👦 Parent',  hint: 'Track your child' },
+            ]).map(tab => {
+              const active = role === tab.key
+              return (
+                <button key={tab.key} onClick={() => setRole(tab.key)}
+                  style={{ flex: 1, background: active ? 'white' : 'transparent', borderRadius: '10px', padding: '10px 12px', textAlign: 'center', boxShadow: active ? '0 1px 4px rgba(0,0,0,0.08)' : 'none', border: active ? '1px solid #E5E7EB' : 'none', cursor: 'pointer', transition: 'all 0.2s' }}>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: active ? '#1B4332' : '#94A3B8' }}>{tab.label}</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: active ? '#40916C' : '#CBD5E1', marginTop: '1px' }}>{tab.hint}</p>
+                </button>
+              )
+            })}
           </div>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#94A3B8', marginBottom: '20px', background: '#F8FAFF', borderRadius: '10px', padding: '10px 14px', border: '1px solid #E2E8F0' }}>
-            💡 Same login form for students and parents — you will be redirected to the right dashboard automatically after signing in.
-          </p>
+          <div style={{ background: '#F8FAFF', borderRadius: '10px', padding: '10px 14px', border: '1px solid #E2E8F0', marginBottom: '20px' }}>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#64748B' }}>
+              💡 {role === 'student' ? 'Enter your student email and password to access your learning dashboard.' : "Enter your parent email and password to access your child's progress dashboard."}
+            </p>
+          </div>
 
           <InputField label="Email address" type="email" value={email} onChange={setEmail} placeholder="you@example.com"/>
           <InputField label="Password" type="password" value={password} onChange={setPassword} placeholder="••••••••"/>

@@ -48,14 +48,14 @@ export default function AdminLoginPage() {
       <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
         style={{ width: '100%', maxWidth: '420px', position: 'relative', zIndex: 1 }}>
 
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '36px' }}>
+        {/* Logo — click to go home */}
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '36px', textDecoration: 'none' }}>
           <div style={{ width: '46px', height: '46px', background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(27,67,50,0.4)' }}>{LOGO}</div>
           <div>
             <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '18px', color: 'white', lineHeight: 1 }}>Gyaanpravaha</p>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginTop: '1px' }}>ज्ञानप्रवाह</p>
           </div>
-        </div>
+        </Link>
 
         {/* Card */}
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', padding: '40px 36px', backdropFilter: 'blur(20px)', boxShadow: '0 32px 80px rgba(0,0,0,0.4)' }}>
@@ -126,14 +126,9 @@ export default function AdminLoginPage() {
         </div>
 
         {/* Footer */}
-        <div style={{ textAlign: 'center', marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <Link href="/" style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '13px', color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>
-            ← Back to gyaanpravaha.in
-          </Link>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>
-            © 2026 Gyaanpravaha · Restricted access
-          </p>
-        </div>
+        <p style={{ textAlign: 'center', fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.2)', marginTop: '24px' }}>
+          © 2026 Gyaanpravaha · Restricted access
+        </p>
       </motion.div>
     </div>
   )
