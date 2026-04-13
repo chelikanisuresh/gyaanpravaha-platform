@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import AdminLayout from '@/components/AdminLayout'
 
 const CHAPTERS = [
   { id: 1, title: 'Whistles and Shaving Bristles' },
@@ -145,17 +146,15 @@ export default function AdminWritingPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAF9', fontFamily: 'var(--font-body)' }}>
+    <AdminLayout>
+    <div style={{ maxWidth: '900px', fontFamily: 'var(--font-body)' }}>
       <style>{`* { box-sizing: border-box; } textarea, input, select { font-family: var(--font-body) !important; }`}</style>
 
-      {/* Header */}
-      <div style={{ background: '#1B4332', padding: '16px 32px' }}>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '18px', color: 'white' }}>
-          ✍️ Writing Prompts — Admin
-        </h1>
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '24px', color: '#1F2937', marginBottom: '4px' }}>Writing Prompts</h1>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#64748B' }}>Review and grade student writing submissions.</p>
       </div>
-
-      <div style={{ padding: '28px 32px 80px' }}>
+      <div>
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: '4px', background: 'white', borderRadius: '12px', padding: '4px', border: '1px solid #E5E7EB', width: 'fit-content', marginBottom: '28px' }}>
@@ -376,5 +375,6 @@ export default function AdminWritingPage() {
         )}
       </div>
     </div>
+    </AdminLayout>
   )
 }
