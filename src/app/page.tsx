@@ -245,12 +245,10 @@ export default function HomePage() {
       <motion.nav animate={{ boxShadow: scrolled ? '0 2px 24px rgba(0,0,0,0.08)' : 'none' }}
         style={{ position: 'sticky', top: 0, zIndex: 200, background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', borderBottom: scrolled ? '1px solid #E5E7EB' : '1px solid transparent', padding: '0 5%', height: '66px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(27,67,50,0.25)' }}>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M10 4v12" stroke="white" strokeWidth="2.2" strokeLinecap="round"/></svg>
-          </div>
+          <img src="/gyaanpravaha-logo" alt="Gyaanpravaha" style={{ width: '36px', height: '36px', borderRadius: '10px', objectFit: 'contain' }}/>
           <div>
             <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: '#1B4332', lineHeight: 1 }}>Gyaanpravaha</p>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', color: '#40916C', marginTop: '1px', letterSpacing: '0.04em' }}>ज्ञानप्रवाह · Class 6</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', color: '#40916C', marginTop: '1px', letterSpacing: '0.04em' }}>ज्ञानप्रवाह</p>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -275,12 +273,7 @@ export default function HomePage() {
 
         <div className="hero-grid" style={{ maxWidth: '1160px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center' }}>
           <div>
-            {/* Badge */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(116,198,157,0.15)', border: '1px solid rgba(116,198,157,0.3)', borderRadius: '20px', padding: '6px 16px', marginBottom: '28px' }}>
-              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#74C69D', display: 'inline-block' }}/>
-              <span style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#74C69D' }}>Maharashtra State Board · Class 6 · All subjects</span>
-            </motion.div>
+
 
             {/* Headline */}
             <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
@@ -529,7 +522,7 @@ export default function HomePage() {
       <footer style={{ background: '#0D2B1F', padding: '40px 5%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', textAlign: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M10 4v12" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
+            <img src="/gyaanpravaha-logo" alt="" style={{ width: '18px', height: '18px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}/>
           </div>
           <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: 'white' }}>Gyaanpravaha</p>
         </div>
