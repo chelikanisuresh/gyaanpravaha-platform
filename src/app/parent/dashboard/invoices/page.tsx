@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import ParentSidebarLayout from '@/components/ParentSidebarLayout'
+import { motion } from 'framer-motion'
 
 interface Payment {
   id: string; parent_name: string; parent_email: string
@@ -42,17 +43,9 @@ tbody td{padding:14px 16px;font-size:14px;color:#374151;vertical-align:top}tbody
 @media print{body{padding:24px}@page{margin:0.5cm}}</style></head><body>
 <div class="header">
   <div>
-    <svg width="52" height="52" viewBox="0 0 100 100">
-      <path d="M8 66 C8 58 16 54 50 54 C84 54 92 58 92 66 L92 76 C92 76 82 72 50 72 C18 72 8 76 8 76Z" fill="#1B4332"/>
-      <line x1="50" y1="54" x2="50" y2="76" stroke="#74C69D" stroke-width="1.5"/>
-      <path d="M50 54 C43 40 38 30 39 22 C40 15 46 13 50 17 C54 13 60 15 61 22 C62 30 57 40 50 54Z" fill="#2D6A4F"/>
-      <path d="M50 54 C40 46 34 42 32 35 C30 28 34 24 38 26 C42 28 46 38 50 54Z" fill="#52B788"/>
-      <path d="M50 54 C60 46 66 42 68 35 C70 28 66 24 62 26 C58 28 54 38 50 54Z" fill="#52B788"/>
-      <circle cx="50" cy="48" r="7" fill="#F59E0B"/><circle cx="50" cy="48" r="3" fill="#FDE68A"/>
-    </svg>
-    <p class="brand-name">GyaanPravaha</p>
+    <p class="brand-name">Gyaanpravaha</p>
     <p class="brand-san">ज्ञानप्रवाह</p>
-    <p class="brand-addr">501, Pelican, Hiranandani Estate<br/>Godbunder Road, Thane — 400607<br/>gyaanpravaha.in</p>
+    <p class="brand-addr">gyaanpravaha.in</p>
   </div>
   <div style="text-align:right">
     <p class="invoice-title">Invoice</p>
@@ -65,7 +58,7 @@ tbody td{padding:14px 16px;font-size:14px;color:#374151;vertical-align:top}tbody
 <table>
   <thead><tr><th style="width:50%">Description</th><th>Students</th><th>Rate</th><th>Amount</th></tr></thead>
   <tbody><tr>
-    <td><strong>Gyaanpravaha Annual Subscription</strong><br/><span style="font-size:12px;color:#6B7280">Full academic year 2025–26 · All subjects · Class 6</span></td>
+    <td><strong>Gyaanpravaha Annual Subscription</strong><br/><span style="font-size:12px;color:#6B7280">Full academic year · All subjects</span></td>
     <td>${p.student_count}</td><td>₹${perStu}</td><td>₹${amount}</td>
   </tr></tbody>
 </table>
@@ -86,10 +79,9 @@ tbody td{padding:14px 16px;font-size:14px;color:#374151;vertical-align:top}tbody
 
 export default function ParentInvoicesPage() {
   const router = useRouter()
-  const [payments,    setPayments]    = useState<Payment[]>([])
-  const [loading,     setLoading]     = useState(true)
-  const [parentName,  setParentName]  = useState('Parent')
-  const [parentEmail, setParentEmail] = useState('')
+  const [payments,   setPayments]   = useState<Payment[]>([])
+  const [loading,    setLoading]    = useState(true)
+  const [parentName, setParentName] = useState('Parent')
 
   useEffect(() => {
     const load = async () => {
@@ -98,9 +90,8 @@ export default function ParentInvoicesPage() {
       if (!user) { router.push('/login'); return }
       const { data: profile } = await supabase.from('profiles').select('role, full_name, email').eq('id', user.id).maybeSingle()
       if (profile?.role !== 'parent') { router.push('/login'); return }
-      setParentName(profile?.full_name || 'Parent')
+      setParentName(profile?.full_name?.split(' ')[0] || 'Parent')
       const email = profile?.email || user.email || ''
-      setParentEmail(email)
       const { data: pmts } = await supabase.from('payments').select('*').eq('parent_email', email).order('created_at', { ascending: false })
       setPayments(pmts || [])
       setLoading(false)
@@ -119,57 +110,74 @@ export default function ParentInvoicesPage() {
 
   return (
     <ParentSidebarLayout parentName={parentName}>
-      <div style={{ maxWidth:'720px' }}>
-        <div style={{ marginBottom:'24px' }}>
-          <h1 style={{ fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'26px', color:'#1B4332', marginBottom:'4px' }}>Payments & Invoices</h1>
-          <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#9CA3AF' }}>View and download your payment receipts</p>
-        </div>
+      <div style={{ maxWidth: '720px' }}>
+        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: '28px' }}>
+          <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '24px', color: '#1B4332', marginBottom: '4px' }}>Invoices</h1>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#64748B' }}>View and download your payment receipts</p>
+        </motion.div>
 
-        {loading ? (
-          <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#9CA3AF' }}>Loading invoices...</p>
-        ) : payments.length === 0 ? (
-          <div style={{ background:'white', borderRadius:'16px', border:'1px solid #E5E7EB', padding:'48px', textAlign:'center' }}>
-            <p style={{ fontSize:'36px', marginBottom:'12px' }}>📄</p>
-            <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'16px', color:'#374151' }}>No invoices yet</p>
-            <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#9CA3AF', marginTop:'6px' }}>Your payment invoices will appear here after registration.</p>
+        {loading && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '20px' }}>
+            <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+              style={{ width: '18px', height: '18px', border: '2px solid #E2E8F0', borderTopColor: '#1B4332', borderRadius: '50%' }}/>
+            <p style={{ fontFamily: 'var(--font-body)', color: '#94A3B8', fontSize: '13px' }}>Loading invoices...</p>
           </div>
-        ) : (
-          <div style={{ display:'flex', flexDirection:'column', gap:'14px' }}>
-            {payments.map(p => {
-              const date   = new Date(p.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+        )}
+
+        {!loading && payments.length === 0 && (
+          <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+            style={{ background: 'white', borderRadius: '20px', border: '1.5px solid #E2E8F0', padding: '56px', textAlign: 'center' }}>
+            <p style={{ fontSize: '40px', marginBottom: '14px' }}>🧾</p>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '18px', color: '#1B4332', marginBottom: '6px' }}>No invoices yet</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#94A3B8' }}>Your payment receipts will appear here after registration.</p>
+          </motion.div>
+        )}
+
+        {!loading && payments.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {payments.map((p, i) => {
+              const date   = new Date(p.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
               const amount = (p.amount_paise / 100).toLocaleString('en-IN')
               return (
-                <div key={p.id} style={{ background:'white', borderRadius:'16px', border:'1px solid #E5E7EB', padding:'22px 26px' }}>
-                  <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:'14px', flexWrap:'wrap', gap:'8px' }}>
+                <motion.div key={p.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
+                  style={{ background: 'white', borderRadius: '20px', border: '1.5px solid #E2E8F0', padding: '24px 28px', boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
+                  {/* Header row */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
                     <div>
-                      <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'4px' }}>
-                        <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'16px', color:'#1B4332' }}>{p.invoice_number}</p>
-                        <span style={{ background:'#D8F3DC', color:'#1B4332', fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'10px', padding:'2px 10px', borderRadius:'10px' }}>✓ Paid</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
+                        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '16px', color: '#1B4332' }}>{p.invoice_number}</p>
+                        <span style={{ background: '#D1FAE5', color: '#065F46', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', padding: '3px 10px', borderRadius: '20px' }}>✓ Paid</span>
                       </div>
-                      <p style={{ fontFamily:'var(--font-body)', fontSize:'12px', color:'#9CA3AF' }}>{date}</p>
+                      <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#94A3B8' }}>{date}</p>
                     </div>
-                    <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'22px', color:'#1B4332' }}>₹{amount}</p>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '26px', color: '#1B4332', lineHeight: 1 }}>₹{amount}</p>
+                      <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#94A3B8', marginTop: '3px' }}>Annual subscription</p>
+                    </div>
                   </div>
 
-                  <div style={{ display:'flex', gap:'24px', flexWrap:'wrap', marginBottom:'18px' }}>
+                  {/* Details */}
+                  <div style={{ display: 'flex', gap: '0', flexWrap: 'wrap', background: '#F8FAFF', borderRadius: '12px', padding: '14px 18px', marginBottom: '18px', border: '1px solid #E2E8F0' }}>
                     {[
-                      { label:'Plan',       value:'Annual 2025–26' },
-                      { label:'Students',   value:`${p.student_count} student${p.student_count > 1 ? 's' : ''}` },
-                      { label:'Payment ID', value: p.razorpay_payment_id || '—' },
-                    ].map(({ label, value }) => (
-                      <div key={label}>
-                        <p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color:'#9CA3AF', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:'2px' }}>{label}</p>
-                        <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', color:'#374151', wordBreak:'break-all' }}>{value}</p>
+                      { label: 'Plan',        value: 'Full academic year' },
+                      { label: 'Students',    value: `${p.student_count} student${p.student_count > 1 ? 's' : ''}` },
+                      { label: 'Payment ID',  value: p.razorpay_payment_id || '—' },
+                    ].map(({ label, value }, idx) => (
+                      <div key={label} style={{ flex: 1, minWidth: '140px', padding: '0 16px', borderRight: idx < 2 ? '1px solid #E2E8F0' : 'none' }}>
+                        <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>{label}</p>
+                        <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#374151', wordBreak: 'break-all' }}>{value}</p>
                       </div>
                     ))}
                   </div>
 
-                  <button onClick={() => handlePrint(p)}
-                    style={{ display:'flex', alignItems:'center', gap:'6px', padding:'9px 18px', borderRadius:'10px', border:'1px solid #D8F3DC', background:'#F0FDF4', fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'13px', color:'#1B4332', cursor:'pointer' }}>
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  {/* Download button */}
+                  <motion.button onClick={() => handlePrint(p)}
+                    whileHover={{ scale: 1.02, boxShadow: '0 4px 12px rgba(27,67,50,0.15)' }} whileTap={{ scale: 0.97 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '12px', border: '1.5px solid #D8F3DC', background: '#F0FDF4', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#1B4332', cursor: 'pointer' }}>
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="#1B4332" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     Download / Print Invoice
-                  </button>
-                </div>
+                  </motion.button>
+                </motion.div>
               )
             })}
           </div>
