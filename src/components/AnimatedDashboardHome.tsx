@@ -34,6 +34,7 @@ const SUBJECTS = [
   { id: 'sanskrit',  label: 'Sanskrit',      emoji: '🕉️', total: 8,  route: 'skt-chapter', color: '#92400E', accent: '#FBBF24', light: '#FEF3C7', dark: '#451A03' },
   { id: 'ict',       label: 'ICT',           emoji: '💻', total: 5,  route: 'ict-chapter', color: '#312E81', accent: '#A78BFA', light: '#EDE9FE', dark: '#1E1B4B' },
   { id: 'marathi',   label: 'मराठी',         emoji: '📝', total: 17, route: 'mar-chapter', color: '#701A75', accent: '#E879F9', light: '#FDF4FF', dark: '#3B0764' },
+  { id: 'rapid',     label: 'Rapid Reader',  emoji: '📗', total: 19, route: 'rapid-chapter', color: '#7C3AED', accent: '#DDD6FE', light: '#F5F3FF', dark: '#4C1D95' },
 ]
 
 // ── Tilt card wrapper ─────────────────────────────────────────────────────────

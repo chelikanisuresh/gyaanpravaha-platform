@@ -14,9 +14,10 @@ const SUBJECTS = [
   { id:'sanskrit', label:'Sanskrit',      emoji:'🕉️', color:'#713F12' },
   { id:'ict',      label:'ICT',           emoji:'💻', color:'#4C1D95' },
   { id:'marathi',  label:'मराठी',         emoji:'📝', color:'#701A75' },
+  { id:'rapid',    label:'Rapid Reader',  emoji:'📗', color:'#7C3AED' },
 ]
 
-type ActiveSection = 'dashboard' | 'english' | 'maths' | 'science' | 'history' | 'geo' | 'sanskrit' | 'ict' | 'marathi' | 'profile'
+type ActiveSection = 'dashboard' | 'english' | 'maths' | 'science' | 'history' | 'geo' | 'sanskrit' | 'ict' | 'marathi' | 'rapid' | 'profile'
 
 interface Props { children: (activeSection: ActiveSection, studentId: string) => React.ReactNode }
 
@@ -33,7 +34,7 @@ export default function StudentSidebarLayout({ children }: Props) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const section = params.get('section')
-    if (section && ['english','maths','science','history','geo','sanskrit','ict','marathi','profile'].includes(section)) {
+    if (section && ['english','maths','science','history','geo','sanskrit','ict','marathi','rapid','profile'].includes(section)) {
       setActiveSection(section as ActiveSection)
       setSubjectsOpen(true)
     } else {

@@ -22,6 +22,7 @@ const SUBJECTS: Record<string, { label: string; emoji: string; color: string; li
   sanskrit:       { label:'Sanskrit',    emoji:'🕉️', color:'#713F12', light:'#FEF9C3', total:8  },
   ict:            { label:'ICT',         emoji:'💻', color:'#4C1D95', light:'#EDE9FE', total:5  },
   marathi:        { label:'मराठी',       emoji:'📝', color:'#701A75', light:'#FAE8FF', total:17 },
+  'rapid-reader': { label:'Rapid Reader', emoji:'📗', color:'#7C3AED', light:'#F5F3FF', total:19 },
 }
 
 function scoreColor(s: number) { return s >= 80 ? '#059669' : s >= 60 ? '#D97706' : '#DC2626' }
