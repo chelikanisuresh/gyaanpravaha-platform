@@ -131,8 +131,24 @@ export default function LoginPage() {
           </Link>
 
           <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '28px', color: '#1B4332', marginBottom: '6px' }}>Log in</h1>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#64748B', marginBottom: '32px' }}>
-            Welcome back! Enter your credentials to continue.
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#64748B', marginBottom: '24px' }}>
+            Welcome back! Use the same form whether you are a student or a parent.
+          </p>
+
+          {/* Role tabs */}
+          <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: '12px', padding: '4px', marginBottom: '28px', gap: '4px' }}>
+            {[
+              { label: '🎓 Student', hint: 'Class 6 learner' },
+              { label: '👨‍👩‍👦 Parent', hint: 'Track your child' },
+            ].map((tab, i) => (
+              <div key={tab.label} style={{ flex: 1, background: i === 0 ? 'white' : 'transparent', borderRadius: '10px', padding: '10px 12px', textAlign: 'center', boxShadow: i === 0 ? '0 1px 4px rgba(0,0,0,0.08)' : 'none', border: i === 0 ? '1px solid #E5E7EB' : 'none', cursor: 'default' }}>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: i === 0 ? '#1B4332' : '#94A3B8' }}>{tab.label}</p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: i === 0 ? '#40916C' : '#CBD5E1', marginTop: '1px' }}>{tab.hint}</p>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#94A3B8', marginBottom: '20px', background: '#F8FAFF', borderRadius: '10px', padding: '10px 14px', border: '1px solid #E2E8F0' }}>
+            💡 Same login form for students and parents — you will be redirected to the right dashboard automatically after signing in.
           </p>
 
           <InputField label="Email address" type="email" value={email} onChange={setEmail} placeholder="you@example.com"/>

@@ -126,9 +126,14 @@ export default function AdminLoginPage() {
         </div>
 
         {/* Footer */}
-        <p style={{ textAlign: 'center', fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.2)', marginTop: '24px' }}>
-          © 2026 Gyaanpravaha · Restricted access
-        </p>
+        <div style={{ textAlign: 'center', marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <Link href="/" style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '13px', color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>
+            ← Back to gyaanpravaha.in
+          </Link>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>
+            © 2026 Gyaanpravaha · Restricted access
+          </p>
+        </div>
       </motion.div>
     </div>
   )
