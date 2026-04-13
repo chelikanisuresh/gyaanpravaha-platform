@@ -191,7 +191,7 @@ export default function ChapterReaderPage() {
                 style={{ height: '100%', background: '#A5B4FC', borderRadius: '2px' }}/>
             </div>
           </div>
-          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#A5B4FC' }}>⏱ {formatTime(elapsed)}</span>
+          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#A5B4FC' }}>⏱ {Math.floor(elapsed/60)}:{String(elapsed%60).padStart(2,"0")} min</span>
         </div>
       </div>
 
@@ -235,7 +235,7 @@ export default function ChapterReaderPage() {
                       style={{ marginLeft: 'auto', background: elapsed >= minRead ? '#EEF2FF' : '#FFF7ED', border: `1px solid ${elapsed >= minRead ? '#C7D2FE' : '#FED7AA'}`, borderRadius: '20px', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                       <span style={{ fontSize: '12px' }}>⏱</span>
                       <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: elapsed >= minRead ? '#4338CA' : '#92400E' }}>
-                        {elapsed >= minRead ? 'Ready!' : `${Math.max(0, minRead - elapsed)}s left`}
+                        {elapsed >= minRead ? 'Ready!' : (() => { const rem = Math.max(0, minRead - elapsed); const m = Math.floor(rem/60); const s = rem%60; return m > 0 ? `${m}m ${s}s left` : `${s}s left` })()}
                       </span>
                     </motion.div>
                   )}
@@ -256,7 +256,7 @@ export default function ChapterReaderPage() {
                     style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '12px', padding: '14px 18px', marginBottom: '16px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <span style={{ fontSize: '18px' }}>⏱</span>
                     <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#92400E', lineHeight: 1.5 }}>
-                      Please read for at least <strong>{Math.max(0, minRead - elapsed)} more seconds</strong> before moving on.
+                      Please read for at least <strong>{(() => { const rem = Math.max(0, minRead - elapsed); const m = Math.floor(rem/60); const s = rem%60; return m > 0 ? `${m}m ${s}s` : `${s}s` })()} more</strong> before moving on.
                     </p>
                   </motion.div>
                 )}
