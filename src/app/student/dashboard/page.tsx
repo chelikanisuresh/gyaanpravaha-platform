@@ -18,6 +18,7 @@ import SanskritSubjectPageComponent from '@/components/SanskritSubjectPage'
 import ICTSubjectPageComponent      from '@/components/ICTSubjectPage'
 import MarathiSubjectPageComponent  from '@/components/MarathiSubjectPage'
 import StudentProfilePageComponent  from '@/components/StudentProfilePage'
+import RapidReaderSubjectPageComponent from '@/components/RapidReaderSubjectPage'
 
 // ── Chapter data ─────────────────────────────────────────────────────────────
 
@@ -156,6 +157,12 @@ function MarathiSubjectPage({ studentId }: { studentId: string }) {
   return <MarathiSubjectPageComponent studentId={studentId}/>
 }
 
+// ── Rapid Reader subject page ────────────────────────────────────────────────
+
+function RapidReaderSubjectPage() {
+  return <RapidReaderSubjectPageComponent/>
+}
+
 // ── Coming soon ──────────────────────────────────────────────────────────────
 
 function ComingSoon({ subject }: { subject: string }) {
@@ -188,6 +195,7 @@ export default function StudentMainPage() {
           case 'sanskrit':  return <SanskritSubjectPage  studentId={studentId}/>
           case 'ict':       return <ICTSubjectPage         studentId={studentId}/>
           case 'marathi':   return <MarathiSubjectPage     studentId={studentId}/>
+          case 'rapid':     return <RapidReaderSubjectPage/>
           case 'profile':   return <StudentProfileContent   studentId={studentId}/>
           default:          return <DashboardHome           studentId={studentId} onNavigate={section => window.dispatchEvent(new CustomEvent('gp-navigate', { detail: section }))}/>
         }
