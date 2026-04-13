@@ -17,6 +17,7 @@ import GeoSubjectPageComponent      from '@/components/GeographySubjectPage'
 import SanskritSubjectPageComponent from '@/components/SanskritSubjectPage'
 import ICTSubjectPageComponent      from '@/components/ICTSubjectPage'
 import MarathiSubjectPageComponent  from '@/components/MarathiSubjectPage'
+import StudentProfilePageComponent  from '@/components/StudentProfilePage'
 
 // ── Chapter data ─────────────────────────────────────────────────────────────
 
@@ -110,66 +111,7 @@ function EnglishSubjectPage({ studentId }: { studentId: string }) {
 // ── Profile page (inline — no separate SidebarLayout) ────────────────────────
 
 function StudentProfileContent({ studentId }: { studentId: string }) {
-  const [profile, setProfile] = useState<{ full_name: string; email: string } | null>(null)
-
-  useEffect(() => {
-    const load = async () => {
-      const supabase = createClient()
-      const { data } = await supabase.from('profiles').select('full_name, email').eq('id', studentId).single()
-      setProfile(data)
-    }
-    load()
-  }, [studentId])
-
-  return (
-    <div style={{ maxWidth: '560px' }}>
-      {/* Profile header */}
-      <div style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '20px', padding: '32px', textAlign: 'center', marginBottom: '16px' }}>
-        <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: '#74C69D', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '28px', color: '#1B4332' }}>
-          {profile?.full_name?.[0] || 'S'}
-        </div>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '22px', color: 'white', marginBottom: '4px' }}>
-          {profile?.full_name || 'Student'}
-        </h1>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>
-          {profile?.email}
-        </p>
-      </div>
-
-      {/* Account details */}
-      <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', overflow: 'hidden', marginBottom: '14px' }}>
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid #F3F4F6' }}>
-          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Account details</p>
-        </div>
-        {[
-          { label: 'Full name',    value: profile?.full_name || '—', icon: '👤' },
-          { label: 'Login email',  value: profile?.email     || '—', icon: '📧' },
-          { label: 'Account type', value: 'Student',                  icon: '🎓' },
-          { label: 'School',       value: 'Singhania School, Thane',  icon: '🏫' },
-          { label: 'Grade',        value: 'Grade 6',                  icon: '📚' },
-        ].map(({ label, value, icon }) => (
-          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 20px', borderBottom: '1px solid #F9FAFB' }}>
-            <span style={{ fontSize: '18px', flexShrink: 0 }}>{icon}</span>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#9CA3AF', marginBottom: '2px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</p>
-              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '14px', color: '#1B4332' }}>{value}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Password note */}
-      <div style={{ background: '#FEF3C7', borderRadius: '16px', border: '1px solid #FDE68A', padding: '16px 20px', display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-        <span style={{ fontSize: '20px', flexShrink: 0 }}>🔑</span>
-        <div>
-          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: '#92400E', marginBottom: '4px' }}>Password is managed by your parent</p>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#B45309', lineHeight: 1.6 }}>
-            If you need to change your password, ask your parent to update it from their account.
-          </p>
-        </div>
-      </div>
-    </div>
-  )
+  return <StudentProfilePageComponent studentId={studentId}/>
 }
 
 // ── History & Civics subject page ────────────────────────────────────────────
