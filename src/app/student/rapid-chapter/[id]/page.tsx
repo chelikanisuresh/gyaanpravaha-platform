@@ -1,5 +1,6 @@
 'use client'
 import { getRapidChapter } from '@/lib/rapid-chapter-index'
+import { getRapidWordMap } from '@/lib/rapid-tooltip-words'
 import GenericChapterReader, { ReaderConfig } from '@/components/GenericChapterReader'
 
 const CONFIG: ReaderConfig = {
@@ -16,7 +17,7 @@ const CONFIG: ReaderConfig = {
     tooltipBg: '#4C1D95',
   },
   getChapterFn: getRapidChapter,
-  getWordMapFn: () => ({}),
+  getWordMapFn: getRapidWordMap,
 }
 
 export default function RapidChapterPage() {
