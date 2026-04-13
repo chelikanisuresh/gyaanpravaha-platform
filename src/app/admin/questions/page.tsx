@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import AdminLayout from '@/components/AdminLayout'
 
 // ── Subject + Chapter map ─────────────────────────────────────────────────────
 
@@ -109,6 +110,7 @@ export default function AdminQuestionsPage() {
 
   // Questions list
   const [questions, setQuestions] = useState<ClassQuestion[]>([])
+  const [adminName, setAdminName] = useState('Admin')
   const [loading,   setLoading]   = useState(false)
 
   // Filter
@@ -224,7 +226,8 @@ export default function AdminQuestionsPage() {
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+    <AdminLayout adminName={adminName}>
+    <div style={{ maxWidth: '800px' }}>
 
       {/* Top bar */}
       <div style={{ background: '#1B4332', padding: '16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -461,5 +464,6 @@ export default function AdminQuestionsPage() {
         </div>
       )}
     </div>
+    </AdminLayout>
   )
 }

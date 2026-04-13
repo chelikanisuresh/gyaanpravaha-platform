@@ -22,7 +22,21 @@ export interface QuizConfig {
 type Phase = 'intro' | 'question' | 'feedback' | 'results'
 interface Answer { questionId: number; given: string; correct: boolean; marksEarned: number }
 
-function isCorrectMCQ(q: any, given: string) { return given.trim().toUpperCase() === q.answer.trim().toUpperCase() }
+function normalise(s: string) { return s.trim().toLowerCase().replace(/[^a-z0-9./]/g, '') }
+
+function isCorrectMCQ(q: any, given: string) {
+  const givenN = normalise(given)
+  if (!givenN) return false
+  if (q.type === 'mcq') return givenN === normalise(q.answer)
+  if (givenN === normalise(q.answer)) return true
+  const rawTokens = q.answer.split(/[\s=;→,()×÷+\-:|]+/).filter((t: string) => t.trim())
+  const normTokens = rawTokens.map((t: string) => normalise(t))
+  if (normTokens.some((t: string) => t && t === givenN)) return true
+  for (let i = 0; i < normTokens.length - 1; i++) {
+    if (normTokens[i] + normTokens[i + 1] === givenN) return true
+  }
+  return false
+}
 function isAutoCorrect(q: any) { return q.type === 'sentence' || q.type === 'long_answer' }
 function scoreForAnswer(q: any, given: string) { return (q.type === 'mcq' || q.type === 'single_word') ? (isCorrectMCQ(q, given) ? q.marks : 0) : q.marks }
 function partLabel(type: string) {
