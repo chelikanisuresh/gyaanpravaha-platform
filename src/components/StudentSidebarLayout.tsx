@@ -106,8 +106,12 @@ export default function StudentSidebarLayout({ children }: Props) {
         <button onClick={() => router.push('/')}
           style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'none', border: 'none', cursor: 'pointer', padding: 0, width: '100%' }}>
           <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg,#52B788,#74C69D)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(82,183,136,0.3)' }}>
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-              <path d="M4 10h12M10 4v12" stroke="#1B4332" strokeWidth="2.5" strokeLinecap="round"/>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5 C12 5 7 4 3 5.5 L3 17 C7 15.5 12 16.5 12 16.5 C12 16.5 17 15.5 21 17 L21 5.5 C17 4 12 5 12 5Z" fill="white" fillOpacity="0.9"/>
+              <line x1="12" y1="5" x2="12" y2="16.5" stroke="#1B4332" strokeWidth="0.8" strokeOpacity="0.4"/>
+              <ellipse cx="12" cy="21" rx="2.2" ry="3.2" fill="#74C69D" fillOpacity="0.95"/>
+              <ellipse cx="8.5" cy="21.5" rx="1.8" ry="2.6" fill="#74C69D" fillOpacity="0.75" transform="rotate(-28 8.5 21.5)"/>
+              <ellipse cx="15.5" cy="21.5" rx="1.8" ry="2.6" fill="#74C69D" fillOpacity="0.75" transform="rotate(28 15.5 21.5)"/>
             </svg>
           </div>
           <div style={{ textAlign: 'left' }}>
@@ -272,7 +276,10 @@ export default function StudentSidebarLayout({ children }: Props) {
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'linear-gradient(135deg,#52B788,#74C69D)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="10" height="10" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M10 4v12" stroke="#1B4332" strokeWidth="2.5" strokeLinecap="round"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5 C12 5 7 4 3 5.5 L3 17 C7 15.5 12 16.5 12 16.5 C12 16.5 17 15.5 21 17 L21 5.5 C17 4 12 5 12 5Z" fill="white" fillOpacity="0.9"/>
+              <ellipse cx="12" cy="21" rx="2.2" ry="3.2" fill="#74C69D" fillOpacity="0.95"/>
+            </svg>
             </div>
             <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: 'white' }}>Gyaanpravaha</p>
           </div>

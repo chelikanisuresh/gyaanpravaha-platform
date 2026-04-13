@@ -30,32 +30,6 @@ function AnimatedNumber({ target, suffix = '' }: { target: number; suffix?: stri
 const SUBJECTS = PLATFORM_SUBJECTS
 
 // ── Tilt card wrapper ─────────────────────────────────────────────────────────
-function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const rotX = useMotionValue(0)
-  const rotY = useMotionValue(0)
-  const sRotX = useSpring(rotX, { stiffness: 200, damping: 20 })
-  const sRotY = useSpring(rotY, { stiffness: 200, damping: 20 })
-
-  const handleMove = (e: React.MouseEvent) => {
-    if (!ref.current) return
-    const rect = ref.current.getBoundingClientRect()
-    const cx = rect.left + rect.width / 2
-    const cy = rect.top + rect.height / 2
-    rotX.set(((e.clientY - cy) / rect.height) * -10)
-    rotY.set(((e.clientX - cx) / rect.width) * 10)
-  }
-  const handleLeave = () => { rotX.set(0); rotY.set(0) }
-
-  return (
-    <motion.div ref={ref} onMouseMove={handleMove} onMouseLeave={handleLeave}
-      style={{ rotateX: sRotX, rotateY: sRotY, transformStyle: 'preserve-3d', transformPerspective: 800 }}
-      className={className}>
-      {children}
-    </motion.div>
-  )
-}
-
 // ── Subject grid card ─────────────────────────────────────────────────────────
 function SubjectCard({
   subject, completed, score, index, onClick
@@ -73,11 +47,10 @@ function SubjectCard({
       initial={{ opacity: 0, y: 32 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-      <TiltCard>
         <motion.div onClick={onClick}
-          whileHover={{ scale: 1.03, boxShadow: `0 20px 40px ${subject.color}40` }}
+          whileHover={{ scale: 1.03, boxShadow: `0 16px 32px ${subject.color}35` }}
           whileTap={{ scale: 0.97 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
           style={{
             background: `linear-gradient(135deg, ${subject.color}, ${subject.dark})`,
             borderRadius: '20px',
@@ -154,7 +127,6 @@ function SubjectCard({
             )}
           </div>
         </motion.div>
-      </TiltCard>
     </motion.div>
   )
 }
