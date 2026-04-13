@@ -75,13 +75,22 @@ function OverviewInner() {
     ])
     const secMap: Record<string, number> = {}
     sections?.forEach((s: any) => { const k = `${s.subject}-${s.chapter_id}`; secMap[k] = (secMap[k] || 0) + 1 })
+    // Keep ALL quiz scores per subject (not just first per chapter) — matches student dashboard
+    const subjectScores: Record<string, number[]> = {}
+    quizzes?.forEach((q: any) => {
+      if (!subjectScores[q.subject]) subjectScores[q.subject] = []
+      subjectScores[q.subject].push(q.score)
+    })
+
+    // Also keep best score per chapter for "quizzesTaken" count
     const scoreMap: Record<string, number> = {}
     quizzes?.forEach((q: any) => { const k = `${q.subject}-${q.chapter_id}`; if (!(k in scoreMap)) scoreMap[k] = q.score })
 
     const data = Object.entries(SUBJECT_META).map(([key, meta]) => {
       const done = Array.from({ length: meta.total }, (_, i) => i+1).filter(chId => (secMap[`${key}-${chId}`] || 0) >= 7).length
-      const scores = Array.from({ length: meta.total }, (_, i) => i+1).filter(chId => `${key}-${chId}` in scoreMap).map(chId => scoreMap[`${key}-${chId}`])
-      return { key, done, total: meta.total, avg: scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : null, quizzesTaken: scores.length }
+      const scores = subjectScores[key] || []
+      const chaptersTaken = new Set(quizzes?.filter((q:any) => q.subject === key).map((q:any) => q.chapter_id) || []).size
+      return { key, done, total: meta.total, avg: scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : null, quizzesTaken: chaptersTaken }
     })
     setSubjects(data)
     setTotalDone(data.reduce((a,s)=>a+s.done, 0))
