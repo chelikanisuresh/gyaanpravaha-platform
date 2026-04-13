@@ -28,6 +28,7 @@ export default function StudentSidebarLayout({ children }: Props) {
   const [activeSection, setActiveSection] = useState<ActiveSection>('dashboard')
   const [subjectsOpen,  setSubjectsOpen]  = useState(false)
   const [mobileOpen,    setMobileOpen]    = useState(false)
+  const [sessionKicked, setSessionKicked] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -76,6 +77,25 @@ export default function StudentSidebarLayout({ children }: Props) {
     }
     load()
   }, [router])
+
+  // ── Background session poll every 60 seconds ───────────────────────────────
+  useEffect(() => {
+    const poll = async () => {
+      const localToken = localStorage.getItem('gp_session_token')
+      if (!localToken) return  // not a student session, skip
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: p } = await supabase.from('profiles').select('session_token, role').eq('id', user.id).maybeSingle()
+      if (p?.role === 'student' && p?.session_token && localToken !== p.session_token) {
+        await supabase.auth.signOut({ scope: 'local' })
+        localStorage.removeItem('gp_session_token')
+        setSessionKicked(true)
+      }
+    }
+    const interval = setInterval(poll, 60000) // every 60 seconds
+    return () => clearInterval(interval)
+  }, [])
 
   const handleLogout = async () => {
     await createClient().auth.signOut()
@@ -204,6 +224,23 @@ export default function StudentSidebarLayout({ children }: Props) {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#F0FDF4' }}>
+      {/* ── Session kicked overlay ── */}
+      {sessionKicked && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{ background: 'white', borderRadius: '24px', padding: '40px 36px', maxWidth: '420px', width: '100%', textAlign: 'center', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}>
+            <div style={{ width: '64px', height: '64px', background: '#FEF3C7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '28px' }}>⚠️</div>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '20px', color: '#1B4332', marginBottom: '10px' }}>Session ended</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#6B7280', lineHeight: 1.7, marginBottom: '28px' }}>
+              This account was signed in on another device. Your progress has been saved. Please log in again to continue.
+            </p>
+            <button
+              onClick={() => window.location.href = '/login'}
+              style={{ width: '100%', padding: '14px', borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '15px', cursor: 'pointer' }}>
+              Log in again →
+            </button>
+          </div>
+        </div>
+      )}
       <style>{`
         @media(max-width:768px){ .gp-sidebar{display:none !important} .gp-sidebar.open{display:flex !important} .gp-mobile-bar{display:flex !important} }
         @media(min-width:769px){ .gp-mobile-bar{display:none !important} }
