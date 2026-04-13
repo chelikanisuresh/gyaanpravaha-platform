@@ -290,7 +290,7 @@ export default function RegisterPage() {
           <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', color: '#40916C', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '14px' }}>Order summary</p>
           {[
             ['Annual Plan × ' + studentCount, `₹${totalAmount.toLocaleString('en-IN')}`],
-            ['Duration', 'Full year 2025–26'],
+            ['Duration', 'Full academic year'],
             ['Parent', parentName],
           ].map(([l, v]) => (
             <div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>

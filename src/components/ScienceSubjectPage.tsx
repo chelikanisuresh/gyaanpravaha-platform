@@ -14,7 +14,7 @@ const CHAPTERS: SubjectChapter[] = [
 ]
 
 const THEME: SubjectTheme = {
-  title:'Science', emoji:'🔬', subject:'science', bookSeries:'Maharashtra State Board · Class 6',
+  title:'Science', emoji:'🔬', subject:'science', bookSeries:'Science',
   description:'Physics, Chemistry and Biology — understanding the natural world through observation and inquiry.',
   chapterRoute:'sci-chapter', quizRoute:'sci-quiz',
   heroBg:'linear-gradient(135deg,#F0FDFA 0%,#CCFBF1 60%,#99F6E4 100%)',

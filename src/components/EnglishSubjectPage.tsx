@@ -298,7 +298,7 @@ export default function EnglishSubjectPage({ studentId }: { studentId: string })
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                 <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#4338CA', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>📖</div>
                 <div>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#6366F1', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Balbharati · Class 6</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#6366F1', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Your syllabus</p>
                   <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '26px', color: '#1E1B4B', lineHeight: 1 }}>English</h1>
                 </div>
               </div>

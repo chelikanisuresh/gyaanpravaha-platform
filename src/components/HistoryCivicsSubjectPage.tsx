@@ -11,7 +11,7 @@ const CHAPTERS: SubjectChapter[] = [
 ]
 
 const THEME: SubjectTheme = {
-  title:'History & Civics', emoji:'🏛️', subject:'history-civics', bookSeries:'Connexion · Class 6',
+  title:'History & Civics', emoji:'🏛️', subject:'history-civics', bookSeries:'History & Civics',
   description:'Ancient Indian heritage, great thinkers, the Indian Constitution and how our democracy works.',
   chapterRoute:'hc-chapter', quizRoute:'hc-quiz',
   heroBg:'linear-gradient(135deg,#FFFBEB 0%,#FEF3C7 60%,#FDE68A 100%)',

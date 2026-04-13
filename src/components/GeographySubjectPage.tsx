@@ -12,7 +12,7 @@ const CHAPTERS: SubjectChapter[] = [
 ]
 
 const THEME: SubjectTheme = {
-  title:'Geography', emoji:'🌍', subject:'geography', bookSeries:'Maharashtra State Board · Class 6',
+  title:'Geography', emoji:'🌍', subject:'geography', bookSeries:'Geography',
   description:'Our solar system, earth movements, landforms, maps and the agriculture that feeds the world.',
   chapterRoute:'geo-chapter', quizRoute:'geo-quiz',
   heroBg:'linear-gradient(135deg,#EFF6FF 0%,#DBEAFE 40%,#E0F2FE 100%)',

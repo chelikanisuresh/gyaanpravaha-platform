@@ -13,7 +13,7 @@ const CHAPTERS: SubjectChapter[] = [
 ]
 
 const THEME: SubjectTheme = {
-  title:'Sanskrit', emoji:'🕉️', subject:'sanskrit', bookSeries:'Sulabhbharati · Class 6',
+  title:'Sanskrit', emoji:'🕉️', subject:'sanskrit', bookSeries:'Sanskrit',
   description:'The mother of Indian languages — prayers, prose, poetry, grammar and conversation in Sanskrit.',
   chapterRoute:'skt-chapter', quizRoute:'skt-quiz',
   heroBg:'linear-gradient(135deg,#FFFBEB 0%,#FEF9C3 50%,#FEF08A 100%)',

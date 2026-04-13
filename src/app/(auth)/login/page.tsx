@@ -102,7 +102,7 @@ export default function LoginPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
             style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '36px' }}>
             {[
-              { icon: '📚', text: '8 subjects · Maharashtra State Board' },
+              { icon: '📚', text: '8 subjects · All subjects covered' },
               { icon: '🎯', text: 'Quiz after every chapter' },
               { icon: '👨‍👩‍👦', text: 'Parents track progress in real time' },
             ].map(item => (
@@ -139,7 +139,7 @@ export default function LoginPage() {
           {/* Role tabs */}
           <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: '12px', padding: '4px', marginBottom: '20px', gap: '4px' }}>
             {([
-              { key: 'student' as const, label: '🎓 Student', hint: 'Class 6 learner' },
+              { key: 'student' as const, label: '🎓 Student', hint: 'Student account' },
               { key: 'parent'  as const, label: '👨‍👩‍👦 Parent',  hint: 'Track your child' },
             ]).map(tab => {
               const active = role === tab.key

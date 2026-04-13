@@ -19,7 +19,7 @@ const CHAPTERS: SubjectChapter[] = [
 ]
 
 const THEME: SubjectTheme = {
-  title:'Mathematics', emoji:'📐', subject:'maths', bookSeries:'Maths Connexion · Class 6',
+  title:'Mathematics', emoji:'📐', subject:'maths', bookSeries:'Mathematics',
   description:'Numbers, measurement, geometry and Vedic mathematics — building logical thinking step by step.',
   chapterRoute:'mth-chapter', quizRoute:'mth-quiz',
   heroBg:'linear-gradient(135deg,#EFF6FF 0%,#DBEAFE 60%,#BFDBFE 100%)',

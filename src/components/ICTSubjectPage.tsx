@@ -10,7 +10,7 @@ const CHAPTERS: SubjectChapter[] = [
 ]
 
 const THEME: SubjectTheme = {
-  title:'ICT', emoji:'💻', subject:'ict', bookSeries:'Maharashtra State Board · Class 6',
+  title:'ICT', emoji:'💻', subject:'ict', bookSeries:'ICT',
   description:'File management, Artificial Intelligence and HTML — learning to work with computers and the web.',
   chapterRoute:'ict-chapter', quizRoute:'ict-quiz',
   heroBg:'linear-gradient(135deg,#F5F3FF 0%,#EDE9FE 60%,#DDD6FE 100%)',
