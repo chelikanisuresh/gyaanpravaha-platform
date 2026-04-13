@@ -356,11 +356,14 @@ export default function QuizPage() {
     const supabase = createClient()
     const total = finalAnswers.reduce((s, a) => s + a.marksEarned, 0)
     const pct   = Math.round((total / quiz.totalMarks) * 100)
-    await supabase.from('student_quiz_attempts').insert({
-      student_id: studentId, chapter_id: chapterId, subject: 'english',
+    const { data: { user: quizUser } } = await supabase.auth.getUser()
+    const saveId = quizUser?.id || studentId
+    const { error: saveErr } = await supabase.from('student_quiz_attempts').insert({
+      student_id: saveId, chapter_id: chapterId, subject: 'english',
       score: pct, marks_earned: total, total_marks: quiz.totalMarks,
       answers: JSON.stringify(finalAnswers), created_at: new Date().toISOString(),
     })
+    if (saveErr) console.error('English quiz save error:', saveErr)
   }
 
   if (!quiz || !chapter) return (

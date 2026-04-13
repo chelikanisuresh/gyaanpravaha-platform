@@ -309,15 +309,16 @@ export default function AnimatedDashboardHome({
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
+      const uid = user.id  // always use auth user.id — never rely on prop timing
 
-      const { data: p } = await supabase.from('profiles').select('full_name').eq('id', studentId).maybeSingle()
+      const { data: p } = await supabase.from('profiles').select('full_name').eq('id', uid).maybeSingle()
       if (p?.full_name) setName(p.full_name.split(' ')[0])
 
       // Count fully completed chapters (7 sections) per subject
       const { data: sectionCounts } = await supabase
         .from('student_lesson_progress')
         .select('subject, chapter_id, section_id')
-        .eq('student_id', studentId)
+        .eq('student_id', uid)
 
       const sectionMap: Record<string, Record<number, number>> = {}
       sectionCounts?.forEach((r: any) => {
@@ -335,7 +336,7 @@ export default function AnimatedDashboardHome({
       const { data: quizzes } = await supabase
         .from('student_quiz_attempts')
         .select('subject, chapter_id, score')
-        .eq('student_id', studentId)
+        .eq('student_id', uid)
         .order('created_at', { ascending: false })
 
       const bestScores: Record<string, number> = {}
@@ -352,7 +353,7 @@ export default function AnimatedDashboardHome({
       const { data: activityRows } = await supabase
         .from('student_lesson_progress')
         .select('completed_at')
-        .eq('student_id', studentId)
+        .eq('student_id', uid)
         .order('completed_at', { ascending: false })
 
       const activeDays = new Set((activityRows || []).map((r: any) => {

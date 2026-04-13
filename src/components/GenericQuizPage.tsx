@@ -314,7 +314,12 @@ export default function GenericQuizPage({ config }: { config: QuizConfig }) {
       const total = newAnswers.reduce((s, a) => s + a.marksEarned, 0)
       const pct   = Math.round((total / quiz.totalMarks) * 100)
       // await the insert so DB is updated BEFORE the results screen loads
-      await createClient().from('student_quiz_attempts').insert({ student_id: studentId, chapter_id: chapterId, subject: config.subject, score: pct, marks_earned: total, total_marks: quiz.totalMarks, answers: JSON.stringify(newAnswers), created_at: new Date().toISOString() })
+      // Get user ID fresh at save time — never trust stale state
+      const supabase = createClient()
+      const { data: { user: quizUser } } = await supabase.auth.getUser()
+      const saveId = quizUser?.id || studentId
+      const { error: saveErr } = await supabase.from('student_quiz_attempts').insert({ student_id: saveId, chapter_id: chapterId, subject: config.subject, score: pct, marks_earned: total, total_marks: quiz.totalMarks, answers: JSON.stringify(newAnswers), created_at: new Date().toISOString() })
+      if (saveErr) console.error('Quiz save error:', saveErr)
       setPhase('results')
     } else { setQuestionIdx(i => i + 1); setPhase('question') }
   }
