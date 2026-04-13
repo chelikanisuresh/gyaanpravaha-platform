@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
 import DailyActivities from '@/components/DailyActivities'
 import StudentDashboardPanel from '@/components/StudentDashboardPanel'
+import { PLATFORM_SUBJECTS, TOTAL_CHAPTERS } from '@/lib/subjects-config'
 
 // ── Animated counter ──────────────────────────────────────────────────────────
 function AnimatedNumber({ target, suffix = '' }: { target: number; suffix?: string }) {
@@ -25,17 +26,8 @@ function AnimatedNumber({ target, suffix = '' }: { target: number; suffix?: stri
 }
 
 // ── Subject card data ─────────────────────────────────────────────────────────
-const SUBJECTS = [
-  { id: 'english',   label: 'English',       emoji: '📖', total: 8,  route: 'chapter',    color: '#1B4332', accent: '#52B788', light: '#D8F3DC', dark: '#081C15' },
-  { id: 'maths',     label: 'Mathematics',   emoji: '📐', total: 11, route: 'mth-chapter', color: '#1E3A8A', accent: '#60A5FA', light: '#DBEAFE', dark: '#0F1E4A' },
-  { id: 'science',   label: 'Science',       emoji: '🔬', total: 9,  route: 'sci-chapter', color: '#134E4A', accent: '#2DD4BF', light: '#CCFBF1', dark: '#042F2E' },
-  { id: 'history',   label: 'History',       emoji: '🏛️', total: 6,  route: 'hc-chapter',  color: '#7C2D12', accent: '#FB923C', light: '#FFEDD5', dark: '#431407' },
-  { id: 'geo',       label: 'Geography',     emoji: '🌍', total: 7,  route: 'geo-chapter', color: '#1E40AF', accent: '#818CF8', light: '#EEF2FF', dark: '#0F172A' },
-  { id: 'sanskrit',  label: 'Sanskrit',      emoji: '🕉️', total: 8,  route: 'skt-chapter', color: '#92400E', accent: '#FBBF24', light: '#FEF3C7', dark: '#451A03' },
-  { id: 'ict',       label: 'ICT',           emoji: '💻', total: 5,  route: 'ict-chapter', color: '#312E81', accent: '#A78BFA', light: '#EDE9FE', dark: '#1E1B4B' },
-  { id: 'marathi',   label: 'मराठी',         emoji: '📝', total: 17, route: 'mar-chapter', color: '#701A75', accent: '#E879F9', light: '#FDF4FF', dark: '#3B0764' },
-  { id: 'rapid',     label: 'Rapid Reader',  emoji: '📗', total: 19, route: 'rapid-chapter', color: '#7C3AED', accent: '#DDD6FE', light: '#F5F3FF', dark: '#4C1D95' },
-]
+// SUBJECTS imported from subjects-config — see src/lib/subjects-config.ts
+const SUBJECTS = PLATFORM_SUBJECTS
 
 // ── Tilt card wrapper ─────────────────────────────────────────────────────────
 function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -382,7 +374,7 @@ export default function AnimatedDashboardHome({
   }, [studentId])
 
   const totalCompleted = Object.values(completedMap).reduce((a, b) => a + b, 0)
-  const totalChapters  = SUBJECTS.reduce((a, s) => a + s.total, 0)
+  const totalChapters  = TOTAL_CHAPTERS  // from subjects-config
 
   return (
     <div>

@@ -3,19 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { PLATFORM_SUBJECTS } from '@/lib/subjects-config'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const SUBJECTS = [
-  { id:'english',  label:'English',       emoji:'📖', color:'#4338CA' },
-  { id:'maths',    label:'Mathematics',   emoji:'📐', color:'#1E3A8A' },
-  { id:'science',  label:'Science',       emoji:'🔬', color:'#0F766E' },
-  { id:'history',  label:'History',       emoji:'🏛️', color:'#78350F' },
-  { id:'geo',      label:'Geography',     emoji:'🌍', color:'#075985' },
-  { id:'sanskrit', label:'Sanskrit',      emoji:'🕉️', color:'#713F12' },
-  { id:'ict',      label:'ICT',           emoji:'💻', color:'#4C1D95' },
-  { id:'marathi',  label:'मराठी',         emoji:'📝', color:'#701A75' },
-  { id:'rapid',    label:'Rapid Reader',  emoji:'📗', color:'#7C3AED' },
-]
+// SUBJECTS imported from subjects-config — see src/lib/subjects-config.ts
+const SUBJECTS = PLATFORM_SUBJECTS
 
 type ActiveSection = 'dashboard' | 'english' | 'maths' | 'science' | 'history' | 'geo' | 'sanskrit' | 'ict' | 'marathi' | 'rapid' | 'profile'
 
@@ -168,7 +160,7 @@ export default function StudentSidebarLayout({ children }: Props) {
             <span style={{ fontFamily: 'var(--font-heading)', fontWeight: isSubjectActive ? 700 : 500, fontSize: '13px', color: isSubjectActive ? 'white' : 'rgba(255,255,255,0.6)' }}>Subjects</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ background: 'rgba(116,198,157,0.2)', color: '#74C69D', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '1px 6px', borderRadius: '10px' }}>8</span>
+            <span style={{ background: 'rgba(116,198,157,0.2)', color: '#74C69D', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', padding: '1px 6px', borderRadius: '10px' }}>{SUBJECTS.length}</span>
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
               style={{ transform: subjectsOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s', flexShrink: 0, opacity: 0.5 }}>
               <path d="M2 4l4 4 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { TOTAL_CHAPTERS } from '@/lib/subjects-config'
 import ParentSidebarLayout from '@/components/ParentSidebarLayout'
 import { motion } from 'framer-motion'
 
@@ -37,7 +38,7 @@ export default function ParentDashboardHome() {
   const [parentName,  setParentName]  = useState('Parent')
   const [children,    setChildren]    = useState<Child[]>([])
   const [activeChild, setActiveChild] = useState(0)
-  const [stats, setStats] = useState({ chaptersCompleted: 0, totalChapters: 71, avgScore: null as number | null, quizzesTaken: 0 })
+  const [stats, setStats] = useState({ chaptersCompleted: 0, totalChapters: TOTAL_CHAPTERS, avgScore: null as number | null, quizzesTaken: 0 })
   const [subjectProgress, setSubjectProgress] = useState<{ key: string; done: number; total: number; avg: number | null }[]>([])
   const [recentActivity, setRecentActivity]   = useState<{ emoji: string; text: string; time: string }[]>([])
   const [loading, setLoading] = useState(true)
@@ -88,7 +89,7 @@ export default function ParentDashboardHome() {
     const totalDone = subjectData.reduce((a, s) => a + s.done, 0)
     const allScores = quizzes?.map((q: any) => q.score) || []
     const avgScore  = allScores.length ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length) : null
-    setStats({ chaptersCompleted: totalDone, totalChapters: 71, avgScore, quizzesTaken: quizzes?.length || 0 })
+    setStats({ chaptersCompleted: totalDone, totalChapters: TOTAL_CHAPTERS, avgScore, quizzesTaken: quizzes?.length || 0 })
 
     // Build recent activity
     const activity: { emoji: string; text: string; time: string }[] = []
