@@ -123,7 +123,7 @@ export default function ExamContent() {
     setSaving(subjectId)
     const supabase = createClient()
     const { error } = await supabase.from('exam_config')
-      .upsert({ ...configs[subjectId], term: selectedTerm }, { onConflict: 'subject' })
+      .upsert({ ...configs[subjectId], term: selectedTerm }, { onConflict: 'subject,term' })
     if (error) {
       console.error('Save error:', error)
       alert(`Save failed: ${error.message}`)
@@ -139,7 +139,7 @@ export default function ExamContent() {
     setConfigs(prev => ({ ...prev, [subjectId]: { ...prev[subjectId], is_active: newVal } }))
     const supabase = createClient()
     await supabase.from('exam_config')
-      .upsert({ ...configs[subjectId], is_active: newVal, term: selectedTerm }, { onConflict: 'subject' })
+      .upsert({ ...configs[subjectId], is_active: newVal, term: selectedTerm }, { onConflict: 'subject,term' })
   }
 
   const activeCount = Object.values(configs).filter(c => c.is_active).length
