@@ -39,7 +39,7 @@ export default function ParentDashboardHome() {
   const [children,    setChildren]    = useState<Child[]>([])
   const [activeChild, setActiveChild] = useState(0)
   const [stats, setStats] = useState({ chaptersCompleted: 0, totalChapters: TOTAL_CHAPTERS, avgScore: null as number | null, quizzesTaken: 0, dueReviews: 0, mistakesPending: 0, mistakesFixed: 0 })
-  const [latestExam,  setLatestExam]  = useState<any>(null)
+  const [examResults, setExamResults] = useState<any[]>([])
   const [activeExam,  setActiveExam]  = useState<any>(null)
   const [subjectProgress, setSubjectProgress] = useState<{ key: string; done: number; total: number; avg: number | null }[]>([])
   const [recentActivity, setRecentActivity]   = useState<{ emoji: string; text: string; time: string }[]>([])
@@ -114,17 +114,14 @@ export default function ParentDashboardHome() {
       supabase.from('exam_attempts')
         .select('term, score, total_marks, created_at')
         .eq('student_id', studentId)
-        .order('created_at', { ascending: false })
-        .limit(1),
+        .order('created_at', { ascending: false }),
       supabase.from('exam_config')
         .select('term, is_active')
         .eq('is_active', true)
         .limit(1),
     ])
-    const latestExam  = examAttempts?.[0] ?? null
-    const activeExamCfg = examConfigData?.[0] ?? null
-    setLatestExam(latestExam)
-    setActiveExam(activeExamCfg)
+    setExamResults(examAttempts ?? [])
+    setActiveExam(examConfigData?.[0] ?? null)
 
     setStats({ chaptersCompleted: totalDone, totalChapters: TOTAL_CHAPTERS, avgScore, quizzesTaken: quizzes?.length || 0, dueReviews, mistakesPending, mistakesFixed })
 
@@ -276,32 +273,46 @@ export default function ParentDashboardHome() {
         </motion.div>
 
         {/* ── Exam Result card ── */}
-        {/* Exam card — shows live exam before attempt, result after */}
-        {(activeExam || latestExam) && (
+        {/* Live exam nudge */}
+        {activeExam && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
-            style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '20px', padding: '16px 22px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '20px', padding: '16px 22px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '14px' }}>
             <span style={{ fontSize: '22px', flexShrink: 0 }}>📋</span>
             <div style={{ flex: 1 }}>
               <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: 'white' }}>
-                {latestExam ? `${latestExam.term} Exam Result` : `${activeExam?.term} is Live`}
+                {activeExam.term} is Live
               </p>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(255,255,255,0.7)', marginTop: '2px' }}>
-                {latestExam
-                  ? `Attempted on ${new Date(latestExam.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
-                  : `Remind ${child?.full_name?.split(' ')[0] || 'your child'} to take the exam`}
+                Remind {child?.full_name?.split(' ')[0] || 'your child'} to take the exam
               </p>
             </div>
-            {latestExam ? (
-              <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '14px', padding: '8px 16px', textAlign: 'center', flexShrink: 0 }}>
-                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '22px', color: 'white', lineHeight: 1 }}>{latestExam.score}%</p>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>Score</p>
-              </div>
-            ) : (
-              <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '14px', padding: '8px 14px', flexShrink: 0 }}>
-                <span style={{ fontSize: '20px' }}>⏳</span>
-              </div>
-            )}
+            <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '14px', padding: '8px 14px', flexShrink: 0 }}>
+              <span style={{ fontSize: '20px' }}>⏳</span>
+            </div>
           </motion.div>
+        )}
+
+        {/* All exam results */}
+        {examResults.length > 0 && (
+          <div style={{ marginBottom: '20px' }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>Exam Results</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {examResults.map((result, i) => (
+                <div key={i} style={{ background: 'white', borderRadius: '14px', border: '1.5px solid #F1F5F9', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '16px' }}>📋</span>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#1F2937' }}>{result.term}</p>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#94A3B8' }}>
+                      {new Date(result.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </p>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '18px', color: result.score >= 80 ? '#166534' : result.score >= 60 ? '#92400E' : '#991B1B', lineHeight: 1 }}>{result.score}%</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>

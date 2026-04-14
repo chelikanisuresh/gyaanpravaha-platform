@@ -274,6 +274,7 @@ export default function AnimatedDashboardHome({
   const [examActive,    setExamActive]    = useState(false)
   const [examConfig,    setExamConfig]    = useState<any[]>([])
   const [showExam,      setShowExam]      = useState(false)
+  const [examResults,   setExamResults]   = useState<any[]>([])
 
   useEffect(() => {
     const load = async () => {
@@ -389,13 +390,19 @@ export default function AnimatedDashboardHome({
       })
       setDueReviews(due.slice(0, 5))  // max 5 at a time
 
-      // Check if any exam is active
-      const { data: examData } = await supabase
-        .from('exam_config')
-        .select('subject, chapter_ids, is_active, duration_mins, term')
-        .eq('is_active', true)
+      // Check if any exam is active + fetch all past results
+      const [{ data: examData }, { data: examResultsData }] = await Promise.all([
+        supabase.from('exam_config')
+          .select('subject, chapter_ids, is_active, duration_mins, term')
+          .eq('is_active', true),
+        supabase.from('exam_attempts')
+          .select('term, score, total_marks, created_at')
+          .eq('student_id', uid)
+          .order('created_at', { ascending: false }),
+      ])
       setExamConfig(examData ?? [])
       setExamActive((examData ?? []).length > 0)
+      setExamResults(examResultsData ?? [])
 
       setLoaded(true)
     }
@@ -448,6 +455,33 @@ export default function AnimatedDashboardHome({
             <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: 'white' }}>Start →</span>
           </div>
         </motion.div>
+      )}
+
+      {/* ── Past exam results ── */}
+      {examResults.length > 0 && (
+        <div style={{ marginBottom: '20px' }}>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>
+            Exam Results
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {examResults.map((result, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                style={{ background: 'white', borderRadius: '14px', border: '1.5px solid #F1F5F9', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <span style={{ fontSize: '20px', flexShrink: 0 }}>📋</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#1F2937' }}>{result.term}</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>
+                    {new Date(result.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </p>
+                </div>
+                <div style={{ textAlign: 'center', flexShrink: 0 }}>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '20px', color: result.score >= 80 ? '#166534' : result.score >= 60 ? '#92400E' : '#991B1B', lineHeight: 1 }}>{result.score}%</p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#94A3B8', marginTop: '2px' }}>Score</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* ── Spaced Repetition: Review Card — always visible ── */}
