@@ -7,18 +7,20 @@ import StudentSidebarLayout from '@/components/StudentSidebarLayout'
 import StudentDashboardPanel from '@/components/StudentDashboardPanel'
 import DailyActivities from '@/components/DailyActivities'
 import ClassQuestionsWidget from '@/components/ClassQuestionsWidget'
-import { getAllMarChapters } from '@/lib/mar-chapter-content'
-import AnimatedDashboardHome from '@/components/AnimatedDashboardHome'
-import EnglishSubjectPageComponent from '@/components/EnglishSubjectPage'
-import MathsSubjectPageComponent    from '@/components/MathsSubjectPage'
-import ScienceSubjectPageComponent  from '@/components/ScienceSubjectPage'
-import HistorySubjectPageComponent  from '@/components/HistoryCivicsSubjectPage'
-import GeoSubjectPageComponent      from '@/components/GeographySubjectPage'
-import SanskritSubjectPageComponent from '@/components/SanskritSubjectPage'
-import ICTSubjectPageComponent      from '@/components/ICTSubjectPage'
-import MarathiSubjectPageComponent  from '@/components/MarathiSubjectPage'
-import StudentProfilePageComponent  from '@/components/StudentProfilePage'
-import RapidReaderSubjectPageComponent from '@/components/RapidReaderSubjectPage'
+import dynamic from 'next/dynamic'
+
+// Load each subject only when navigated to — saves ~2MB of initial JS
+const AnimatedDashboardHome        = dynamic(() => import('@/components/AnimatedDashboardHome'))
+const EnglishSubjectPageComponent  = dynamic(() => import('@/components/EnglishSubjectPage'))
+const MathsSubjectPageComponent    = dynamic(() => import('@/components/MathsSubjectPage'))
+const ScienceSubjectPageComponent  = dynamic(() => import('@/components/ScienceSubjectPage'))
+const HistorySubjectPageComponent  = dynamic(() => import('@/components/HistoryCivicsSubjectPage'))
+const GeoSubjectPageComponent      = dynamic(() => import('@/components/GeographySubjectPage'))
+const SanskritSubjectPageComponent = dynamic(() => import('@/components/SanskritSubjectPage'))
+const ICTSubjectPageComponent      = dynamic(() => import('@/components/ICTSubjectPage'))
+const MarathiSubjectPageComponent  = dynamic(() => import('@/components/MarathiSubjectPage'))
+const StudentProfilePageComponent  = dynamic(() => import('@/components/StudentProfilePage'))
+const RapidReaderSubjectPageComponent = dynamic(() => import('@/components/RapidReaderSubjectPage'))
 
 // ── Chapter data ─────────────────────────────────────────────────────────────
 
