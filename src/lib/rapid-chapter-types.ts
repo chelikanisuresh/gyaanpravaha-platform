@@ -2,7 +2,7 @@ export interface RapidSection {
   id: number
   title: string
   minReadSeconds: number
-  body: string
+  content: string
 }
 
 export interface RapidChapter {

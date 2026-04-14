@@ -358,12 +358,40 @@ export default function QuizPage() {
     const pct   = Math.round((total / quiz.totalMarks) * 100)
     const { data: { user: quizUser } } = await supabase.auth.getUser()
     const saveId = quizUser?.id || studentId
+
     const { error: saveErr } = await supabase.from('student_quiz_attempts').insert({
       student_id: saveId, chapter_id: chapterId, subject: 'english',
       score: pct, marks_earned: total, total_marks: quiz.totalMarks,
       answers: JSON.stringify(finalAnswers), created_at: new Date().toISOString(),
     })
     if (saveErr) console.error('English quiz save error:', saveErr)
+
+    // Save wrong answers to mistake_journal
+    const wrongAnswers = finalAnswers.filter(a => !a.correct)
+    if (wrongAnswers.length > 0) {
+      const journalEntries = wrongAnswers.map(a => {
+        const q = quiz.questions.find((q: any) => q.id === a.questionId)
+        if (!q) return null
+        return {
+          student_id:     saveId,
+          subject:        'english',
+          chapter_id:     chapterId,
+          question_id:    q.id,
+          question_text:  q.question,
+          question_type:  q.type,
+          wrong_answer:   a.given,
+          correct_answer: q.answer,
+          reexplanation:  q.reexplanation ?? '',
+          section_id:     q.sectionId ?? 4,
+          options:        q.options ? JSON.stringify(q.options) : null,
+          resolved:       false,
+        }
+      }).filter(Boolean)
+      if (journalEntries.length > 0) {
+        await supabase.from('mistake_journal')
+          .upsert(journalEntries, { onConflict: 'student_id,subject,chapter_id,question_id', ignoreDuplicates: false })
+      }
+    }
   }
 
   if (!quiz || !chapter) return (
