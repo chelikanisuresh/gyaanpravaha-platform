@@ -51,7 +51,6 @@ function AdminDashboardInner() {
   const [classQuestions,   setClassQuestions]   = useState<ClassQuestion[]>([])
   const [questionAttempts, setQuestionAttempts] = useState<QuestionAttempt[]>([])
   const [selectedStudent,  setSelectedStudent]  = useState<Student | null>(null)
-  const [activeTab, setActiveTab] = useState<'overview'|'students'|'questions'>('overview')
 
   useEffect(() => {
     const check = async () => {
@@ -108,7 +107,7 @@ function AdminDashboardInner() {
     const studentAvg = studentScores.length ? Math.round(studentScores.reduce((a,b)=>a+b,0)/studentScores.length) : null
 
     return (
-      <AdminLayout adminName={adminName} onTabChange={tab => { setSelectedStudent(null); setActiveTab(tab as any) }} activeTab={activeTab}>
+      <AdminLayout adminName={adminName}>{(activeTab, setActiveTab) => (
         <div style={{ maxWidth: '900px' }}>
           {/* Back + header */}
           <div style={{ display:'flex', alignItems:'center', gap:'16px', marginBottom:'28px' }}>
@@ -199,13 +198,14 @@ function AdminDashboardInner() {
             })}
           </div>
         </div>
-      </AdminLayout>
+    )}
+    </AdminLayout>
     )
   }
 
   // ── Main dashboard ──
   return (
-    <AdminLayout adminName={adminName} onTabChange={tab => setActiveTab(tab as any)} activeTab={activeTab}>
+    <AdminLayout adminName={adminName}>{(activeTab, setActiveTab) => (
       <div style={{ maxWidth:'960px' }}>
 
         {/* Greeting */}
@@ -398,6 +398,7 @@ function AdminDashboardInner() {
           </>
         )}
       </div>
+    )}
     </AdminLayout>
   )
 }
