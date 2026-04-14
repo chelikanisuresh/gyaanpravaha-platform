@@ -215,9 +215,9 @@ export default function HomePage() {
     return () => obs.disconnect()
   }, [])
 
-  const chapters  = useCounter(54,  1200, statsVisible)
-  const sections  = useCounter(378, 1400, statsVisible)
-  const questions = useCounter(864, 1600, statsVisible)
+  const chapters  = useCounter(90,   1200, statsVisible)
+  const sections  = useCounter(630,  1400, statsVisible)
+  const questions = useCounter(1338, 1600, statsVisible)
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--white)', overflowX: 'hidden' }}>
