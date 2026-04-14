@@ -39,7 +39,8 @@ export default function ParentDashboardHome() {
   const [children,    setChildren]    = useState<Child[]>([])
   const [activeChild, setActiveChild] = useState(0)
   const [stats, setStats] = useState({ chaptersCompleted: 0, totalChapters: TOTAL_CHAPTERS, avgScore: null as number | null, quizzesTaken: 0, dueReviews: 0, mistakesPending: 0, mistakesFixed: 0 })
-  const [latestExam, setLatestExam] = useState<any>(null)
+  const [latestExam,  setLatestExam]  = useState<any>(null)
+  const [activeExam,  setActiveExam]  = useState<any>(null)
   const [subjectProgress, setSubjectProgress] = useState<{ key: string; done: number; total: number; avg: number | null }[]>([])
   const [recentActivity, setRecentActivity]   = useState<{ emoji: string; text: string; time: string }[]>([])
   const [loading, setLoading] = useState(true)
@@ -108,15 +109,22 @@ export default function ParentDashboardHome() {
     const mistakesPending = (mistakes ?? []).filter((m: any) => !m.resolved).length
     const mistakesFixed   = (mistakes ?? []).filter((m: any) => m.resolved).length
 
-    // Fetch latest exam attempt
-    const { data: examAttempts } = await supabase
-      .from('exam_attempts')
-      .select('term, score, total_marks, created_at')
-      .eq('student_id', studentId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-    const latestExam = examAttempts?.[0] ?? null
+    // Fetch latest exam attempt + active exam config
+    const [{ data: examAttempts }, { data: examConfigData }] = await Promise.all([
+      supabase.from('exam_attempts')
+        .select('term, score, total_marks, created_at')
+        .eq('student_id', studentId)
+        .order('created_at', { ascending: false })
+        .limit(1),
+      supabase.from('exam_config')
+        .select('term, is_active')
+        .eq('is_active', true)
+        .limit(1),
+    ])
+    const latestExam  = examAttempts?.[0] ?? null
+    const activeExamCfg = examConfigData?.[0] ?? null
     setLatestExam(latestExam)
+    setActiveExam(activeExamCfg)
 
     setStats({ chaptersCompleted: totalDone, totalChapters: TOTAL_CHAPTERS, avgScore, quizzesTaken: quizzes?.length || 0, dueReviews, mistakesPending, mistakesFixed })
 
@@ -268,22 +276,31 @@ export default function ParentDashboardHome() {
         </motion.div>
 
         {/* ── Exam Result card ── */}
-        {latestExam && (
+        {/* Exam card — shows live exam before attempt, result after */}
+        {(activeExam || latestExam) && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
             style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '20px', padding: '16px 22px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
             <span style={{ fontSize: '22px', flexShrink: 0 }}>📋</span>
             <div style={{ flex: 1 }}>
               <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: 'white' }}>
-                {latestExam.term} Exam Result
+                {latestExam ? `${latestExam.term} Exam Result` : `${activeExam?.term} is Live`}
               </p>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(255,255,255,0.7)', marginTop: '2px' }}>
-                Attempted on {new Date(latestExam.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                {latestExam
+                  ? `Attempted on ${new Date(latestExam.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                  : `Remind ${child?.full_name?.split(' ')[0] || 'your child'} to take the exam`}
               </p>
             </div>
-            <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '14px', padding: '8px 16px', textAlign: 'center', flexShrink: 0 }}>
-              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '22px', color: 'white', lineHeight: 1 }}>{latestExam.score}%</p>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>Score</p>
-            </div>
+            {latestExam ? (
+              <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '14px', padding: '8px 16px', textAlign: 'center', flexShrink: 0 }}>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '22px', color: 'white', lineHeight: 1 }}>{latestExam.score}%</p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>Score</p>
+              </div>
+            ) : (
+              <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '14px', padding: '8px 14px', flexShrink: 0 }}>
+                <span style={{ fontSize: '20px' }}>⏳</span>
+              </div>
+            )}
           </motion.div>
         )}
 
