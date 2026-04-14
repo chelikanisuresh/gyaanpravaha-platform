@@ -7,10 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', emoji: '🏠', tab: 'overview',   href: null },
-  { label: 'Students',  emoji: '🎓', tab: 'students',   href: null },
-  { label: 'Questions', emoji: '📝', tab: 'questions',  href: null },
-  { label: 'Writing',   emoji: '✍️',  tab: 'writing',    href: null },
+  { label: 'Dashboard',     emoji: '🏠', tab: 'overview',      href: null },
+  { label: 'Students',      emoji: '🎓', tab: 'students',      href: null },
+  { label: 'Subscriptions', emoji: '💳', tab: 'subscriptions', href: null },
+  { label: 'Invoices',      emoji: '🧾', tab: 'invoices',      href: null },
+  { label: 'Questions',     emoji: '📝', tab: 'questions',     href: null },
+  { label: 'Writing',       emoji: '✍️',  tab: 'writing',       href: null },
 ]
 
 const LOGO = (
