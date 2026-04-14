@@ -154,6 +154,28 @@ function SectionSidebar({
 
 // ── Section content ──────────────────────────────────────────────────────────
 
+function renderEnglishWithHighlight(
+  para: string,
+  activeSentence: string,
+  wordMap?: any
+): React.ReactNode {
+  const norm = (s: string) => s.replace(/\s+/g, ' ').trim()
+  const idx = norm(para).toLowerCase().indexOf(norm(activeSentence).toLowerCase())
+  if (idx === -1) return wordMap ? renderWithTooltips(para, wordMap) : para
+  const before = para.slice(0, idx)
+  const match  = para.slice(idx, idx + activeSentence.length)
+  const after  = para.slice(idx + activeSentence.length)
+  return (
+    <>
+      {before && (wordMap ? renderWithTooltips(before, wordMap) : before)}
+      <mark style={{ background: 'rgba(116,198,157,0.45)', borderRadius: '4px', padding: '1px 2px', color: '#1B4332', fontWeight: 600, boxShadow: '0 0 0 2px rgba(116,198,157,0.3)', transition: 'all 0.3s' }}>
+        {wordMap ? renderWithTooltips(match, wordMap) : match}
+      </mark>
+      {after && (wordMap ? renderWithTooltips(after, wordMap) : after)}
+    </>
+  )
+}
+
 function SectionContent({
   section,
   isLastSection,
@@ -173,7 +195,8 @@ function SectionContent({
   minReadSeconds: number
   wordMap: WordMap
 }) {
-  const [timeBoost, setTimeBoost] = useState(0)
+  const [timeBoost, setTimeBoost]           = useState(0)
+  const [activeSentence, setActiveSentence] = useState('')
   const effectiveElapsed = elapsed + timeBoost
   const readGateMet = !section.minReadSeconds || effectiveElapsed >= section.minReadSeconds
   const timeLeft    = section.minReadSeconds ? Math.max(0, section.minReadSeconds - effectiveElapsed) : 0
@@ -217,6 +240,7 @@ function SectionContent({
           theme={{ primary:'#1B4332', mid:'#2D6A4F', accent:'#74C69D', heroBg:'#F0FDF4', tooltipBg:'#1B4332' }}
           onTimeCredit={(secs) => setTimeBoost(prev => Math.max(prev, secs))}
           minReadSeconds={minReadSeconds}
+          onSentenceChange={setActiveSentence}
         />
       )}
 
@@ -266,7 +290,9 @@ function SectionContent({
           }
           return (
             <p key={i} style={{ fontFamily: 'var(--font-body)', fontSize: '15px', color: '#374151', lineHeight: 1.8, marginBottom: '12px' }}>
-              {useTooltips ? renderWithTooltips(para, wordMap) : para}
+              {activeSentence && para.toLowerCase().includes(activeSentence.slice(0,20).toLowerCase())
+                ? renderEnglishWithHighlight(para, activeSentence, useTooltips ? wordMap : undefined)
+                : useTooltips ? renderWithTooltips(para, wordMap) : para}
             </p>
           )
         })}

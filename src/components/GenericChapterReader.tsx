@@ -59,6 +59,45 @@ function TooltipWord({ word, meaning, theme }: { word: string; meaning: string; 
   )
 }
 
+function renderWithSentenceHighlight(
+  para: string,
+  activeSentence: string,
+  wordMap: Record<string, { meaning: string }>,
+  theme: ReaderTheme
+): React.ReactNode {
+  if (!activeSentence) return renderWithTooltips(para, wordMap, theme)
+  
+  // Normalise for comparison
+  const norm = (s: string) => s.replace(/\s+/g, ' ').trim()
+  const normPara = norm(para)
+  const normSent = norm(activeSentence)
+  
+  const idx = normPara.toLowerCase().indexOf(normSent.toLowerCase())
+  if (idx === -1) return renderWithTooltips(para, wordMap, theme)
+  
+  const before = para.slice(0, idx)
+  const match  = para.slice(idx, idx + normSent.length)
+  const after  = para.slice(idx + normSent.length)
+  
+  return (
+    <>
+      {before && renderWithTooltips(before, wordMap, theme)}
+      <mark style={{
+        background: `${theme.accent}55`,
+        borderRadius: '4px',
+        padding: '1px 2px',
+        color: theme.primary,
+        fontWeight: 600,
+        boxShadow: `0 0 0 2px ${theme.accent}40`,
+        transition: 'all 0.3s',
+      }}>
+        {renderWithTooltips(match, wordMap, theme)}
+      </mark>
+      {after && renderWithTooltips(after, wordMap, theme)}
+    </>
+  )
+}
+
 function renderWithTooltips(text: string, wordMap: Record<string, { meaning: string }>, theme: ReaderTheme): React.ReactNode {
   if (!wordMap || Object.keys(wordMap).length === 0) return text
   const phrases = Object.keys(wordMap).sort((a, b) => b.length - a.length)
@@ -164,13 +203,14 @@ function useVoiceReader(
 
 // ── VoiceReaderPanel ─────────────────────────────────────────────────────────
 export function VoiceReaderPanel({
-  text, wordMap, theme, onTimeCredit, minReadSeconds,
+  text, wordMap, theme, onTimeCredit, minReadSeconds, onSentenceChange,
 }: {
   text: string
   wordMap: Record<string, { meaning: string }>
   theme: ReaderTheme
   onTimeCredit: (seconds: number) => void
   minReadSeconds?: number
+  onSentenceChange?: (sentence: string) => void
 }) {
   const [done, setDone]                 = useState(false)
   const [voices, setVoices]             = useState<SpeechSynthesisVoice[]>([])
@@ -205,13 +245,16 @@ export function VoiceReaderPanel({
     }
   }
 
-  const [currentSentence, setCurrentSentence] = useState('')
   const { isPlaying, currentIdx, sentences, play, pause, resume, stop } =
     useVoiceReader(text, wordMap, selectedVoice, (idx) => {
-      setCurrentSentence(sentences[idx] ?? '')
+      onSentenceChange?.(sentences[idx] ?? '')
     }, handleDone)
 
-  useEffect(() => { setDone(false); creditedRef.current = false }, [text])
+  useEffect(() => {
+    setDone(false)
+    creditedRef.current = false
+    onSentenceChange?.('')
+  }, [text])
 
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null
 
@@ -220,16 +263,9 @@ export function VoiceReaderPanel({
       {/* Main control bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 18px', background: isPlaying ? `${theme.accent}25` : '#F8FAFC', borderRadius: showVoices ? '14px 14px 0 0' : '14px', border: `1.5px solid ${isPlaying ? theme.accent : '#E5E7EB'}`, borderBottom: showVoices ? 'none' : undefined, transition: 'all 0.3s' }}>
         <span style={{ fontSize: '18px' }}>🔊</span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: isPlaying ? theme.primary : '#6B7280' }}>
-            {done ? '✅ Finished! Section unlocked.' : isPlaying ? 'Reading aloud…' : 'Read for me'}
-          </span>
-          {isPlaying && currentSentence && (
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: theme.mid, marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', opacity: 0.7 }}>
-              {currentSentence.length > 80 ? currentSentence.slice(0, 80) + '…' : currentSentence}
-            </p>
-          )}
-        </div>
+        <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: isPlaying ? theme.primary : '#6B7280', flex: 1 }}>
+          {done ? '✅ Finished! Section unlocked.' : isPlaying ? 'Reading aloud…' : 'Read for me'}
+        </span>
 
         {/* Voice selector toggle */}
         {voices.length > 1 && !isPlaying && (
@@ -306,7 +342,8 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
   const [completedSections, setCompletedSections] = useState<Set<number>>(new Set())
   const [showSummary,       setShowSummary]       = useState(false)
   const { elapsed, reset: resetTimer } = useReadTimer(true)
-  const [timeBoost, setTimeBoost] = useState(0)
+  const [timeBoost, setTimeBoost]           = useState(0)
+  const [activeSentence, setActiveSentence] = useState('')
   const effectiveElapsed = elapsed + timeBoost
   const handleVoiceTimeCredit = (seconds: number) => setTimeBoost(prev => Math.max(prev, seconds))
 
@@ -328,7 +365,7 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
     load()
   }, [chapterId, chapter, router, config.subject])
 
-  useEffect(() => { setTimeBoost(0) }, [currentSection])
+  useEffect(() => { setTimeBoost(0); setActiveSentence('') }, [currentSection])
 
   const completeSection = async (sectionId: number) => {
     const supabase = createClient()
@@ -482,13 +519,16 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
                     theme={theme}
                     onTimeCredit={handleVoiceTimeCredit}
                     minReadSeconds={minRead}
+                    onSentenceChange={setActiveSentence}
                   />
                 )}
 
                 <div style={{ background: 'white', borderRadius: '20px', border: '1.5px solid #F1F5F9', padding: '32px', marginBottom: '20px', boxShadow: `0 2px 12px ${theme.primary}08` }}>
                   {currentSec.content.split('\n\n').map((para: string, i: number) => (
                     <p key={i} style={{ fontFamily: 'var(--font-body)', fontSize: '15.5px', color: '#374151', lineHeight: 2, marginBottom: '16px' }}>
-                      {renderWithTooltips(para, wordMap, theme)}
+                      {activeSentence
+                        ? renderWithSentenceHighlight(para, activeSentence, wordMap, theme)
+                        : renderWithTooltips(para, wordMap, theme)}
                     </p>
                   ))}
                 </div>
