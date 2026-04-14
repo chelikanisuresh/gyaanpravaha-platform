@@ -7,6 +7,8 @@ import { createClient } from '@/lib/supabase/client'
 import AdminLayout from '@/components/AdminLayout'
 import QuestionsContent from '@/components/admin-questions-content'
 import WritingContent from '@/components/admin-writing-content'
+import SubscriptionsContent from '@/components/admin-subscriptions-content'
+import InvoicesContent from '@/components/admin-invoices-content'
 import { motion } from 'framer-motion'
 
 interface Student { id: string; full_name: string; email: string; ai_quiz_enabled?: boolean }
@@ -355,6 +357,12 @@ function AdminDashboardInner() {
                 })}
               </div>
             )}
+
+            {/* ── SUBSCRIPTIONS ── */}
+            {activeTab === 'subscriptions' && <SubscriptionsContent/>}
+
+            {/* ── INVOICES ── */}
+            {activeTab === 'invoices' && <InvoicesContent/>}
 
             {/* ── QUESTIONS ── */}
             {activeTab === 'questions' && <QuestionsContent/>}
