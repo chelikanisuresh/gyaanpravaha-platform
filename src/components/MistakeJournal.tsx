@@ -235,7 +235,7 @@ function JournalEntry({
 export default function MistakeJournal({ studentId }: { studentId: string }) {
   const [entries,   setEntries]  = useState<MistakeEntry[]>([])
   const [loading,   setLoading]  = useState(true)
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(true)
 
   useEffect(() => {
     if (!studentId) return
