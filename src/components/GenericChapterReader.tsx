@@ -205,8 +205,11 @@ export function VoiceReaderPanel({
     }
   }
 
+  const [currentSentence, setCurrentSentence] = useState('')
   const { isPlaying, currentIdx, sentences, play, pause, resume, stop } =
-    useVoiceReader(text, wordMap, selectedVoice, (idx) => {}, handleDone)
+    useVoiceReader(text, wordMap, selectedVoice, (idx) => {
+      setCurrentSentence(sentences[idx] ?? '')
+    }, handleDone)
 
   useEffect(() => { setDone(false); creditedRef.current = false }, [text])
 
@@ -217,9 +220,16 @@ export function VoiceReaderPanel({
       {/* Main control bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 18px', background: isPlaying ? `${theme.accent}25` : '#F8FAFC', borderRadius: showVoices ? '14px 14px 0 0' : '14px', border: `1.5px solid ${isPlaying ? theme.accent : '#E5E7EB'}`, borderBottom: showVoices ? 'none' : undefined, transition: 'all 0.3s' }}>
         <span style={{ fontSize: '18px' }}>🔊</span>
-        <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: isPlaying ? theme.primary : '#6B7280', flex: 1 }}>
-          {done ? '✅ Finished! Section unlocked.' : isPlaying ? 'Reading aloud…' : 'Read for me'}
-        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: isPlaying ? theme.primary : '#6B7280' }}>
+            {done ? '✅ Finished! Section unlocked.' : isPlaying ? 'Reading aloud…' : 'Read for me'}
+          </span>
+          {isPlaying && currentSentence && (
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: theme.mid, marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', opacity: 0.7 }}>
+              {currentSentence.length > 80 ? currentSentence.slice(0, 80) + '…' : currentSentence}
+            </p>
+          )}
+        </div>
 
         {/* Voice selector toggle */}
         {voices.length > 1 && !isPlaying && (
@@ -279,21 +289,7 @@ export function VoiceReaderPanel({
         </div>
       )}
 
-      {/* Karaoke text */}
-      {currentIdx >= 0 && sentences.length > 0 && (
-        <div style={{ background: 'white', borderRadius: '12px', border: `1px solid ${theme.accent}40`, padding: '14px 18px', fontSize: '14px', fontFamily: 'var(--font-body)', color: '#374151', lineHeight: 1.8, marginTop: '8px' }}>
-          {sentences.map((s, i) => (
-            <span key={i} style={{
-              background: i === currentIdx ? `${theme.accent}50` : 'transparent',
-              borderRadius: '4px',
-              padding: i === currentIdx ? '1px 3px' : '0',
-              fontWeight: i === currentIdx ? 700 : 400,
-              color: i === currentIdx ? theme.primary : i < currentIdx ? '#94A3B8' : '#374151',
-              transition: 'all 0.3s',
-            }}>{s} </span>
-          ))}
-        </div>
-      )}
+
     </div>
   )
 }
