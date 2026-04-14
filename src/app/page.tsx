@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { TOTAL_CHAPTERS, TOTAL_SECTIONS, SUBJECT_COUNT } from '@/lib/subjects-config'
 import Link from 'next/link'
 
 function useTypingEffect(words: string[], speed = 80, pause = 1800) {
@@ -215,8 +216,8 @@ export default function HomePage() {
     return () => obs.disconnect()
   }, [])
 
-  const chapters  = useCounter(90,   1200, statsVisible)
-  const sections  = useCounter(630,  1400, statsVisible)
+  const chapters  = useCounter(TOTAL_CHAPTERS,  1200, statsVisible)
+  const sections  = useCounter(TOTAL_SECTIONS,   1400, statsVisible)
   const questions = useCounter(1338, 1600, statsVisible)
 
   return (
