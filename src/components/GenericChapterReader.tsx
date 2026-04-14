@@ -71,84 +71,65 @@ function renderWithTooltips(text: string, wordMap: Record<string, { meaning: str
 // ── Main component ────────────────────────────────────────────────────────────
 
 // ── Voice Reader ──────────────────────────────────────────────────────────────
+const FIXED_RATE = 0.75  // locked at child-friendly pace — no speed control exposed
+
 function useVoiceReader(
   text: string,
   wordMap: Record<string, { meaning: string }>,
-  theme: ReaderTheme,
+  selectedVoice: SpeechSynthesisVoice | null,
   onProgress: (sentenceIdx: number) => void,
   onDone: () => void,
 ) {
-  const [isPlaying, setIsPlaying]       = useState(false)
-  const [currentIdx, setCurrentIdx]     = useState(-1)
-  const utterancesRef                   = useRef<SpeechSynthesisUtterance[]>([])
-  const playingRef                      = useRef(false)
-  const idxRef                          = useRef(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentIdx, setCurrentIdx] = useState(-1)
+  const playingRef = useRef(false)
+  const idxRef = useRef(0)
 
-  // Build sentence list — inserting tooltip definitions inline
   const sentences = useMemo(() => {
     const raw = text.replace(/\n\n/g, ' ').replace(/\n/g, ' ')
     const split = raw.match(/[^.!?]+[.!?]+[\s]*/g) || [raw]
     return split.map(s => s.trim()).filter(Boolean)
   }, [text])
 
-  const tooltipPhrases = useMemo(() => {
-    return Object.keys(wordMap).sort((a, b) => b.length - a.length)
-  }, [wordMap])
+  const tooltipPhrases = useMemo(() =>
+    Object.keys(wordMap).sort((a, b) => b.length - a.length), [wordMap])
+
+  const makeUtterance = (txt: string, rate = FIXED_RATE, pitch = 1.05) => {
+    const u = new SpeechSynthesisUtterance(txt)
+    u.rate  = rate
+    u.pitch = pitch
+    u.lang  = 'en-IN'
+    if (selectedVoice) u.voice = selectedVoice
+    return u
+  }
 
   const speakSentence = (idx: number) => {
     if (idx >= sentences.length) {
-      setIsPlaying(false)
-      setCurrentIdx(-1)
-      playingRef.current = false
-      onDone()
-      return
+      setIsPlaying(false); setCurrentIdx(-1); playingRef.current = false; onDone(); return
     }
-    idxRef.current = idx
-    setCurrentIdx(idx)
-    onProgress(idx)
+    idxRef.current = idx; setCurrentIdx(idx); onProgress(idx)
 
-    const sentence = sentences[idx]
-
-    // Check if this sentence contains a tooltip word
-    const foundPhrase = tooltipPhrases.find(phrase =>
-      sentence.toLowerCase().includes(phrase.toLowerCase())
-    )
-
-    const speakNext = () => {
-      if (!playingRef.current) return
-      speakSentence(idx + 1)
-    }
+    const sentence   = sentences[idx]
+    const foundPhrase = tooltipPhrases.find(p => sentence.toLowerCase().includes(p.toLowerCase()))
+    const speakNext  = () => { if (playingRef.current) speakSentence(idx + 1) }
 
     if (foundPhrase && wordMap[foundPhrase]) {
-      // Speak sentence, then pause and explain the word
-      const u1 = new SpeechSynthesisUtterance(sentence)
-      u1.rate = 0.88
-      u1.pitch = 1.05
-      u1.lang = 'en-IN'
+      const u1 = makeUtterance(sentence)
       u1.onend = () => {
         if (!playingRef.current) return
-        // Brief pause then explain
-        const pause = new SpeechSynthesisUtterance('...')
-        pause.volume = 0
-        pause.rate = 2
-        pause.onend = () => {
+        const silent = makeUtterance('...')
+        silent.volume = 0; silent.rate = 2
+        silent.onend = () => {
           if (!playingRef.current) return
-          const explanation = `The word ${foundPhrase} means — ${wordMap[foundPhrase].meaning}`
-          const u2 = new SpeechSynthesisUtterance(explanation)
-          u2.rate = 0.82
-          u2.pitch = 0.95
-          u2.lang = 'en-IN'
+          const u2 = makeUtterance(`The word ${foundPhrase} means — ${wordMap[foundPhrase].meaning}`, 0.72, 0.95)
           u2.onend = speakNext
           window.speechSynthesis.speak(u2)
         }
-        window.speechSynthesis.speak(pause)
+        window.speechSynthesis.speak(silent)
       }
       window.speechSynthesis.speak(u1)
     } else {
-      const u = new SpeechSynthesisUtterance(sentence)
-      u.rate = 0.88
-      u.pitch = 1.05
-      u.lang = 'en-IN'
+      const u = makeUtterance(sentence)
       u.onend = speakNext
       window.speechSynthesis.speak(u)
     }
@@ -157,86 +138,98 @@ function useVoiceReader(
   const play = () => {
     if (!('speechSynthesis' in window)) return
     window.speechSynthesis.cancel()
-    playingRef.current = true
-    setIsPlaying(true)
-    speakSentence(0)
+    playingRef.current = true; setIsPlaying(true); speakSentence(0)
   }
 
   const pause = () => {
-    playingRef.current = false
-    setIsPlaying(false)
-    window.speechSynthesis.pause()
+    playingRef.current = false; setIsPlaying(false); window.speechSynthesis.pause()
   }
 
   const resume = () => {
-    playingRef.current = true
-    setIsPlaying(true)
-    window.speechSynthesis.resume()
-    if (window.speechSynthesis.paused) {
-      // already paused — resume native
-    } else {
-      // was cancelled — restart from current sentence
-      speakSentence(idxRef.current)
-    }
+    playingRef.current = true; setIsPlaying(true)
+    if (window.speechSynthesis.paused) { window.speechSynthesis.resume() }
+    else { speakSentence(idxRef.current) }
   }
 
   const stop = () => {
-    playingRef.current = false
-    setIsPlaying(false)
-    setCurrentIdx(-1)
+    playingRef.current = false; setIsPlaying(false); setCurrentIdx(-1)
     window.speechSynthesis.cancel()
   }
 
-  // Cancel on unmount
-  useEffect(() => {
-    return () => { window.speechSynthesis.cancel(); playingRef.current = false }
-  }, [])
-
-  // Cancel when text changes (new section)
-  useEffect(() => {
-    stop()
-  }, [text])
+  useEffect(() => () => { window.speechSynthesis.cancel(); playingRef.current = false }, [])
+  useEffect(() => { stop() }, [text])
 
   return { isPlaying, currentIdx, sentences, play, pause, resume, stop }
 }
 
 // ── VoiceReaderPanel ─────────────────────────────────────────────────────────
 export function VoiceReaderPanel({
-  text, wordMap, theme, onTimeCredit,
+  text, wordMap, theme, onTimeCredit, minReadSeconds,
 }: {
   text: string
   wordMap: Record<string, { meaning: string }>
   theme: ReaderTheme
   onTimeCredit: (seconds: number) => void
+  minReadSeconds?: number
 }) {
-  const [highlightIdx, setHighlightIdx] = useState(-1)
   const [done, setDone]                 = useState(false)
+  const [voices, setVoices]             = useState<SpeechSynthesisVoice[]>([])
+  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null)
+  const [showVoices, setShowVoices]     = useState(false)
   const creditedRef                     = useRef(false)
+
+  // Load available voices
+  useEffect(() => {
+    const load = () => {
+      const all = window.speechSynthesis.getVoices()
+      // Prefer English voices, sorted with Indian English first
+      const eng = all.filter(v => v.lang.startsWith('en'))
+      const sorted = [
+        ...eng.filter(v => v.lang === 'en-IN'),
+        ...eng.filter(v => v.lang === 'en-GB'),
+        ...eng.filter(v => v.lang === 'en-US'),
+        ...eng.filter(v => !['en-IN','en-GB','en-US'].includes(v.lang)),
+      ]
+      setVoices(sorted)
+      if (!selectedVoice && sorted.length > 0) setSelectedVoice(sorted[0])
+    }
+    load()
+    window.speechSynthesis.onvoiceschanged = load
+  }, [])
 
   const handleDone = () => {
     setDone(true)
     if (!creditedRef.current) {
       creditedRef.current = true
-      // Credit full minReadSeconds when audio finishes
-      onTimeCredit(600) // generous credit — they listened through the whole section
+      // Credit exactly minReadSeconds when audio finishes — unlocks the section
+      onTimeCredit(minReadSeconds ?? 600)
     }
   }
 
   const { isPlaying, currentIdx, sentences, play, pause, resume, stop } =
-    useVoiceReader(text, wordMap, theme, setHighlightIdx, handleDone)
+    useVoiceReader(text, wordMap, selectedVoice, (idx) => {}, handleDone)
 
   useEffect(() => { setDone(false); creditedRef.current = false }, [text])
 
-  if (!('speechSynthesis' in window) && typeof window !== 'undefined') return null
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null
 
   return (
     <div style={{ marginBottom: '16px' }}>
-      {/* Control bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 18px', background: isPlaying ? `${theme.accent}25` : '#F8FAFC', borderRadius: '14px', border: `1.5px solid ${isPlaying ? theme.accent : '#E5E7EB'}`, transition: 'all 0.3s', marginBottom: currentIdx >= 0 ? '12px' : '0' }}>
+      {/* Main control bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 18px', background: isPlaying ? `${theme.accent}25` : '#F8FAFC', borderRadius: showVoices ? '14px 14px 0 0' : '14px', border: `1.5px solid ${isPlaying ? theme.accent : '#E5E7EB'}`, borderBottom: showVoices ? 'none' : undefined, transition: 'all 0.3s' }}>
         <span style={{ fontSize: '18px' }}>🔊</span>
         <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: isPlaying ? theme.primary : '#6B7280', flex: 1 }}>
-          {done ? '✅ Finished! Section unlocked.' : isPlaying ? 'Reading aloud…' : 'Read for me'}
+          {done ? '✅ Finished! Section unlocked.' : isPlaying ? 'Reading aloud at 0.75× pace…' : 'Read for me'}
         </span>
+
+        {/* Voice selector toggle */}
+        {voices.length > 1 && !isPlaying && (
+          <button onClick={() => setShowVoices(v => !v)}
+            style={{ background: showVoices ? `${theme.accent}30` : '#F1F5F9', color: theme.primary, border: `1px solid ${showVoices ? theme.accent : '#E5E7EB'}`, borderRadius: '8px', padding: '6px 12px', fontFamily: 'var(--font-body)', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            🎙 Voice {showVoices ? '▲' : '▼'}
+          </button>
+        )}
+
         {!isPlaying && !done && (
           <button onClick={play}
             style={{ background: `linear-gradient(135deg,${theme.primary},${theme.mid})`, color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -269,9 +262,27 @@ export function VoiceReaderPanel({
         )}
       </div>
 
-      {/* Karaoke text — only shown while playing */}
+      {/* Voice selector dropdown */}
+      {showVoices && voices.length > 0 && (
+        <div style={{ background: 'white', border: `1.5px solid ${theme.accent}`, borderTop: 'none', borderRadius: '0 0 14px 14px', padding: '10px 14px', maxHeight: '160px', overflowY: 'auto' }}>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Select voice</p>
+          {voices.map((v, i) => (
+            <button key={i} onClick={() => { setSelectedVoice(v); setShowVoices(false) }}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '7px 10px', borderRadius: '8px', border: 'none', background: selectedVoice?.name === v.name ? `${theme.accent}25` : 'transparent', cursor: 'pointer', textAlign: 'left', marginBottom: '2px' }}>
+              <span style={{ fontSize: '14px' }}>{v.lang === 'en-IN' ? '🇮🇳' : v.lang === 'en-GB' ? '🇬🇧' : v.lang === 'en-US' ? '🇺🇸' : '🔊'}</span>
+              <div>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '12px', color: theme.primary }}>{v.name}</p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#9CA3AF' }}>{v.lang} · {v.localService ? 'On-device' : 'Online'}</p>
+              </div>
+              {selectedVoice?.name === v.name && <span style={{ marginLeft: 'auto', color: theme.primary, fontSize: '14px' }}>✓</span>}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Karaoke text */}
       {currentIdx >= 0 && sentences.length > 0 && (
-        <div style={{ background: 'white', borderRadius: '12px', border: `1px solid ${theme.accent}40`, padding: '14px 18px', fontSize: '14px', fontFamily: 'var(--font-body)', color: '#374151', lineHeight: 1.8 }}>
+        <div style={{ background: 'white', borderRadius: '12px', border: `1px solid ${theme.accent}40`, padding: '14px 18px', fontSize: '14px', fontFamily: 'var(--font-body)', color: '#374151', lineHeight: 1.8, marginTop: '8px' }}>
           {sentences.map((s, i) => (
             <span key={i} style={{
               background: i === currentIdx ? `${theme.accent}50` : 'transparent',
@@ -475,6 +486,7 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
                     wordMap={wordMap}
                     theme={theme}
                     onTimeCredit={handleVoiceTimeCredit}
+                    minReadSeconds={minRead}
                   />
                 )}
 

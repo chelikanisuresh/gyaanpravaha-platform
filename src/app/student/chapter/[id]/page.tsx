@@ -216,6 +216,7 @@ function SectionContent({
           wordMap={wordMap as any}
           theme={{ primary:'#1B4332', mid:'#2D6A4F', accent:'#74C69D', heroBg:'#F0FDF4', tooltipBg:'#1B4332' }}
           onTimeCredit={(secs) => setTimeBoost(prev => Math.max(prev, secs))}
+          minReadSeconds={minReadSeconds}
         />
       )}
 
