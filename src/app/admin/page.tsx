@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import AdminLayout from '@/components/AdminLayout'
 import { motion } from 'framer-motion'
 
-interface Student { id: string; full_name: string; email: string }
+interface Student { id: string; full_name: string; email: string; ai_quiz_enabled?: boolean }
 interface LessonProgress { student_id: string; subject: string; chapter_id: number }
 interface QuizAttempt { student_id: string; subject: string; chapter_id: number; score: number; created_at: string }
 interface ClassQuestion { id: string; subject: string; chapter_title: string; question: string; is_active: boolean; created_at: string }
@@ -71,7 +71,7 @@ export default function AdminDashboard() {
     setLoading(true)
     const supabase = createClient()
     const [{ data: s }, { data: p }, { data: q }, { data: cq }, { data: qa }] = await Promise.all([
-      supabase.from('profiles').select('id, full_name, email').eq('role', 'student').order('full_name'),
+      supabase.from('profiles').select('id, full_name, email, ai_quiz_enabled').eq('role', 'student').order('full_name'),
       supabase.from('student_lesson_progress').select('student_id, subject, chapter_id'),
       supabase.from('student_quiz_attempts').select('student_id, subject, chapter_id, score, created_at').order('created_at', { ascending: false }),
       supabase.from('class_questions').select('id, subject, chapter_title, question, is_active, created_at').order('created_at', { ascending: false }),
@@ -125,7 +125,26 @@ export default function AdminDashboard() {
                 <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'#94A3B8' }}>{selectedStudent.email}</p>
               </div>
             </div>
-            <div style={{ marginLeft:'auto', display:'flex', gap:'12px' }}>
+            <div style={{ marginLeft:'auto', display:'flex', gap:'12px', alignItems:'center' }}>
+              {/* AI Quiz toggle */}
+              <button
+                onClick={async () => {
+                  const supabase = createClient()
+                  const newVal = !selectedStudent.ai_quiz_enabled
+                  await supabase.from('profiles').update({ ai_quiz_enabled: newVal }).eq('id', selectedStudent.id)
+                  setSelectedStudent({ ...selectedStudent, ai_quiz_enabled: newVal })
+                  setStudents(prev => prev.map(s => s.id === selectedStudent.id ? { ...s, ai_quiz_enabled: newVal } : s))
+                }}
+                style={{ display:'flex', alignItems:'center', gap:'8px', padding:'10px 16px', borderRadius:'12px', border:`2px solid ${selectedStudent.ai_quiz_enabled ? '#7C3AED' : '#E5E7EB'}`, background: selectedStudent.ai_quiz_enabled ? '#F5F3FF' : 'white', cursor:'pointer', transition:'all 0.2s' }}>
+                <span style={{ fontSize:'16px' }}>✨</span>
+                <div style={{ textAlign:'left' }}>
+                  <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', color: selectedStudent.ai_quiz_enabled ? '#7C3AED' : '#94A3B8', lineHeight:1 }}>AI Quiz</p>
+                  <p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color: selectedStudent.ai_quiz_enabled ? '#6D28D9' : '#CBD5E1', marginTop:'2px' }}>{selectedStudent.ai_quiz_enabled ? 'Enabled' : 'Disabled'}</p>
+                </div>
+                <div style={{ width:'32px', height:'18px', borderRadius:'9px', background: selectedStudent.ai_quiz_enabled ? '#7C3AED' : '#E5E7EB', position:'relative', transition:'all 0.2s', flexShrink:0 }}>
+                  <div style={{ position:'absolute', top:'3px', left: selectedStudent.ai_quiz_enabled ? '17px' : '3px', width:'12px', height:'12px', borderRadius:'50%', background:'white', transition:'all 0.2s', boxShadow:'0 1px 3px rgba(0,0,0,0.2)' }}/>
+                </div>
+              </button>
               <div style={{ background:'#EEF2FF', borderRadius:'12px', padding:'10px 16px', textAlign:'center' }}>
                 <p style={{ fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'20px', color:'#4338CA', lineHeight:1 }}>{totalDone}</p>
                 <p style={{ fontFamily:'var(--font-body)', fontSize:'11px', color:'#818CF8', marginTop:'2px' }}>Chapters</p>

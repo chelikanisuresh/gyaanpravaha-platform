@@ -5,6 +5,28 @@ import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { motion, AnimatePresence } from 'framer-motion'
 
+// ── Shuffle utility ──────────────────────────────────────────────────────────
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+function shuffleQuiz(questions: any[]): any[] {
+  // Shuffle question order
+  const shuffled = shuffleArray(questions)
+  // Shuffle MCQ options within each question
+  return shuffled.map(q => {
+    if (q.type === 'mcq' && q.options) {
+      return { ...q, options: shuffleArray(q.options) }
+    }
+    return q
+  })
+}
+
 export interface QuizTheme {
   primary: string; mid: string; accent: string; heroBg: string
 }
@@ -50,7 +72,7 @@ const OPT_COLORS = ['#EEF2FF','#F0FDF4','#FFF7ED','#FDF4FF']
 const OPT_BORDERS = ['#C7D2FE','#BBF7D0','#FED7AA','#E9D5FF']
 const OPT_TEXT   = ['#3730A3','#166534','#9A3412','#7E22CE']
 
-function IntroScreen({ chapter, quiz, theme, onStart }: { chapter: any; quiz: any; theme: QuizTheme; onStart: () => void }) {
+function IntroScreen({ chapter, quiz, theme, onStart, attemptCount, aiEnabled }: { chapter: any; quiz: any; theme: QuizTheme; onStart: () => void; attemptCount?: number; aiEnabled?: boolean }) {
   return (
     <div style={{ maxWidth: '540px', margin: '48px auto', padding: '0 24px', textAlign: 'center' }}>
       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200 }}
@@ -276,6 +298,9 @@ export default function GenericQuizPage({ config }: { config: QuizConfig }) {
   const [answers,         setAnswers]         = useState<Answer[]>([])
   const [currentFeedback, setCurrentFeedback] = useState<{ given: string; correct: boolean; marksEarned: number } | null>(null)
   const [studentId,       setStudentId]       = useState('')
+  const [aiQuizEnabled,   setAiQuizEnabled]   = useState(false)
+  const [attemptCount,    setAttemptCount]    = useState(0)
+  const [activeQuestions, setActiveQuestions] = useState<any[]>([])
 
   useEffect(() => {
     const init = async () => {
@@ -283,9 +308,25 @@ export default function GenericQuizPage({ config }: { config: QuizConfig }) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
       setStudentId(user.id)
+
+      // Check attempt count and AI quiz flag
+      const [{ data: attempts }, { data: profile }] = await Promise.all([
+        supabase.from('student_quiz_attempts')
+          .select('id', { count: 'exact' })
+          .eq('student_id', user.id)
+          .eq('chapter_id', chapterId)
+          .eq('subject', config.subject),
+        supabase.from('profiles')
+          .select('ai_quiz_enabled')
+          .eq('id', user.id)
+          .maybeSingle(),
+      ])
+      const count = attempts?.length ?? 0
+      setAttemptCount(count)
+      setAiQuizEnabled(profile?.ai_quiz_enabled ?? false)
     }
     init()
-  }, [router])
+  }, [router, chapterId, config.subject])
 
   if (!quiz || !chapter) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
@@ -293,7 +334,8 @@ export default function GenericQuizPage({ config }: { config: QuizConfig }) {
     </div>
   )
 
-  const questions = quiz.questions
+  // Use activeQuestions if set (AI-generated or shuffled), else shuffle the static bank
+  const questions = activeQuestions.length > 0 ? activeQuestions : shuffleQuiz(quiz.questions)
   const currentQ  = questions[questionIdx]
   const isLast    = questionIdx === questions.length - 1
   const score     = answers.reduce((s, a) => s + a.marksEarned, 0)
@@ -352,10 +394,63 @@ export default function GenericQuizPage({ config }: { config: QuizConfig }) {
       <style>{`* { box-sizing: border-box; } textarea, input { font-family: var(--font-body) !important; }`}</style>
       <TopBar/>
       <AnimatePresence mode="wait">
-        {phase === 'intro'    && <motion.div key="intro"   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><IntroScreen chapter={chapter} quiz={quiz} theme={config.theme} onStart={() => setPhase('question')}/></motion.div>}
+        {phase === 'intro'    && <motion.div key="intro"   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><IntroScreen chapter={chapter} quiz={quiz} theme={config.theme} attemptCount={attemptCount} aiEnabled={aiQuizEnabled} onStart={async () => {
+          // On 2nd+ attempt with AI enabled — generate fresh questions
+          if (attemptCount >= 1 && aiQuizEnabled && chapter) {
+            setPhase('loading' as any)
+            try {
+              const chapterContent = config.getChapterFn(chapterId)
+              const prompt = `You are a school quiz generator for Class 6 students aged 10-13 in India.
+Based on this chapter titled "${chapter.title}", generate a quiz with exactly these question types:
+- 5 MCQ questions (type: mcq) with 4 options each — label options A, B, C, D
+- 5 single word/short answer questions (type: single_word)
+- 3 sentence forming questions (type: sentence) 
+- 1 long answer question (type: long_answer, minimum 60 words)
+
+Chapter content summary for context: ${chapterContent ? JSON.stringify(chapterContent).slice(0, 2000) : 'No content available'}
+
+Return ONLY a JSON array of question objects. Each object must have:
+- id (number)
+- type (mcq/single_word/sentence/long_answer)
+- marks (1 for mcq/single_word, 2 for sentence, 5 for long_answer)
+- question (string)
+- options (array of {label, text} — only for mcq)
+- answer (string — correct answer or model answer)
+- hint (string — optional, for sentence/long_answer)
+- reexplanation (string — brief explanation of the answer)
+
+Make questions different from the standard ones. Be creative but curriculum-aligned. Return only the JSON array, no other text.`
+
+              const response = await fetch('/api/generate-quiz', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, subject: config.subject, chapterId }),
+              })
+              if (response.ok) {
+                const data = await response.json()
+                if (data.questions?.length > 0) {
+                  setActiveQuestions(shuffleQuiz(data.questions))
+                }
+              }
+            } catch (e) {
+              console.error('AI quiz generation failed, using shuffled static quiz', e)
+            }
+            setPhase('question')
+          } else {
+            setPhase('question')
+          }
+        }}/></motion.div>}
+        {(phase as string) === 'loading' && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '16px' }}>
+            <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+              style={{ width: '32px', height: '32px', borderRadius: '50%', border: `3px solid ${config.theme.accent}`, borderTopColor: config.theme.primary }}/>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '15px', color: config.theme.primary }}>Generating fresh questions…</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#94A3B8' }}>This takes a few seconds</p>
+          </div>
+        )}
         {phase === 'question' && currentQ && <motion.div key={`q-${questionIdx}`} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}><QuestionCard question={currentQ} onSubmit={handleSubmit} theme={config.theme}/></motion.div>}
         {phase === 'feedback' && currentQ && currentFeedback && <motion.div key={`f-${questionIdx}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><FeedbackCard question={currentQ} given={currentFeedback.given} correct={currentFeedback.correct} marksEarned={currentFeedback.marksEarned} onNext={handleNext} isLast={isLast} theme={config.theme}/></motion.div>}
-        {phase === 'results'  && <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><ResultsScreen chapterId={chapterId} chapter={chapter} answers={answers} quiz={quiz} theme={config.theme} config={config} onRetry={() => { setPhase('intro'); setQuestionIdx(0); setAnswers([]); setCurrentFeedback(null) }} onBack={() => router.push(`/student/dashboard?section=${config.dashboardSection}`)}/></motion.div>}
+        {phase === 'results'  && <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><ResultsScreen chapterId={chapterId} chapter={chapter} answers={answers} quiz={quiz} theme={config.theme} config={config} onRetry={() => { setPhase('intro'); setQuestionIdx(0); setAnswers([]); setCurrentFeedback(null); setActiveQuestions([]) }} onBack={() => router.push(`/student/dashboard?section=${config.dashboardSection}`)}/></motion.div>}
       </AnimatePresence>
     </div>
   )
