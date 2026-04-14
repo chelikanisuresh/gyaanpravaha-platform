@@ -403,7 +403,6 @@ export default function AnimatedDashboardHome({
       setExamConfig(examData ?? [])
       setExamActive((examData ?? []).length > 0)
       setExamResults(examResultsData ?? [])
-      console.log('[Exam] examData:', examData, 'active:', (examData ?? []).length > 0)
 
       setLoaded(true)
     }
@@ -445,7 +444,7 @@ export default function AnimatedDashboardHome({
         </div>
       )}
       {loaded && examActive && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+        <div
           style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '20px', padding: '20px 24px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', boxShadow: '0 4px 20px rgba(27,67,50,0.25)' }}
           onClick={() => setShowExam(true)}>
           <span style={{ fontSize: '28px', flexShrink: 0 }}>📋</span>
@@ -460,7 +459,7 @@ export default function AnimatedDashboardHome({
           <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '12px', padding: '10px 18px', flexShrink: 0 }}>
             <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: 'white' }}>Start →</span>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* ── Past exam results ── */}
