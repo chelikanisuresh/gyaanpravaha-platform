@@ -108,7 +108,7 @@ function AdminDashboardInner() {
     const studentAvg = studentScores.length ? Math.round(studentScores.reduce((a,b)=>a+b,0)/studentScores.length) : null
 
     return (
-      <AdminLayout adminName={adminName}>
+      <AdminLayout adminName={adminName} onTabChange={tab => { setSelectedStudent(null); setActiveTab(tab as any) }} activeTab={activeTab}>
         <div style={{ maxWidth: '900px' }}>
           {/* Back + header */}
           <div style={{ display:'flex', alignItems:'center', gap:'16px', marginBottom:'28px' }}>
@@ -205,7 +205,7 @@ function AdminDashboardInner() {
 
   // ── Main dashboard ──
   return (
-    <AdminLayout adminName={adminName}>
+    <AdminLayout adminName={adminName} onTabChange={tab => setActiveTab(tab as any)} activeTab={activeTab}>
       <div style={{ maxWidth:'960px' }}>
 
         {/* Greeting */}
