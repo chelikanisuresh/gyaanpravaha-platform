@@ -38,7 +38,7 @@ export default function ParentDashboardHome() {
   const [parentName,  setParentName]  = useState('Parent')
   const [children,    setChildren]    = useState<Child[]>([])
   const [activeChild, setActiveChild] = useState(0)
-  const [stats, setStats] = useState({ chaptersCompleted: 0, totalChapters: TOTAL_CHAPTERS, avgScore: null as number | null, quizzesTaken: 0, dueReviews: 0 })
+  const [stats, setStats] = useState({ chaptersCompleted: 0, totalChapters: TOTAL_CHAPTERS, avgScore: null as number | null, quizzesTaken: 0, dueReviews: 0, mistakesPending: 0, mistakesFixed: 0 })
   const [subjectProgress, setSubjectProgress] = useState<{ key: string; done: number; total: number; avg: number | null }[]>([])
   const [recentActivity, setRecentActivity]   = useState<{ emoji: string; text: string; time: string }[]>([])
   const [loading, setLoading] = useState(true)
@@ -99,7 +99,15 @@ export default function ParentDashboardHome() {
       if (!latestByChapter[key] || d > latestByChapter[key]) latestByChapter[key] = d
     })
     const dueReviews = Object.values(latestByChapter).filter(d => d <= sevenDaysAgo).length
-    setStats({ chaptersCompleted: totalDone, totalChapters: TOTAL_CHAPTERS, avgScore, quizzesTaken: quizzes?.length || 0, dueReviews })
+    // Fetch mistake journal counts
+    const { data: mistakes } = await supabase
+      .from('mistake_journal')
+      .select('resolved')
+      .eq('student_id', studentId)
+    const mistakesPending = (mistakes ?? []).filter((m: any) => !m.resolved).length
+    const mistakesFixed   = (mistakes ?? []).filter((m: any) => m.resolved).length
+
+    setStats({ chaptersCompleted: totalDone, totalChapters: TOTAL_CHAPTERS, avgScore, quizzesTaken: quizzes?.length || 0, dueReviews, mistakesPending, mistakesFixed })
 
     // Build recent activity
     const activity: { emoji: string; text: string; time: string }[] = []
@@ -194,6 +202,36 @@ export default function ParentDashboardHome() {
             </svg>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '4px' }}>Overall</p>
           </div>
+        </motion.div>
+
+        {/* ── Mistake Journal card ── */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+          style={{ background: 'white', borderRadius: '20px', border: `1.5px solid ${stats.mistakesPending > 0 ? '#FCA5A5' : '#D8F3DC'}`, padding: '16px 22px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <span style={{ fontSize: '22px' }}>📝</span>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: stats.mistakesPending > 0 ? '#991B1B' : '#1B4332' }}>
+              Mistake Journal
+            </p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: stats.mistakesPending > 0 ? '#DC2626' : '#52B788', marginTop: '2px' }}>
+              {loading ? 'Checking…' : stats.mistakesPending > 0
+                ? `${stats.mistakesPending} question${stats.mistakesPending > 1 ? 's' : ''} pending · ${stats.mistakesFixed} fixed so far`
+                : `All mistakes cleared ✅${stats.mistakesFixed > 0 ? ` · ${stats.mistakesFixed} fixed` : ''}`}
+            </p>
+          </div>
+          {!loading && stats.mistakesPending > 0 && (
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+              <div style={{ background: '#FEE2E2', border: '1.5px solid #FCA5A5', borderRadius: '20px', padding: '4px 12px', textAlign: 'center' }}>
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '16px', color: '#991B1B' }}>{stats.mistakesPending}</span>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#DC2626', marginLeft: '3px' }}>pending</span>
+              </div>
+              {stats.mistakesFixed > 0 && (
+                <div style={{ background: '#D1FAE5', border: '1.5px solid #6EE7B7', borderRadius: '20px', padding: '4px 12px', textAlign: 'center' }}>
+                  <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '16px', color: '#065F46' }}>{stats.mistakesFixed}</span>
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: '#059669', marginLeft: '3px' }}>fixed</span>
+                </div>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* ── Chapter Reviews card ── */}

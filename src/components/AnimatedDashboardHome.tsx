@@ -7,6 +7,7 @@ import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motio
 import DailyActivities from '@/components/DailyActivities'
 import StudentDashboardPanel from '@/components/StudentDashboardPanel'
 import { PLATFORM_SUBJECTS, TOTAL_CHAPTERS } from '@/lib/subjects-config'
+import MistakeJournal from '@/components/MistakeJournal'
 
 // ── Animated counter ──────────────────────────────────────────────────────────
 function AnimatedNumber({ target, suffix = '' }: { target: number; suffix?: string }) {
@@ -451,6 +452,9 @@ export default function AnimatedDashboardHome({
           )}
         </motion.div>
       )}
+
+      {/* ── Mistake Journal ── */}
+      {loaded && studentId && <MistakeJournal studentId={studentId}/>}
 
       {/* Subject grid */}
       <motion.p
