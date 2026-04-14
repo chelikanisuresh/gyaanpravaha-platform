@@ -8,6 +8,7 @@ import DailyActivities from '@/components/DailyActivities'
 import StudentDashboardPanel from '@/components/StudentDashboardPanel'
 import { PLATFORM_SUBJECTS, TOTAL_CHAPTERS } from '@/lib/subjects-config'
 import MistakeJournal from '@/components/MistakeJournal'
+import ExamMode from '@/components/ExamMode'
 
 // ── Animated counter ──────────────────────────────────────────────────────────
 function AnimatedNumber({ target, suffix = '' }: { target: number; suffix?: string }) {
@@ -270,6 +271,9 @@ export default function AnimatedDashboardHome({
   const [loaded,        setLoaded]        = useState(false)
   const [streak,        setStreak]        = useState(0)
   const [dueReviews,    setDueReviews]    = useState<any[]>([])
+  const [examActive,    setExamActive]    = useState(false)
+  const [examConfig,    setExamConfig]    = useState<any[]>([])
+  const [showExam,      setShowExam]      = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -385,6 +389,14 @@ export default function AnimatedDashboardHome({
       })
       setDueReviews(due.slice(0, 5))  // max 5 at a time
 
+      // Check if any exam is active
+      const { data: examData } = await supabase
+        .from('exam_config')
+        .select('subject, chapter_ids, is_active, duration_mins, term')
+        .eq('is_active', true)
+      setExamConfig(examData ?? [])
+      setExamActive((examData ?? []).length > 0)
+
       setLoaded(true)
     }
 
@@ -404,6 +416,39 @@ export default function AnimatedDashboardHome({
       <GreetingBanner name={name} totalCompleted={totalCompleted} totalChapters={totalChapters}/>
 
       <StatsRow totalCompleted={totalCompleted} avgScore={avgScore} streak={streak}/>
+
+      {/* ── Exam Mode overlay ── */}
+      {showExam && (
+        <div style={{ position: 'fixed', inset: 0, background: '#F8FAFF', zIndex: 100, overflowY: 'auto' }}>
+          <div style={{ maxWidth: '680px', margin: '0 auto', padding: '24px' }}>
+            <button onClick={() => setShowExam(false)}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'white', border: '1.5px solid #E5E7EB', borderRadius: '10px', padding: '8px 14px', fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '13px', color: '#64748B', cursor: 'pointer', marginBottom: '20px' }}>
+              ← Back to Dashboard
+            </button>
+            <ExamMode studentId={studentId} onClose={() => setShowExam(false)}/>
+          </div>
+        </div>
+      )}
+
+      {/* ── Exam Mode card ── */}
+      {loaded && examActive && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+          style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '20px', padding: '20px 24px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', boxShadow: '0 4px 20px rgba(27,67,50,0.25)' }}
+          onClick={() => setShowExam(true)}>
+          <span style={{ fontSize: '28px', flexShrink: 0 }}>📋</span>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '15px', color: 'white', marginBottom: '3px' }}>
+              {examConfig[0]?.term ?? 'Term'} Exam is Live!
+            </p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.75)' }}>
+              Tap to start your exam — {examConfig.length} subject{examConfig.length > 1 ? 's' : ''} · {Math.max(...examConfig.map((c: any) => c.duration_mins))} minutes
+            </p>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '12px', padding: '10px 18px', flexShrink: 0 }}>
+            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '14px', color: 'white' }}>Start →</span>
+          </div>
+        </motion.div>
+      )}
 
       {/* ── Spaced Repetition: Review Card — always visible ── */}
       {loaded && (

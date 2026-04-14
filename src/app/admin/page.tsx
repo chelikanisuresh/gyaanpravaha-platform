@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import AdminLayout from '@/components/AdminLayout'
 import QuestionsContent from '@/components/admin-questions-content'
 import WritingContent from '@/components/admin-writing-content'
+import ExamContent from '@/components/admin-exam-content'
 import SubscriptionsContent from '@/components/admin-subscriptions-content'
 import InvoicesContent from '@/components/admin-invoices-content'
 import { motion } from 'framer-motion'
@@ -357,6 +358,9 @@ function AdminDashboardInner() {
                 })}
               </div>
             )}
+
+            {/* ── EXAM MODE ── */}
+            {activeTab === 'exam' && <ExamContent/>}
 
             {/* ── SUBSCRIPTIONS ── */}
             {activeTab === 'subscriptions' && <SubscriptionsContent/>}

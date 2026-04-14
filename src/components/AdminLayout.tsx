@@ -9,6 +9,7 @@ import { useState } from 'react'
 const NAV_ITEMS = [
   { label: 'Dashboard',     emoji: '🏠', tab: 'overview',      href: null },
   { label: 'Students',      emoji: '🎓', tab: 'students',      href: null },
+  { label: 'Exam Mode',     emoji: '📋', tab: 'exam',          href: null },
   { label: 'Subscriptions', emoji: '💳', tab: 'subscriptions', href: null },
   { label: 'Invoices',      emoji: '🧾', tab: 'invoices',      href: null },
   { label: 'Questions',     emoji: '📝', tab: 'questions',     href: null },

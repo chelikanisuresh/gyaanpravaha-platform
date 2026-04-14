@@ -39,6 +39,7 @@ export default function ParentDashboardHome() {
   const [children,    setChildren]    = useState<Child[]>([])
   const [activeChild, setActiveChild] = useState(0)
   const [stats, setStats] = useState({ chaptersCompleted: 0, totalChapters: TOTAL_CHAPTERS, avgScore: null as number | null, quizzesTaken: 0, dueReviews: 0, mistakesPending: 0, mistakesFixed: 0 })
+  const [latestExam, setLatestExam] = useState<any>(null)
   const [subjectProgress, setSubjectProgress] = useState<{ key: string; done: number; total: number; avg: number | null }[]>([])
   const [recentActivity, setRecentActivity]   = useState<{ emoji: string; text: string; time: string }[]>([])
   const [loading, setLoading] = useState(true)
@@ -106,6 +107,16 @@ export default function ParentDashboardHome() {
       .eq('student_id', studentId)
     const mistakesPending = (mistakes ?? []).filter((m: any) => !m.resolved).length
     const mistakesFixed   = (mistakes ?? []).filter((m: any) => m.resolved).length
+
+    // Fetch latest exam attempt
+    const { data: examAttempts } = await supabase
+      .from('exam_attempts')
+      .select('term, score, total_marks, created_at')
+      .eq('student_id', studentId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+    const latestExam = examAttempts?.[0] ?? null
+    setLatestExam(latestExam)
 
     setStats({ chaptersCompleted: totalDone, totalChapters: TOTAL_CHAPTERS, avgScore, quizzesTaken: quizzes?.length || 0, dueReviews, mistakesPending, mistakesFixed })
 
@@ -255,6 +266,26 @@ export default function ParentDashboardHome() {
             </div>
           )}
         </motion.div>
+
+        {/* ── Exam Result card ── */}
+        {latestExam && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
+            style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '20px', padding: '16px 22px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <span style={{ fontSize: '22px', flexShrink: 0 }}>📋</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: 'white' }}>
+                {latestExam.term} Exam Result
+              </p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(255,255,255,0.7)', marginTop: '2px' }}>
+                Attempted on {new Date(latestExam.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </p>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '14px', padding: '8px 16px', textAlign: 'center', flexShrink: 0 }}>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '22px', color: 'white', lineHeight: 1 }}>{latestExam.score}%</p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: 'rgba(255,255,255,0.6)', marginTop: '2px' }}>Score</p>
+            </div>
+          </motion.div>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
 
