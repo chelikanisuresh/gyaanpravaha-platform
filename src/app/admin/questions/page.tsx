@@ -226,7 +226,7 @@ export default function AdminQuestionsPage() {
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <AdminLayout adminName={adminName}>
+    <AdminLayout adminName={adminName}>{(_tab, _setTab) => (
     <div style={{ maxWidth: '800px' }}>
 
       {/* Top bar */}
@@ -464,6 +464,7 @@ export default function AdminQuestionsPage() {
         </div>
       )}
     </div>
+    )}
     </AdminLayout>
   )
 }

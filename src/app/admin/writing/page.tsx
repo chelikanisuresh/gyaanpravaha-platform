@@ -146,7 +146,7 @@ export default function AdminWritingPage() {
   }
 
   return (
-    <AdminLayout>
+    <AdminLayout>{(_tab, _setTab) => (
     <div style={{ maxWidth: '900px', fontFamily: 'var(--font-body)' }}>
       <style>{`* { box-sizing: border-box; } textarea, input, select { font-family: var(--font-body) !important; }`}</style>
 
@@ -375,6 +375,7 @@ export default function AdminWritingPage() {
         )}
       </div>
     </div>
+    )}
     </AdminLayout>
   )
 }
