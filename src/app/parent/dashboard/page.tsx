@@ -196,6 +196,28 @@ export default function ParentDashboardHome() {
           </div>
         </motion.div>
 
+        {/* ── Chapter Reviews card ── */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
+          style={{ background: 'white', borderRadius: '20px', border: `1.5px solid ${stats.dueReviews > 0 ? '#FDE68A' : '#D8F3DC'}`, padding: '16px 22px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <span style={{ fontSize: '22px' }}>🔁</span>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: stats.dueReviews > 0 ? '#92400E' : '#1B4332' }}>
+              Chapter Reviews
+            </p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: stats.dueReviews > 0 ? '#B45309' : '#52B788', marginTop: '2px' }}>
+              {loading ? 'Checking…' : stats.dueReviews > 0
+                ? `${stats.dueReviews} chapter${stats.dueReviews > 1 ? 's' : ''} ready for a quick refresh — remind ${child?.full_name?.split(' ')[0] || 'your child'} to review`
+                : `All caught up — no reviews pending ✅`}
+            </p>
+          </div>
+          {!loading && stats.dueReviews > 0 && (
+            <div style={{ background: '#FEF3C7', border: '1.5px solid #FDE68A', borderRadius: '20px', padding: '6px 16px', flexShrink: 0 }}>
+              <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '20px', color: '#92400E' }}>{stats.dueReviews}</span>
+              <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#B45309', marginLeft: '4px' }}>due</span>
+            </div>
+          )}
+        </motion.div>
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
 
           {/* Subject progress */}
