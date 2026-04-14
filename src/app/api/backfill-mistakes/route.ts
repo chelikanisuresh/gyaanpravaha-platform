@@ -1,27 +1,8 @@
 // src/app/api/backfill-mistakes/route.ts
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { ALL_QUIZZES } from '@/lib/quiz-content'
-import { ALL_MTH_QUIZZES } from '@/lib/mth-quiz-content'
-import { ALL_SCI_QUIZZES } from '@/lib/sci-quiz-content'
-import { ALL_HC_QUIZZES } from '@/lib/hc-quiz-content'
-import { ALL_GEO_QUIZZES } from '@/lib/geo-quiz-content'
-import { ALL_SKT_QUIZZES } from '@/lib/skt-quiz-content'
-import { ALL_ICT_QUIZZES } from '@/lib/ict-quiz-content'
-import { getRapidQuiz } from '@/lib/rapid-quiz-content'
 
-const QUIZ_MAP: Record<string, any[]> = {
-  english:  ALL_QUIZZES,
-  maths:    ALL_MTH_QUIZZES,
-  science:  ALL_SCI_QUIZZES,
-  history:  ALL_HC_QUIZZES,
-  geo:      ALL_GEO_QUIZZES,
-  sanskrit: ALL_SKT_QUIZZES,
-  ict:      ALL_ICT_QUIZZES,
-  rapid:    Array.from({ length: 19 }, (_, i) => getRapidQuiz(i + 1)).filter(Boolean) as any[],
-}
-
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -30,15 +11,16 @@ export async function POST(req: NextRequest) {
     const studentId = user.id
 
     // Get all past attempts with saved answers
-    const { data: attempts } = await supabase
+    const { data: attempts, error: attemptsErr } = await supabase
       .from('student_quiz_attempts')
       .select('subject, chapter_id, answers')
       .eq('student_id', studentId)
       .not('answers', 'is', null)
 
-    if (!attempts?.length) return NextResponse.json({ inserted: 0 })
+    if (attemptsErr) return NextResponse.json({ error: attemptsErr.message }, { status: 500 })
+    if (!attempts?.length) return NextResponse.json({ inserted: 0, reason: 'no attempts' })
 
-    // Get already-journaled entries
+    // Get already-journaled entries to avoid duplicates
     const { data: existing } = await supabase
       .from('mistake_journal')
       .select('subject, chapter_id, question_id')
@@ -51,20 +33,50 @@ export async function POST(req: NextRequest) {
     const toInsert: any[] = []
 
     for (const attempt of attempts) {
+      // Parse answers JSON
       let parsedAnswers: any[] = []
       try {
         parsedAnswers = typeof attempt.answers === 'string'
           ? JSON.parse(attempt.answers)
-          : attempt.answers
+          : (attempt.answers ?? [])
       } catch { continue }
 
       const wrongAnswers = parsedAnswers.filter((a: any) => a.correct === false)
       if (!wrongAnswers.length) continue
 
-      const quizList = QUIZ_MAP[attempt.subject]
-      if (!quizList) continue
+      // Load quiz content for this subject dynamically
+      let chapterQuiz: any = null
+      try {
+        if (attempt.subject === 'english') {
+          const { getQuiz } = await import('@/lib/quiz-content')
+          chapterQuiz = getQuiz(attempt.chapter_id)
+        } else if (attempt.subject === 'maths') {
+          const { getMthQuiz } = await import('@/lib/mth-quiz-content')
+          chapterQuiz = getMthQuiz(attempt.chapter_id)
+        } else if (attempt.subject === 'science') {
+          const { getSciQuiz } = await import('@/lib/sci-quiz-content')
+          chapterQuiz = getSciQuiz(attempt.chapter_id)
+        } else if (attempt.subject === 'history') {
+          const { getHCQuiz } = await import('@/lib/hc-quiz-content')
+          chapterQuiz = getHCQuiz(attempt.chapter_id)
+        } else if (attempt.subject === 'geo') {
+          const { getGeoQuiz } = await import('@/lib/geo-quiz-content')
+          chapterQuiz = getGeoQuiz(attempt.chapter_id)
+        } else if (attempt.subject === 'sanskrit') {
+          const { getSktQuiz } = await import('@/lib/skt-quiz-content')
+          chapterQuiz = getSktQuiz(attempt.chapter_id)
+        } else if (attempt.subject === 'ict') {
+          const { getICTQuiz } = await import('@/lib/ict-quiz-content')
+          chapterQuiz = getICTQuiz(attempt.chapter_id)
+        } else if (attempt.subject === 'rapid') {
+          const { getRapidQuiz } = await import('@/lib/rapid-quiz-content')
+          chapterQuiz = getRapidQuiz(attempt.chapter_id)
+        }
+      } catch (e) {
+        console.error('Failed to load quiz for', attempt.subject, e)
+        continue
+      }
 
-      const chapterQuiz = quizList.find((q: any) => q.chapterId === attempt.chapter_id)
       if (!chapterQuiz) continue
 
       for (const wa of wrongAnswers) {
@@ -93,17 +105,28 @@ export async function POST(req: NextRequest) {
     }
 
     if (toInsert.length > 0) {
-      const { error: upsertErr } = await supabase.from('mistake_journal')
+      const { error: upsertErr } = await supabase
+        .from('mistake_journal')
         .upsert(toInsert, { onConflict: 'student_id,subject,chapter_id,question_id', ignoreDuplicates: true })
       if (upsertErr) {
-        console.error('Mistake journal upsert error:', upsertErr)
-        return NextResponse.json({ error: upsertErr.message, toInsert: toInsert.length }, { status: 500 })
+        console.error('Upsert error:', upsertErr)
+        return NextResponse.json({ error: upsertErr.message }, { status: 500 })
       }
     }
 
-    return NextResponse.json({ inserted: toInsert.length, found: attempts?.length ?? 0 })
-  } catch (err) {
-    console.error('Backfill error:', err)
-    return NextResponse.json({ error: 'Backfill failed' }, { status: 500 })
+    return NextResponse.json({ 
+      inserted: toInsert.length,
+      attempts_found: attempts.length,
+      wrong_total: attempts.reduce((s, a) => {
+        try {
+          const p = typeof a.answers === 'string' ? JSON.parse(a.answers) : a.answers
+          return s + p.filter((x: any) => x.correct === false).length
+        } catch { return s }
+      }, 0)
+    })
+
+  } catch (err: any) {
+    console.error('Backfill route error:', err)
+    return NextResponse.json({ error: err?.message ?? 'Unknown error' }, { status: 500 })
   }
 }
