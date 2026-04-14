@@ -182,16 +182,31 @@ export function VoiceReaderPanel({
   useEffect(() => {
     const load = () => {
       const all = window.speechSynthesis.getVoices()
-      // Prefer English voices, sorted with Indian English first
       const eng = all.filter(v => v.lang.startsWith('en'))
+      
+      // Pick best voices — prefer natural/premium, one per locale
+      const pick = (lang: string, limit = 2) =>
+        eng.filter(v => v.lang === lang)
+           .sort((a, b) => {
+             // Prefer voices with 'natural' or 'premium' in name (Mac/iOS quality voices)
+             const aScore = (a.name.toLowerCase().includes('natural') || a.name.toLowerCase().includes('premium')) ? 1 : 0
+             const bScore = (b.name.toLowerCase().includes('natural') || b.name.toLowerCase().includes('premium')) ? 1 : 0
+             return bScore - aScore
+           })
+           .slice(0, limit)
+
       const sorted = [
-        ...eng.filter(v => v.lang === 'en-IN'),
-        ...eng.filter(v => v.lang === 'en-GB'),
-        ...eng.filter(v => v.lang === 'en-US'),
-        ...eng.filter(v => !['en-IN','en-GB','en-US'].includes(v.lang)),
-      ]
-      setVoices(sorted)
-      if (!selectedVoice && sorted.length > 0) setSelectedVoice(sorted[0])
+        ...pick('en-IN', 2),
+        ...pick('en-GB', 2),
+        ...pick('en-US', 2),
+        ...pick('en-AU', 1),
+        ...pick('en-ZA', 1),
+      ].slice(0, 8)  // hard cap at 8
+
+      // Fallback: if none matched, just take first 6 English voices
+      const final = sorted.length > 0 ? sorted : eng.slice(0, 6)
+      setVoices(final)
+      if (!selectedVoice && final.length > 0) setSelectedVoice(final[0])
     }
     load()
     window.speechSynthesis.onvoiceschanged = load
@@ -219,7 +234,7 @@ export function VoiceReaderPanel({
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 18px', background: isPlaying ? `${theme.accent}25` : '#F8FAFC', borderRadius: showVoices ? '14px 14px 0 0' : '14px', border: `1.5px solid ${isPlaying ? theme.accent : '#E5E7EB'}`, borderBottom: showVoices ? 'none' : undefined, transition: 'all 0.3s' }}>
         <span style={{ fontSize: '18px' }}>🔊</span>
         <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: isPlaying ? theme.primary : '#6B7280', flex: 1 }}>
-          {done ? '✅ Finished! Section unlocked.' : isPlaying ? 'Reading aloud at 0.75× pace…' : 'Read for me'}
+          {done ? '✅ Finished! Section unlocked.' : isPlaying ? 'Reading aloud…' : 'Read for me'}
         </span>
 
         {/* Voice selector toggle */}
