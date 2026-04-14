@@ -60,113 +60,11 @@ async function fetchSectionContent(subject: string, chapterId: number, sectionId
   }
 }
 
-// Backfill past quiz attempts into mistake_journal
+// Backfill past quiz attempts via server-side API
 async function backfillMistakes(studentId: string) {
-  const supabase = createClient()
-  
-  // Get all past attempts that have answers JSON
-  const { data: attempts } = await supabase
-    .from('student_quiz_attempts')
-    .select('subject, chapter_id, answers, created_at')
-    .eq('student_id', studentId)
-    .not('answers', 'is', null)
-    .order('created_at', { ascending: false })
-
-  if (!attempts?.length) return
-
-  // Get already-journaled entries to avoid duplicates
-  const { data: existing } = await supabase
-    .from('mistake_journal')
-    .select('subject, chapter_id, question_id')
-    .eq('student_id', studentId)
-
-  const existingKeys = new Set(
-    (existing ?? []).map((e: any) => `${e.subject}-${e.chapter_id}-${e.question_id}`)
-  )
-
-  // Import quiz content per subject
-  const quizModules: Record<string, any> = {}
-  const loadQuiz = async (subject: string) => {
-    if (quizModules[subject]) return quizModules[subject]
-    try {
-      if (subject === 'english') {
-        const { ALL_QUIZZES } = await import('@/lib/quiz-content')
-        quizModules[subject] = ALL_QUIZZES
-      } else if (subject === 'maths') {
-        const { ALL_MTH_QUIZZES } = await import('@/lib/mth-quiz-content')
-        quizModules[subject] = ALL_MTH_QUIZZES
-      } else if (subject === 'science') {
-        const { ALL_SCI_QUIZZES } = await import('@/lib/sci-quiz-content')
-        quizModules[subject] = ALL_SCI_QUIZZES
-      } else if (subject === 'history') {
-        const { ALL_HC_QUIZZES } = await import('@/lib/hc-quiz-content')
-        quizModules[subject] = ALL_HC_QUIZZES
-      } else if (subject === 'geo') {
-        const { ALL_GEO_QUIZZES } = await import('@/lib/geo-quiz-content')
-        quizModules[subject] = ALL_GEO_QUIZZES
-      } else if (subject === 'sanskrit') {
-        const { ALL_SKT_QUIZZES } = await import('@/lib/skt-quiz-content')
-        quizModules[subject] = ALL_SKT_QUIZZES
-      } else if (subject === 'ict') {
-        const { ALL_ICT_QUIZZES } = await import('@/lib/ict-quiz-content')
-        quizModules[subject] = ALL_ICT_QUIZZES
-      } else if (subject === 'rapid') {
-        const { getRapidQuiz } = await import('@/lib/rapid-quiz-content')
-        // Build array format for rapid
-        quizModules[subject] = Array.from({ length: 19 }, (_, i) => getRapidQuiz(i + 1)).filter(Boolean)
-      }
-    } catch { /* subject not found */ }
-    return quizModules[subject]
-  }
-
-  const toInsert: any[] = []
-
-  for (const attempt of attempts) {
-    let parsedAnswers: any[] = []
-    try {
-      parsedAnswers = typeof attempt.answers === 'string'
-        ? JSON.parse(attempt.answers)
-        : attempt.answers
-    } catch { continue }
-
-    const wrongAnswers = parsedAnswers.filter((a: any) => !a.correct && a.correct !== undefined)
-    if (!wrongAnswers.length) continue
-
-    const quizList = await loadQuiz(attempt.subject)
-    if (!quizList) continue
-
-    const chapterQuiz = quizList.find((q: any) => q.chapterId === attempt.chapter_id)
-    if (!chapterQuiz) continue
-
-    for (const wa of wrongAnswers) {
-      const key = `${attempt.subject}-${attempt.chapter_id}-${wa.questionId}`
-      if (existingKeys.has(key)) continue
-
-      const q = chapterQuiz.questions.find((q: any) => q.id === wa.questionId)
-      if (!q) continue
-
-      existingKeys.add(key)
-      toInsert.push({
-        student_id:     studentId,
-        subject:        attempt.subject,
-        chapter_id:     attempt.chapter_id,
-        question_id:    q.id,
-        question_text:  q.question,
-        question_type:  q.type,
-        wrong_answer:   wa.given,
-        correct_answer: q.answer,
-        reexplanation:  q.reexplanation ?? '',
-        section_id:     q.sectionId ?? 4,
-        options:        q.options ? JSON.stringify(q.options) : null,
-        resolved:       false,
-      })
-    }
-  }
-
-  if (toInsert.length > 0) {
-    await supabase.from('mistake_journal')
-      .upsert(toInsert, { onConflict: 'student_id,subject,chapter_id,question_id', ignoreDuplicates: true })
-  }
+  try {
+    await fetch('/api/backfill-mistakes', { method: 'POST' })
+  } catch { /* silent fail — backfill is best-effort */ }
 }
 
 const SUBJECT_LABELS: Record<string, { label: string; emoji: string; color: string; light: string }> = {
