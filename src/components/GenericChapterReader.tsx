@@ -218,19 +218,27 @@ export function VoiceReaderPanel({
   const [showVoices, setShowVoices]     = useState(false)
   const creditedRef                     = useRef(false)
 
-  // Load available voices
+  // Load available voices — restore saved choice from localStorage
   useEffect(() => {
+    const STORAGE_KEY = 'gp_voice_name'
     const load = () => {
       const all = window.speechSynthesis.getVoices()
-      // Show all English voices — sorted Indian first, then GB, US, rest
       const eng = all.filter(v => v.lang.startsWith('en')).sort((a, b) => {
         const order = (lang: string) =>
           lang === 'en-IN' ? 0 : lang === 'en-GB' ? 1 : lang === 'en-US' ? 2 : 3
         return order(a.lang) - order(b.lang)
       })
       setVoices(eng)
-      // Only set default on first load — never overwrite student's selection
-      setSelectedVoice(prev => prev ?? (eng[0] || null))
+      setSelectedVoice(prev => {
+        if (prev) return prev  // already set this session — keep it
+        // Restore from localStorage
+        const saved = localStorage.getItem(STORAGE_KEY)
+        if (saved) {
+          const match = eng.find(v => v.name === saved)
+          if (match) return match
+        }
+        return eng[0] || null  // fallback to first English voice
+      })
     }
     load()
     window.speechSynthesis.onvoiceschanged = load
@@ -312,7 +320,7 @@ export function VoiceReaderPanel({
         <div style={{ background: 'white', border: `1.5px solid ${theme.accent}`, borderTop: 'none', borderRadius: '0 0 14px 14px', padding: '10px 14px', maxHeight: '160px', overflowY: 'auto' }}>
           <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '10px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Select voice</p>
           {voices.map((v, i) => (
-            <button key={i} onClick={() => { setSelectedVoice(v); setShowVoices(false) }}
+            <button key={i} onClick={() => { setSelectedVoice(v); setShowVoices(false); localStorage.setItem('gp_voice_name', v.name) }}
               style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '7px 10px', borderRadius: '8px', border: 'none', background: selectedVoice?.name === v.name ? `${theme.accent}25` : 'transparent', cursor: 'pointer', textAlign: 'left', marginBottom: '2px' }}>
               <span style={{ fontSize: '14px' }}>{v.lang === 'en-IN' ? '🇮🇳' : v.lang === 'en-GB' ? '🇬🇧' : v.lang === 'en-US' ? '🇺🇸' : '🔊'}</span>
               <div>
