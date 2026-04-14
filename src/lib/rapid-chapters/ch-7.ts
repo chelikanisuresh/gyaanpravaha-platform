@@ -1,4 +1,4 @@
-// Auto-generated chapter file
+// Auto-generated
 
 const CHAPTER_7 = {
   id: 7,

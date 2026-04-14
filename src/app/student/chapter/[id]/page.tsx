@@ -159,6 +159,7 @@ function SectionContent({
   isLastSection,
   isCompleted,
   onComplete,
+  onNext,
   elapsed,
   minReadSeconds,
   wordMap,
@@ -167,6 +168,7 @@ function SectionContent({
   isLastSection: boolean
   isCompleted: boolean
   onComplete: () => void
+  onNext: () => void
   elapsed: number
   minReadSeconds: number
   wordMap: WordMap
@@ -299,9 +301,16 @@ function SectionContent({
       )}
 
       {isCompleted && !isLastSection && (
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#D8F3DC', borderRadius: '10px', padding: '10px 18px' }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="#1B4332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#1B4332' }}>Section completed</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#D8F3DC', borderRadius: '10px', padding: '10px 18px' }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="#1B4332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#1B4332' }}>Section completed</p>
+          </div>
+          <button
+            onClick={onNext}
+            style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '15px', padding: '13px 28px', borderRadius: '12px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            Next section →
+          </button>
         </div>
       )}
     </div>
@@ -498,6 +507,10 @@ export default function ChapterReaderPage() {
             isLastSection={currentSection === 7}
             isCompleted={completedSections.has(currentSection)}
             onComplete={() => completeSection(currentSection)}
+            onNext={() => {
+              const next = chapter?.sections.find(s => s.id === currentSection + 1)
+              if (next) { setCurrentSection(next.id); resetTimer() }
+            }}
             elapsed={elapsed}
             minReadSeconds={minRead}
             wordMap={getWordMap(chapterId)}

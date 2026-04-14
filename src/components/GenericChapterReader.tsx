@@ -505,11 +505,22 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
                 )}
 
                 {completedSections.has(currentSection) && !isLastSection && (
-                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: `${theme.accent}20`, borderRadius: '12px', padding: '10px 18px', border: `1px solid ${theme.accent}40` }}>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke={theme.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: theme.primary }}>Section complete</p>
-                  </motion.div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: `${theme.accent}20`, borderRadius: '12px', padding: '10px 18px', border: `1px solid ${theme.accent}40` }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke={theme.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: theme.primary }}>Section complete</p>
+                    </div>
+                    <motion.button
+                      onClick={() => {
+                        const next = chapter.sections.find((s: any) => s.id === currentSection + 1)
+                        if (next) { setCurrentSection(next.id); resetTimer() }
+                      }}
+                      whileHover={{ scale: 1.03, boxShadow: `0 6px 20px ${theme.primary}30` }}
+                      whileTap={{ scale: 0.97 }}
+                      style={{ background: `linear-gradient(135deg,${theme.primary},${theme.mid})`, color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '15px', padding: '13px 28px', borderRadius: '12px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      Next section →
+                    </motion.button>
+                  </div>
                 )}
               </div>
             </AnimatePresence>
