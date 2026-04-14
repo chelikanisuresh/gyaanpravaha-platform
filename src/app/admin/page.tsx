@@ -55,8 +55,17 @@ function AdminDashboardInner() {
   const [questionAttempts, setQuestionAttempts] = useState<QuestionAttempt[]>([])
   const [selectedStudent,  setSelectedStudent]  = useState<Student | null>(null)
   const searchParams = useSearchParams()
-  const initTab = (searchParams.get('tab') as 'overview'|'students'|'questions') || 'overview'
-  const [activeTab, setActiveTab] = useState<'overview'|'students'|'questions'>(initTab)
+  const [activeTab, setActiveTab] = useState<'overview'|'students'|'questions'>('overview')
+
+  // Sync tab with URL param whenever it changes
+  useEffect(() => {
+    const tab = searchParams.get('tab') as 'overview'|'students'|'questions'
+    if (tab && ['overview','students','questions'].includes(tab)) {
+      setActiveTab(tab)
+    } else {
+      setActiveTab('overview')
+    }
+  }, [searchParams])
 
   useEffect(() => {
     const check = async () => {
