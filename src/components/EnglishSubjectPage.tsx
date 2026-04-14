@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import VocabFlashcards from '@/components/VocabFlashcards'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
@@ -53,9 +54,10 @@ function ProgressRing({ pct, size = 72, stroke = 7, color = '#4338CA' }: { pct: 
   )
 }
 
-function ChapterCard({ chapter, secsDone, score, isCompleted, isStarted, isCurrent, index }: {
+function ChapterCard({ chapter, secsDone, score, isCompleted, isStarted, isCurrent, index, onFlashcards }: {
   chapter: typeof CHAPTERS[0]; secsDone: number; score?: number
   isCompleted: boolean; isStarted: boolean; isCurrent: boolean; index: number
+  onFlashcards?: () => void
 }) {
   const tc = TYPE_CONFIG[chapter.type] || { bg: '#F9FAFB', text: '#374151', border: '#E5E7EB', emoji: '📄', desc: '' }
   const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : 'Start'
@@ -128,13 +130,22 @@ function ChapterCard({ chapter, secsDone, score, isCompleted, isStarted, isCurre
           </div>
 
           {/* CTA */}
-          <span style={{
-            fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px',
-            padding: '8px 18px', borderRadius: '10px', flexShrink: 0,
-            background: isCompleted ? 'white' : isCurrent ? '#4338CA' : '#F1F5F9',
-            color: isCompleted ? '#4338CA' : isCurrent ? 'white' : '#64748B',
-            border: isCompleted ? '1.5px solid #C7D2FE' : 'none',
-          }}>{ctaLabel}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-end', flexShrink: 0 }}>
+            <span style={{
+              fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px',
+              padding: '8px 18px', borderRadius: '10px',
+              background: isCompleted ? 'white' : isCurrent ? '#4338CA' : '#F1F5F9',
+              color: isCompleted ? '#4338CA' : isCurrent ? 'white' : '#64748B',
+              border: isCompleted ? '1.5px solid #C7D2FE' : 'none',
+            }}>{ctaLabel}</span>
+            {isCompleted && onFlashcards && (
+              <button
+                onClick={e => { e.preventDefault(); e.stopPropagation(); onFlashcards() }}
+                style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', padding: '5px 12px', borderRadius: '8px', background: '#D8F3DC', color: '#1B4332', border: '1px solid #86EFAC', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                🃏 Flashcards
+              </button>
+            )}
+          </div>
         </motion.div>
       </Link>
     </motion.div>
@@ -257,8 +268,9 @@ function RightSidebar({ completedCount, avgScore, progress, scores }: {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function EnglishSubjectPage({ studentId }: { studentId: string }) {
-  const [progress, setProgress] = useState<Record<number, number>>({})
-  const [scores,   setScores]   = useState<Record<number, number>>({})
+  const [progress,         setProgress]         = useState<Record<number, number>>({})
+  const [scores,           setScores]           = useState<Record<number, number>>({})
+  const [flashcardChapter, setFlashcardChapter] = useState<typeof CHAPTERS[0] | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -363,7 +375,8 @@ export default function EnglishSubjectPage({ studentId }: { studentId: string })
             return (
               <ChapterCard key={chapter.id} chapter={chapter} secsDone={secsDone} score={scores[chapter.id]}
                 isCompleted={secsDone >= 7} isStarted={secsDone > 0 && secsDone < 7}
-                isCurrent={chapter.id === currentChapter?.id} index={i}/>
+                isCurrent={chapter.id === currentChapter?.id} index={i}
+                onFlashcards={secsDone >= 7 ? () => setFlashcardChapter(chapter) : undefined}/>
             )
           })}
         </div>

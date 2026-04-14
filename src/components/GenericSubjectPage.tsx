@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import VocabFlashcards from '@/components/VocabFlashcards'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
@@ -87,9 +88,10 @@ function ProgressRing({ pct, size = 72, stroke = 7, color }: { pct: number; size
 }
 
 // ── Chapter card ──────────────────────────────────────────────────────────────
-function ChapterCard({ chapter, secsDone, score, isCompleted, isStarted, isCurrent, index, theme }: {
+function ChapterCard({ chapter, secsDone, score, isCompleted, isStarted, isCurrent, index, theme, onFlashcards }: {
   chapter: SubjectChapter; secsDone: number; score?: number
   isCompleted: boolean; isStarted: boolean; isCurrent: boolean; index: number; theme: SubjectTheme
+  onFlashcards?: () => void
 }) {
   const tc = theme.typeColors[chapter.type] || { bg: '#F9FAFB', text: '#374151', border: '#E5E7EB', emoji: '📄', desc: '' }
   const ctaLabel = isCompleted ? 'Review' : isStarted ? 'Resume' : 'Start'
@@ -149,9 +151,18 @@ function ChapterCard({ chapter, secsDone, score, isCompleted, isStarted, isCurre
           </div>
 
           {/* CTA */}
-          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '10px', flexShrink: 0, background: isCompleted ? 'white' : isCurrent ? theme.primaryDark : '#F1F5F9', color: isCompleted ? theme.primaryDark : isCurrent ? 'white' : '#64748B', border: isCompleted ? `1.5px solid ${theme.accentColor}60` : 'none' }}>
-            {ctaLabel}
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-end', flexShrink: 0 }}>
+            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', padding: '8px 18px', borderRadius: '10px', background: isCompleted ? 'white' : isCurrent ? theme.primaryDark : '#F1F5F9', color: isCompleted ? theme.primaryDark : isCurrent ? 'white' : '#64748B', border: isCompleted ? `1.5px solid ${theme.accentColor}60` : 'none' }}>
+              {ctaLabel}
+            </span>
+            {isCompleted && onFlashcards && (
+              <button
+                onClick={e => { e.preventDefault(); e.stopPropagation(); onFlashcards() }}
+                style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', padding: '5px 12px', borderRadius: '8px', background: `${theme.accentColor}25`, color: theme.primaryDark, border: `1px solid ${theme.accentColor}40`, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                🃏 Flashcards
+              </button>
+            )}
+          </div>
         </motion.div>
       </Link>
     </motion.div>
@@ -257,8 +268,9 @@ function RightSidebar({ chapters, completedCount, avgScore, progress, scores, th
 export default function GenericSubjectPage({ chapters, theme, studentId }: {
   chapters: SubjectChapter[]; theme: SubjectTheme; studentId: string
 }) {
-  const [progress, setProgress] = useState<Record<number, number>>({})
-  const [scores,   setScores]   = useState<Record<number, number>>({})
+  const [progress,         setProgress]         = useState<Record<number, number>>({})
+  const [scores,           setScores]           = useState<Record<number, number>>({})
+  const [flashcardChapter, setFlashcardChapter] = useState<SubjectChapter | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -279,6 +291,15 @@ export default function GenericSubjectPage({ chapters, theme, studentId }: {
   const completedCount  = chapters.filter(c => (progress[c.id] || 0) >= 7).length
   const overallProgress = Math.round((completedCount / chapters.length) * 100)
   const avgScore        = Object.values(scores).length ? Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length) : null
+
+  if (flashcardChapter) return (
+    <VocabFlashcards
+      subject={theme.subject}
+      chapterId={flashcardChapter.id}
+      chapterTitle={flashcardChapter.title}
+      onClose={() => setFlashcardChapter(null)}
+    />
+  )
 
   return (
     <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', width: '100%' }}>
@@ -366,7 +387,8 @@ export default function GenericSubjectPage({ chapters, theme, studentId }: {
             return (
               <ChapterCard key={chapter.id} chapter={chapter} secsDone={secsDone} score={scores[chapter.id]}
                 isCompleted={secsDone >= 7} isStarted={secsDone > 0 && secsDone < 7}
-                isCurrent={chapter.id === currentChapter?.id} index={i} theme={theme}/>
+                isCurrent={chapter.id === currentChapter?.id} index={i} theme={theme}
+                onFlashcards={secsDone >= 7 ? () => setFlashcardChapter(chapter) : undefined}/>
             )
           })}
         </div>
