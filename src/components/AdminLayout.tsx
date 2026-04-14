@@ -77,19 +77,26 @@ export default function AdminLayout({ children, adminName = 'Admin', onTabChange
           const active = item.tab
             ? activeTab === item.tab  // tab-based items
             : pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href))
-          return (
-            <Link key={item.label} href={item.tab ? '#' : item.href}
-              onClick={e => {
-                if (item.tab) { e.preventDefault(); onTabChange?.(item.tab); setMobileOpen(false) }
-                else setMobileOpen(false)
-              }}
-              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '10px', marginBottom: '2px', textDecoration: 'none', background: active ? 'rgba(99,102,241,0.2)' : 'transparent', outline: active ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent', transition: 'all 0.15s' }}
-              onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
-              onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}>
-              <span style={{ fontSize: '15px', width: '22px', textAlign: 'center' }}>{item.emoji}</span>
-              <span style={{ fontFamily: 'var(--font-heading)', fontWeight: active ? 700 : 500, fontSize: '13px', color: active ? 'white' : 'rgba(255,255,255,0.6)', flex: 1 }}>{item.label}</span>
-              {active && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#818CF8' }}/>}
-            </Link>
+          return item.tab ? (
+              <button key={item.label}
+                onClick={() => { onTabChange?.(item.tab!); setMobileOpen(false) }}
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '10px', marginBottom: '2px', textDecoration: 'none', background: active ? 'rgba(99,102,241,0.2)' : 'transparent', outline: active ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent', transition: 'all 0.15s', width: '100%', border: 'none', cursor: 'pointer' }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}>
+                <span style={{ fontSize: '15px', width: '22px', textAlign: 'center' }}>{item.emoji}</span>
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: active ? 700 : 500, fontSize: '13px', color: active ? 'white' : 'rgba(255,255,255,0.6)', flex: 1 }}>{item.label}</span>
+                {active && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#818CF8' }}/>}
+              </button>
+            ) : (
+              <Link key={item.label} href={item.href}
+                onClick={() => setMobileOpen(false)}
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '10px', marginBottom: '2px', textDecoration: 'none', background: active ? 'rgba(99,102,241,0.2)' : 'transparent', outline: active ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent', transition: 'all 0.15s' }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}>
+                <span style={{ fontSize: '15px', width: '22px', textAlign: 'center' }}>{item.emoji}</span>
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: active ? 700 : 500, fontSize: '13px', color: active ? 'white' : 'rgba(255,255,255,0.6)', flex: 1 }}>{item.label}</span>
+                {active && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#818CF8' }}/>}
+              </Link>
           )
         })}
       </nav>
