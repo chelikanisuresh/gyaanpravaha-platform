@@ -429,7 +429,7 @@ export default function HomePage() {
               You set the password, you control the account. Your dashboard shows exactly what your child is studying and how well they are doing — no chasing, no wondering.
             </p>
             {[
-              'Chapter-by-chapter scores across all 8 subjects',
+              `Chapter-by-chapter scores across all ${SUBJECT_COUNT} subjects`,
               'Quiz scores with subject-wise breakdown',
               'Time spent studying each subject',
               'Weak chapters flagged automatically',
@@ -497,7 +497,7 @@ export default function HomePage() {
               <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: '#9CA3AF', marginBottom: '8px' }}>per student · per academic year</p>
               <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: '#40916C', marginBottom: '32px' }}>That's less than ₹14 per day</p>
               {[
-                'All 8 subjects — chapter by chapter',
+                `All ${SUBJECT_COUNT} subjects — chapter by chapter`,
                 `${TOTAL_CHAPTERS} chapters · ${TOTAL_SECTIONS}+ sections`,
                 'Quiz after every chapter',
                 'Parent progress dashboard',
