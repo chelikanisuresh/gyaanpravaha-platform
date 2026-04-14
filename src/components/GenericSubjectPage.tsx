@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import VocabFlashcards from '@/components/VocabFlashcards'
+import { downloadCertificate } from '@/lib/certificate-generator'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
@@ -170,9 +171,10 @@ function ChapterCard({ chapter, secsDone, score, isCompleted, isStarted, isCurre
 }
 
 // ── Right sidebar ─────────────────────────────────────────────────────────────
-function RightSidebar({ chapters, completedCount, avgScore, progress, scores, theme }: {
+function RightSidebar({ chapters, completedCount, avgScore, progress, scores, theme, studentName }: {
   chapters: SubjectChapter[]; completedCount: number; avgScore: number | null
   progress: Record<number, number>; scores: Record<number, number>; theme: SubjectTheme
+  studentName?: string
 }) {
   const tip = theme.tips[new Date().getDay() % theme.tips.length]
   const typeCounts = chapters.reduce((acc, ch) => { const done = (progress[ch.id] || 0) >= 7; acc[ch.type] = (acc[ch.type] || 0) + (done ? 1 : 0); return acc }, {} as Record<string, number>)
@@ -180,6 +182,32 @@ function RightSidebar({ chapters, completedCount, avgScore, progress, scores, th
 
   return (
     <div style={{ width: '256px', minWidth: '256px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+      {/* Certificate — when all chapters completed */}
+      {completedCount === chapters.length && completedCount > 0 && (
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
+          style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '18px', padding: '20px', textAlign: 'center' }}>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏆</div>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: 'white', marginBottom: '4px' }}>
+            Subject Complete!
+          </p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(255,255,255,0.7)', marginBottom: '14px' }}>
+            You have completed all {chapters.length} chapters
+          </p>
+          <button
+            onClick={() => downloadCertificate({
+              studentName: studentName || 'Student',
+              subjectLabel: theme.title,
+              subjectEmoji: theme.emoji,
+              completionDate: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+              chaptersCount: chapters.length,
+              avgScore,
+            })}
+            style={{ background: 'white', color: '#1B4332', border: 'none', borderRadius: '12px', padding: '10px 20px', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', margin: '0 auto' }}>
+            📜 Download Certificate
+          </button>
+        </motion.div>
+      )}
 
       {/* Stats */}
       <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
@@ -271,10 +299,14 @@ export default function GenericSubjectPage({ chapters, theme, studentId }: {
   const [progress,         setProgress]         = useState<Record<number, number>>({})
   const [scores,           setScores]           = useState<Record<number, number>>({})
   const [flashcardChapter, setFlashcardChapter] = useState<SubjectChapter | null>(null)
+  const [studentName,      setStudentName]      = useState('')
 
   useEffect(() => {
     const load = async () => {
       const supabase = createClient()
+      const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', studentId).maybeSingle()
+      if (profile?.full_name) setStudentName(profile.full_name)
+
       const { data: secs } = await supabase.from('student_lesson_progress').select('chapter_id').eq('student_id', studentId).eq('subject', theme.subject)
       const countMap: Record<number, number> = {}
       secs?.forEach((r: any) => { countMap[r.chapter_id] = (countMap[r.chapter_id] || 0) + 1 })
@@ -397,7 +429,7 @@ export default function GenericSubjectPage({ chapters, theme, studentId }: {
 
       {/* ── Right sidebar ── */}
       <div style={{ flexShrink: 0 }}>
-        <RightSidebar chapters={chapters} completedCount={completedCount} avgScore={avgScore} progress={progress} scores={scores} theme={theme}/>
+        <RightSidebar chapters={chapters} completedCount={completedCount} avgScore={avgScore} progress={progress} scores={scores} theme={theme} studentName={studentName}/>
       </div>
     </div>
   )

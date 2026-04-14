@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import VocabFlashcards from '@/components/VocabFlashcards'
+import { downloadCertificate } from '@/lib/certificate-generator'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { motion } from 'framer-motion'
@@ -153,9 +154,10 @@ function ChapterCard({ chapter, secsDone, score, isCompleted, isStarted, isCurre
 }
 
 // ── Right sidebar ─────────────────────────────────────────────────────────────
-function RightSidebar({ completedCount, avgScore, progress, scores }: {
+function RightSidebar({ completedCount, avgScore, progress, scores, studentName }: {
   completedCount: number; avgScore: number | null
   progress: Record<number, number>; scores: Record<number, number>
+  studentName?: string
 }) {
   const tips = [
     'Read each section twice — once for understanding, once to notice how the writer uses words.',
@@ -178,6 +180,21 @@ function RightSidebar({ completedCount, avgScore, progress, scores }: {
 
   return (
     <div style={{ width: '260px', minWidth: '260px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+      {/* Certificate — when all 8 chapters completed */}
+      {completedCount === 8 && (
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+          style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '18px', padding: '20px', textAlign: 'center' }}>
+          <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏆</div>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: 'white', marginBottom: '4px' }}>Subject Complete!</p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(255,255,255,0.7)', marginBottom: '14px' }}>You have completed all 8 chapters</p>
+          <button
+            onClick={() => downloadCertificate({ studentName: studentName || 'Student', subjectLabel: 'English', subjectEmoji: '📖', completionDate: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }), chaptersCount: 8, avgScore })}
+            style={{ background: 'white', color: '#1B4332', border: 'none', borderRadius: '12px', padding: '10px 20px', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', margin: '0 auto' }}>
+            📜 Download Certificate
+          </button>
+        </motion.div>
+      )}
 
       {/* Overall stats */}
       <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
@@ -271,10 +288,14 @@ export default function EnglishSubjectPage({ studentId }: { studentId: string })
   const [progress,         setProgress]         = useState<Record<number, number>>({})
   const [scores,           setScores]           = useState<Record<number, number>>({})
   const [flashcardChapter, setFlashcardChapter] = useState<typeof CHAPTERS[0] | null>(null)
+  const [studentName,      setStudentName]      = useState('')
 
   useEffect(() => {
     const load = async () => {
       const supabase = createClient()
+      const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', studentId).maybeSingle()
+      if (profile?.full_name) setStudentName(profile.full_name)
+
       const { data: secs } = await supabase.from('student_lesson_progress').select('chapter_id').eq('student_id', studentId).eq('subject', 'english')
       const countMap: Record<number, number> = {}
       secs?.forEach((r: any) => { countMap[r.chapter_id] = (countMap[r.chapter_id] || 0) + 1 })
@@ -385,7 +406,7 @@ export default function EnglishSubjectPage({ studentId }: { studentId: string })
 
       {/* ── Right sidebar ── */}
       <div style={{ flexShrink: 0 }}>
-        <RightSidebar completedCount={completedCount} avgScore={avgScore} progress={progress} scores={scores}/>
+        <RightSidebar completedCount={completedCount} avgScore={avgScore} progress={progress} scores={scores} studentName={studentName}/>
       </div>
     </div>
   )
