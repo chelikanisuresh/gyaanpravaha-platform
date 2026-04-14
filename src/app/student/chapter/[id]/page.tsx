@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { getChapter, type Chapter, type Section } from '@/lib/chapter-content'
 import { getWordMap, type WordMap } from '@/lib/tooltip-words'
 import { useReadTimer, formatTime } from '@/hooks/useReadTimer'
+import { VoiceReaderPanel } from '@/components/GenericChapterReader'
 
 // ── Inline word tooltip ───────────────────────────────────────────────────────
 
@@ -170,8 +171,10 @@ function SectionContent({
   minReadSeconds: number
   wordMap: WordMap
 }) {
-  const readGateMet = !section.minReadSeconds || elapsed >= section.minReadSeconds
-  const timeLeft    = section.minReadSeconds ? Math.max(0, section.minReadSeconds - elapsed) : 0
+  const [timeBoost, setTimeBoost] = useState(0)
+  const effectiveElapsed = elapsed + timeBoost
+  const readGateMet = !section.minReadSeconds || effectiveElapsed >= section.minReadSeconds
+  const timeLeft    = section.minReadSeconds ? Math.max(0, section.minReadSeconds - effectiveElapsed) : 0
 
   // Only apply tooltips in Section 4 (the lesson text)
   const useTooltips = section.id === 4
@@ -187,10 +190,10 @@ function SectionContent({
           {section.title}
         </h2>
         {section.minReadSeconds && (
-          <div style={{ marginLeft: 'auto', background: elapsed >= section.minReadSeconds ? '#D8F3DC' : '#FEF3C7', border: `1px solid ${elapsed >= section.minReadSeconds ? '#74C69D' : '#FDE68A'}`, borderRadius: '20px', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-            <span style={{ fontSize: '12px' }}>{elapsed >= section.minReadSeconds ? '⏱️ Read' : '⏱️'}</span>
+          <div style={{ marginLeft: 'auto', background: effectiveElapsed >= section.minReadSeconds ? '#D8F3DC' : '#FEF3C7', border: `1px solid ${effectiveElapsed >= section.minReadSeconds ? '#74C69D' : '#FDE68A'}`, borderRadius: '20px', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+            <span style={{ fontSize: '12px' }}>{effectiveElapsed >= section.minReadSeconds ? '⏱️ Read' : '⏱️'}</span>
             <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: elapsed >= section.minReadSeconds ? '#1B4332' : '#92400E' }}>
-              {elapsed >= section.minReadSeconds ? 'Done' : formatTime(timeLeft) + ' left'}
+              {effectiveElapsed >= section.minReadSeconds ? 'Done' : formatTime(timeLeft) + ' left'}
             </span>
           </div>
         )}
@@ -202,6 +205,16 @@ function SectionContent({
           <span style={{ background: '#D8F3DC', color: '#1B4332', fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '12px', borderRadius: '4px', padding: '1px 6px' }}>highlighted words</span>
           <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#9CA3AF' }}>— tap any green word to see its meaning</p>
         </div>
+      )}
+
+      {/* Voice reader */}
+      {typeof window !== 'undefined' && 'speechSynthesis' in window && (
+        <VoiceReaderPanel
+          text={section.content}
+          wordMap={wordMap as any}
+          theme={{ primary:'#1B4332', mid:'#2D6A4F', accent:'#74C69D', heroBg:'#F0FDF4', tooltipBg:'#1B4332' }}
+          onTimeCredit={(secs) => setTimeBoost(prev => Math.max(prev, secs))}
+        />
       )}
 
       {/* Content */}

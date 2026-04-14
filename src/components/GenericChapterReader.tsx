@@ -69,6 +69,225 @@ function renderWithTooltips(text: string, wordMap: Record<string, { meaning: str
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
+
+// ── Voice Reader ──────────────────────────────────────────────────────────────
+function useVoiceReader(
+  text: string,
+  wordMap: Record<string, { meaning: string }>,
+  theme: ReaderTheme,
+  onProgress: (sentenceIdx: number) => void,
+  onDone: () => void,
+) {
+  const [isPlaying, setIsPlaying]       = useState(false)
+  const [currentIdx, setCurrentIdx]     = useState(-1)
+  const utterancesRef                   = useRef<SpeechSynthesisUtterance[]>([])
+  const playingRef                      = useRef(false)
+  const idxRef                          = useRef(0)
+
+  // Build sentence list — inserting tooltip definitions inline
+  const sentences = useMemo(() => {
+    const raw = text.replace(/\n\n/g, ' ').replace(/\n/g, ' ')
+    const split = raw.match(/[^.!?]+[.!?]+[\s]*/g) || [raw]
+    return split.map(s => s.trim()).filter(Boolean)
+  }, [text])
+
+  const tooltipPhrases = useMemo(() => {
+    return Object.keys(wordMap).sort((a, b) => b.length - a.length)
+  }, [wordMap])
+
+  const speakSentence = (idx: number) => {
+    if (idx >= sentences.length) {
+      setIsPlaying(false)
+      setCurrentIdx(-1)
+      playingRef.current = false
+      onDone()
+      return
+    }
+    idxRef.current = idx
+    setCurrentIdx(idx)
+    onProgress(idx)
+
+    const sentence = sentences[idx]
+
+    // Check if this sentence contains a tooltip word
+    const foundPhrase = tooltipPhrases.find(phrase =>
+      sentence.toLowerCase().includes(phrase.toLowerCase())
+    )
+
+    const speakNext = () => {
+      if (!playingRef.current) return
+      speakSentence(idx + 1)
+    }
+
+    if (foundPhrase && wordMap[foundPhrase]) {
+      // Speak sentence, then pause and explain the word
+      const u1 = new SpeechSynthesisUtterance(sentence)
+      u1.rate = 0.88
+      u1.pitch = 1.05
+      u1.lang = 'en-IN'
+      u1.onend = () => {
+        if (!playingRef.current) return
+        // Brief pause then explain
+        const pause = new SpeechSynthesisUtterance('...')
+        pause.volume = 0
+        pause.rate = 2
+        pause.onend = () => {
+          if (!playingRef.current) return
+          const explanation = `The word ${foundPhrase} means — ${wordMap[foundPhrase].meaning}`
+          const u2 = new SpeechSynthesisUtterance(explanation)
+          u2.rate = 0.82
+          u2.pitch = 0.95
+          u2.lang = 'en-IN'
+          u2.onend = speakNext
+          window.speechSynthesis.speak(u2)
+        }
+        window.speechSynthesis.speak(pause)
+      }
+      window.speechSynthesis.speak(u1)
+    } else {
+      const u = new SpeechSynthesisUtterance(sentence)
+      u.rate = 0.88
+      u.pitch = 1.05
+      u.lang = 'en-IN'
+      u.onend = speakNext
+      window.speechSynthesis.speak(u)
+    }
+  }
+
+  const play = () => {
+    if (!('speechSynthesis' in window)) return
+    window.speechSynthesis.cancel()
+    playingRef.current = true
+    setIsPlaying(true)
+    speakSentence(0)
+  }
+
+  const pause = () => {
+    playingRef.current = false
+    setIsPlaying(false)
+    window.speechSynthesis.pause()
+  }
+
+  const resume = () => {
+    playingRef.current = true
+    setIsPlaying(true)
+    window.speechSynthesis.resume()
+    if (window.speechSynthesis.paused) {
+      // already paused — resume native
+    } else {
+      // was cancelled — restart from current sentence
+      speakSentence(idxRef.current)
+    }
+  }
+
+  const stop = () => {
+    playingRef.current = false
+    setIsPlaying(false)
+    setCurrentIdx(-1)
+    window.speechSynthesis.cancel()
+  }
+
+  // Cancel on unmount
+  useEffect(() => {
+    return () => { window.speechSynthesis.cancel(); playingRef.current = false }
+  }, [])
+
+  // Cancel when text changes (new section)
+  useEffect(() => {
+    stop()
+  }, [text])
+
+  return { isPlaying, currentIdx, sentences, play, pause, resume, stop }
+}
+
+// ── VoiceReaderPanel ─────────────────────────────────────────────────────────
+export function VoiceReaderPanel({
+  text, wordMap, theme, onTimeCredit,
+}: {
+  text: string
+  wordMap: Record<string, { meaning: string }>
+  theme: ReaderTheme
+  onTimeCredit: (seconds: number) => void
+}) {
+  const [highlightIdx, setHighlightIdx] = useState(-1)
+  const [done, setDone]                 = useState(false)
+  const creditedRef                     = useRef(false)
+
+  const handleDone = () => {
+    setDone(true)
+    if (!creditedRef.current) {
+      creditedRef.current = true
+      // Credit full minReadSeconds when audio finishes
+      onTimeCredit(600) // generous credit — they listened through the whole section
+    }
+  }
+
+  const { isPlaying, currentIdx, sentences, play, pause, resume, stop } =
+    useVoiceReader(text, wordMap, theme, setHighlightIdx, handleDone)
+
+  useEffect(() => { setDone(false); creditedRef.current = false }, [text])
+
+  if (!('speechSynthesis' in window) && typeof window !== 'undefined') return null
+
+  return (
+    <div style={{ marginBottom: '16px' }}>
+      {/* Control bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 18px', background: isPlaying ? `${theme.accent}25` : '#F8FAFC', borderRadius: '14px', border: `1.5px solid ${isPlaying ? theme.accent : '#E5E7EB'}`, transition: 'all 0.3s', marginBottom: currentIdx >= 0 ? '12px' : '0' }}>
+        <span style={{ fontSize: '18px' }}>🔊</span>
+        <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: isPlaying ? theme.primary : '#6B7280', flex: 1 }}>
+          {done ? '✅ Finished! Section unlocked.' : isPlaying ? 'Reading aloud…' : 'Read for me'}
+        </span>
+        {!isPlaying && !done && (
+          <button onClick={play}
+            style={{ background: `linear-gradient(135deg,${theme.primary},${theme.mid})`, color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            ▶ Play
+          </button>
+        )}
+        {isPlaying && (
+          <>
+            <button onClick={pause}
+              style={{ background: '#F1F5F9', color: '#374151', border: 'none', borderRadius: '8px', padding: '7px 14px', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
+              ⏸ Pause
+            </button>
+            <button onClick={stop}
+              style={{ background: 'none', color: '#94A3B8', border: 'none', borderRadius: '8px', padding: '7px 12px', fontFamily: 'var(--font-body)', fontSize: '12px', cursor: 'pointer' }}>
+              ✕ Stop
+            </button>
+          </>
+        )}
+        {!isPlaying && currentIdx > 0 && !done && (
+          <button onClick={resume}
+            style={{ background: `${theme.accent}30`, color: theme.primary, border: `1px solid ${theme.accent}`, borderRadius: '8px', padding: '7px 14px', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
+            ▶ Resume
+          </button>
+        )}
+        {done && (
+          <button onClick={() => { setDone(false); play() }}
+            style={{ background: '#F1F5F9', color: '#374151', border: 'none', borderRadius: '8px', padding: '7px 14px', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
+            🔁 Again
+          </button>
+        )}
+      </div>
+
+      {/* Karaoke text — only shown while playing */}
+      {currentIdx >= 0 && sentences.length > 0 && (
+        <div style={{ background: 'white', borderRadius: '12px', border: `1px solid ${theme.accent}40`, padding: '14px 18px', fontSize: '14px', fontFamily: 'var(--font-body)', color: '#374151', lineHeight: 1.8 }}>
+          {sentences.map((s, i) => (
+            <span key={i} style={{
+              background: i === currentIdx ? `${theme.accent}50` : 'transparent',
+              borderRadius: '4px',
+              padding: i === currentIdx ? '1px 3px' : '0',
+              fontWeight: i === currentIdx ? 700 : 400,
+              color: i === currentIdx ? theme.primary : i < currentIdx ? '#94A3B8' : '#374151',
+              transition: 'all 0.3s',
+            }}>{s} </span>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function GenericChapterReader({ config }: { config: ReaderConfig }) {
   const params    = useParams()
   const router    = useRouter()
@@ -81,6 +300,9 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
   const [completedSections, setCompletedSections] = useState<Set<number>>(new Set())
   const [showSummary,       setShowSummary]       = useState(false)
   const { elapsed, reset: resetTimer } = useReadTimer(true)
+  const [timeBoost, setTimeBoost] = useState(0)
+  const effectiveElapsed = elapsed + timeBoost
+  const handleVoiceTimeCredit = (seconds: number) => setTimeBoost(prev => Math.max(prev, seconds))
 
   useEffect(() => {
     const load = async () => {
@@ -99,6 +321,8 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
     }
     load()
   }, [chapterId, chapter, router, config.subject])
+
+  useEffect(() => { setTimeBoost(0) }, [currentSection])
 
   const completeSection = async (sectionId: number) => {
     const supabase = createClient()
@@ -189,7 +413,7 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
 
   const currentSec = chapter.sections.find((s: any) => s.id === currentSection)
   const minRead = currentSec?.minReadSeconds ?? 0
-  const readGateMet = !minRead || elapsed >= minRead
+  const readGateMet = !minRead || effectiveElapsed >= minRead
   const isLastSection = currentSection === chapter.sections.length
 
   return (
@@ -236,14 +460,23 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
                   </div>
                   <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '20px', color: theme.primary }}>{currentSec.title}</h2>
                   {minRead > 0 && (
-                    <div style={{ marginLeft: 'auto', background: elapsed >= minRead ? `${theme.accent}30` : '#FFF7ED', border: `1px solid ${elapsed >= minRead ? theme.accent : '#FED7AA'}`, borderRadius: '20px', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                    <div style={{ marginLeft: 'auto', background: effectiveElapsed >= minRead ? `${theme.accent}30` : '#FFF7ED', border: `1px solid ${effectiveElapsed >= minRead ? theme.accent : '#FED7AA'}`, borderRadius: '20px', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                       <span style={{ fontSize: '12px' }}>⏱</span>
                       <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', color: elapsed >= minRead ? theme.primary : '#92400E' }}>
-                        {elapsed >= minRead ? 'Ready!' : (() => { const rem = Math.max(0, minRead - elapsed); const m = Math.floor(rem/60); const s = rem%60; return m > 0 ? `${m}m ${s}s left` : `${s}s left` })()}
+                        {effectiveElapsed >= minRead ? 'Ready!' : (() => { const rem = Math.max(0, minRead - effectiveElapsed); const m = Math.floor(rem/60); const s = rem%60; return m > 0 ? `${m}m ${s}s left` : `${s}s left` })()}
                       </span>
                     </div>
                   )}
                 </div>
+
+                {typeof window !== 'undefined' && 'speechSynthesis' in window && (
+                  <VoiceReaderPanel
+                    text={currentSec.content}
+                    wordMap={wordMap}
+                    theme={theme}
+                    onTimeCredit={handleVoiceTimeCredit}
+                  />
+                )}
 
                 <div style={{ background: 'white', borderRadius: '20px', border: '1.5px solid #F1F5F9', padding: '32px', marginBottom: '20px', boxShadow: `0 2px 12px ${theme.primary}08` }}>
                   {currentSec.content.split('\n\n').map((para: string, i: number) => (
@@ -257,7 +490,7 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
                   <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '12px', padding: '14px 18px', marginBottom: '16px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <span style={{ fontSize: '18px' }}>⏱</span>
                     <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: '#92400E', lineHeight: 1.5 }}>
-                      Please read for at least <strong>{(() => { const rem = Math.max(0, minRead - elapsed); const m = Math.floor(rem/60); const s = rem%60; return m > 0 ? `${m}m ${s}s` : `${s}s` })()} more</strong> before moving on.
+                      Please read for at least <strong>{(() => { const rem = Math.max(0, minRead - effectiveElapsed); const m = Math.floor(rem/60); const s = rem%60; return m > 0 ? `${m}m ${s}s` : `${s}s` })()} more</strong> before moving on.
                     </p>
                   </div>
                 )}
