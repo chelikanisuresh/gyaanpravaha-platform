@@ -404,37 +404,51 @@ export default function AnimatedDashboardHome({
 
       <StatsRow totalCompleted={totalCompleted} avgScore={avgScore} streak={streak}/>
 
-      {/* ── Spaced Repetition: Due for Review ── */}
-      {dueReviews.length > 0 && (
+      {/* ── Spaced Repetition: Review Card — always visible ── */}
+      {loaded && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          style={{ background: 'white', borderRadius: '20px', border: '1.5px solid #FDE68A', padding: '20px 24px', marginBottom: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+          style={{ background: 'white', borderRadius: '20px', border: `1.5px solid ${dueReviews.length > 0 ? '#FDE68A' : '#D8F3DC'}`, padding: '20px 24px', marginBottom: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: dueReviews.length > 0 ? '14px' : '0' }}>
             <span style={{ fontSize: '20px' }}>🔁</span>
-            <div>
-              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: '#92400E' }}>Time for a quick review!</p>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#B45309', marginTop: '2px' }}>These chapters are ready for a 5-question refresh</p>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: dueReviews.length > 0 ? '#92400E' : '#1B4332' }}>
+                Chapter Reviews
+              </p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: dueReviews.length > 0 ? '#B45309' : '#52B788', marginTop: '2px' }}>
+                {dueReviews.length > 0
+                  ? `${dueReviews.length} chapter${dueReviews.length > 1 ? 's' : ''} ready for a quick refresh`
+                  : 'All caught up — no reviews pending ✅'}
+              </p>
             </div>
+            {dueReviews.length > 0 && (
+              <div style={{ background: '#FEF3C7', border: '1.5px solid #FDE68A', borderRadius: '20px', padding: '4px 14px', flexShrink: 0 }}>
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '18px', color: '#92400E' }}>{dueReviews.length}</span>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#B45309', marginLeft: '4px' }}>due</span>
+              </div>
+            )}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {dueReviews.map((item, i) => (
-              <motion.a key={i} href={`/student/${item.quizRoute}/${item.chapterId}`}
-                initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 + i * 0.05 }}
-                style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', background: item.subjectLight, border: `1px solid ${item.subjectColor}20`, textDecoration: 'none', cursor: 'pointer' }}>
-                <span style={{ fontSize: '18px' }}>{item.subjectEmoji}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: item.subjectColor }}>
-                    {item.subjectLabel} — Chapter {item.chapterId}
-                  </p>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>
-                    {item.daysSince} days since last attempt · Original score {item.originalScore}%
-                  </p>
-                </div>
-                <div style={{ background: item.subjectColor, color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', padding: '6px 14px', borderRadius: '8px', flexShrink: 0 }}>
-                  Review →
-                </div>
-              </motion.a>
-            ))}
-          </div>
+          {dueReviews.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {dueReviews.map((item, i) => (
+                <motion.a key={i} href={`/student/${item.quizRoute}/${item.chapterId}`}
+                  initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 + i * 0.05 }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', background: item.subjectLight, border: `1px solid ${item.subjectColor}20`, textDecoration: 'none', cursor: 'pointer' }}>
+                  <span style={{ fontSize: '18px' }}>{item.subjectEmoji}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: item.subjectColor }}>
+                      {item.subjectLabel} — Chapter {item.chapterId}
+                    </p>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>
+                      {item.daysSince} days since last attempt · Original score {item.originalScore}%
+                    </p>
+                  </div>
+                  <div style={{ background: item.subjectColor, color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', padding: '6px 14px', borderRadius: '8px', flexShrink: 0 }}>
+                    Review →
+                  </div>
+                </motion.a>
+              ))}
+            </div>
+          )}
         </motion.div>
       )}
 
