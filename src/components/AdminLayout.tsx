@@ -6,13 +6,13 @@ import { createClient } from '@/lib/supabase/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 
-interface Props { children: React.ReactNode; adminName?: string }
+interface Props { children: React.ReactNode; adminName?: string; onTabChange?: (tab: string) => void; activeTab?: string }
 
 const NAV_ITEMS = [
-  { label: 'Dashboard',  href: '/admin',                    emoji: '🏠' },
-  { label: 'Students',   href: '/admin?tab=students',       emoji: '🎓' },
-  { label: 'Questions',  href: '/admin/questions',          emoji: '📝' },
-  { label: 'Writing',    href: '/admin/writing',            emoji: '✍️' },
+  { label: 'Dashboard',  href: '/admin',            emoji: '🏠', tab: 'overview'  },
+  { label: 'Students',   href: '/admin',            emoji: '🎓', tab: 'students'  },
+  { label: 'Questions',  href: '/admin/questions',  emoji: '📝', tab: ''          },
+  { label: 'Writing',    href: '/admin/writing',    emoji: '✍️',  tab: ''          },
 ]
 
 const LOGO = (
@@ -30,7 +30,7 @@ const LOGO = (
   </svg>
 )
 
-export default function AdminLayout({ children, adminName = 'Admin' }: Props) {
+export default function AdminLayout({ children, adminName = 'Admin', onTabChange, activeTab }: Props) {
   const pathname = usePathname()
   const router   = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -74,12 +74,15 @@ export default function AdminLayout({ children, adminName = 'Admin' }: Props) {
       {/* Nav */}
       <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
         {NAV_ITEMS.map(item => {
-          const url    = new URL(item.href, 'http://x')
-          const active = pathname === url.pathname && (
-            !url.search || (typeof window !== 'undefined' && window.location.search === url.search)
-          ) || (item.href !== '/admin' && pathname?.startsWith(item.href))
+          const active = item.tab
+            ? activeTab === item.tab  // tab-based items
+            : pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href))
           return (
-            <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}
+            <Link key={item.label} href={item.tab ? '#' : item.href}
+              onClick={e => {
+                if (item.tab) { e.preventDefault(); onTabChange?.(item.tab); setMobileOpen(false) }
+                else setMobileOpen(false)
+              }}
               style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '10px', marginBottom: '2px', textDecoration: 'none', background: active ? 'rgba(99,102,241,0.2)' : 'transparent', outline: active ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent', transition: 'all 0.15s' }}
               onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
               onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}>

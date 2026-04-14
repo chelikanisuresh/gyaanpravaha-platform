@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -41,8 +40,6 @@ function Counter({ target }: { target: number }) {
   return <>{val}</>
 }
 
-import { Suspense } from 'react'
-
 function AdminDashboardInner() {
   const router = useRouter()
   const [checking,  setChecking]  = useState(true)
@@ -54,18 +51,7 @@ function AdminDashboardInner() {
   const [classQuestions,   setClassQuestions]   = useState<ClassQuestion[]>([])
   const [questionAttempts, setQuestionAttempts] = useState<QuestionAttempt[]>([])
   const [selectedStudent,  setSelectedStudent]  = useState<Student | null>(null)
-  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<'overview'|'students'|'questions'>('overview')
-
-  // Sync tab with URL param whenever it changes
-  useEffect(() => {
-    const tab = searchParams.get('tab') as 'overview'|'students'|'questions'
-    if (tab && ['overview','students','questions'].includes(tab)) {
-      setActiveTab(tab)
-    } else {
-      setActiveTab('overview')
-    }
-  }, [searchParams])
 
   useEffect(() => {
     const check = async () => {
@@ -416,6 +402,4 @@ function AdminDashboardInner() {
   )
 }
 
-export default function AdminDashboard() {
-  return <Suspense><AdminDashboardInner /></Suspense>
-}
+export default AdminDashboardInner
