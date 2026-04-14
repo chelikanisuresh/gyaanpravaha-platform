@@ -65,6 +65,7 @@ const SUBJECTS = [
   { emoji:'🕉️', label:'Sanskrit',      chapters:8,  color:'#713F12', light:'#FEF9C3' },
   { emoji:'💻', label:'ICT',           chapters:5,  color:'#4C1D95', light:'#EDE9FE' },
   { emoji:'📝', label:'मराठी',         chapters:17, color:'#701A75', light:'#FAE8FF' },
+  { emoji:'📗', label:'Rapid Reader',  chapters:19, color:'#7C3AED', light:'#F5F3FF' },
 ]
 
 // ── Platform mockup ───────────────────────────────────────────────────────────
@@ -340,7 +341,7 @@ export default function HomePage() {
       <section ref={statsRef} style={{ background: '#0D2B1F', padding: '48px 5%' }}>
         <div className="stats-grid" style={{ maxWidth: '900px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '24px', textAlign: 'center' }}>
           {[
-            { value: chapterCount, suffix: '', label: 'Chapters covered', sub: 'All 8 subjects · Your curriculum' },
+            { value: chapterCount, suffix: '', label: 'Chapters covered', sub: `All ${SUBJECT_COUNT} subjects · Your curriculum` },
             { value: sectionCount, suffix: '+', label: 'Lesson sections', sub: '7 sections per chapter' },
             { value: questionCount, suffix: '+', label: 'Quiz questions', sub: 'MCQ, fill in blanks & more' },
           ].map(({ value, suffix, label, sub }) => (
