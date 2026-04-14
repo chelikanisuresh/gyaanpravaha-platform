@@ -94,8 +94,12 @@ function AdminDashboardInner() {
     </div>
   )
 
-  // ── Student detail ──
-  if (selectedStudent) {
+
+
+  // ── Main dashboard ──
+  return (
+    <AdminLayout adminName={adminName}>{(activeTab, setActiveTab) => {
+      if (selectedStudent) {
     const sp = lessonProgress.filter(p => p.student_id === selectedStudent.id)
     const sq = quizAttempts.filter(a => a.student_id === selectedStudent.id)
     const spMap: Record<string, Set<number>> = {}
@@ -106,8 +110,7 @@ function AdminDashboardInner() {
     const studentScores = sq.map(a => a.score)
     const studentAvg = studentScores.length ? Math.round(studentScores.reduce((a,b)=>a+b,0)/studentScores.length) : null
 
-    return (
-      <AdminLayout adminName={adminName}>{(activeTab, setActiveTab) => (
+        return (
         <div style={{ maxWidth: '900px' }}>
           {/* Back + header */}
           <div style={{ display:'flex', alignItems:'center', gap:'16px', marginBottom:'28px' }}>
@@ -198,14 +201,9 @@ function AdminDashboardInner() {
             })}
           </div>
         </div>
-    )}
-    </AdminLayout>
-    )
-  }
-
-  // ── Main dashboard ──
-  return (
-    <AdminLayout adminName={adminName}>{(activeTab, setActiveTab) => (
+        )
+      }
+      return (
       <div style={{ maxWidth:'960px' }}>
 
         {/* Greeting */}
@@ -398,7 +396,8 @@ function AdminDashboardInner() {
           </>
         )}
       </div>
-    )}
+      )
+    }}
     </AdminLayout>
   )
 }
