@@ -7,10 +7,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', emoji: '🏠', tab: 'overview', href: null },
-  { label: 'Students',  emoji: '🎓', tab: 'students', href: null },
-  { label: 'Questions', emoji: '📝', tab: null, href: '/admin/questions' },
-  { label: 'Writing',   emoji: '✍️',  tab: null, href: '/admin/writing' },
+  { label: 'Dashboard', emoji: '🏠', tab: 'overview',   href: null },
+  { label: 'Students',  emoji: '🎓', tab: 'students',   href: null },
+  { label: 'Questions', emoji: '📝', tab: 'questions',  href: null },
+  { label: 'Writing',   emoji: '✍️',  tab: 'writing',    href: null },
 ]
 
 const LOGO = (
@@ -67,9 +67,7 @@ function AdminSidebar({ pathname, activeTab, setActiveTab, setMobileOpen, adminN
       {/* Nav */}
       <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
         {NAV_ITEMS.map(item => {
-          const isActive = item.tab
-            ? pathname === '/admin' && activeTab === item.tab
-            : !!(pathname?.startsWith(item.href ?? '__none__'))
+          const isActive = pathname === '/admin' && activeTab === item.tab
           const style: React.CSSProperties = {
             display: 'flex', alignItems: 'center', gap: '10px',
             padding: '9px 12px', borderRadius: '10px', marginBottom: '2px',
@@ -85,16 +83,11 @@ function AdminSidebar({ pathname, activeTab, setActiveTab, setMobileOpen, adminN
               {isActive && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#818CF8', flexShrink: 0 }}/>}
             </>
           )
-          return item.tab ? (
+          return (
             <button key={item.label} style={style}
               onClick={() => { setActiveTab(item.tab!); setMobileOpen(false) }}>
               {inner}
             </button>
-          ) : (
-            <Link key={item.label} href={item.href!} style={style}
-              onClick={() => setMobileOpen(false)}>
-              {inner}
-            </Link>
           )
         })}
       </nav>

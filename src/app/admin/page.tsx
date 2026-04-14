@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import AdminLayout from '@/components/AdminLayout'
+import QuestionsContent from '@/components/admin-questions-content'
+import WritingContent from '@/components/admin-writing-content'
 import { motion } from 'framer-motion'
 
 interface Student { id: string; full_name: string; email: string; ai_quiz_enabled?: boolean }
@@ -355,44 +357,10 @@ function AdminDashboardInner() {
             )}
 
             {/* ── QUESTIONS ── */}
-            {activeTab === 'questions' && (
-              <div>
-                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px' }}>
-                  <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#64748B' }}>{classQuestions.length} total · {activeQuestions} active</p>
-                  <Link href="/admin/questions" style={{ background:'linear-gradient(135deg,#4338CA,#6366F1)', color:'white', fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'13px', padding:'10px 20px', borderRadius:'12px', textDecoration:'none' }}>
-                    + Add / Manage →
-                  </Link>
-                </div>
-                {classQuestions.length === 0 ? (
-                  <div style={{ textAlign:'center', padding:'60px', background:'white', borderRadius:'18px', border:'1.5px solid #E2E8F0' }}>
-                    <p style={{ fontSize:'40px', marginBottom:'12px' }}>📭</p>
-                    <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'16px', color:'#374151', marginBottom:'6px' }}>No questions yet</p>
-                    <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#94A3B8' }}>Add class questions from the Questions page.</p>
-                  </div>
-                ) : (
-                  <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
-                    {classQuestions.map((q, i) => {
-                      const s = SUBJECTS[q.subject] || SUBJECTS['english']
-                      const answered = questionAttempts.filter(a => a.question_id === q.id).length
-                      return (
-                        <motion.div key={q.id} initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*0.04 }}
-                          style={{ background:'white', borderRadius:'16px', border:'1.5px solid #F1F5F9', padding:'18px 22px', opacity: q.is_active ? 1 : 0.55 }}>
-                          <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px', flexWrap:'wrap' }}>
-                            <span style={{ background:s.color, color:'white', fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'11px', padding:'3px 10px', borderRadius:'20px' }}>{s.emoji} {s.label}</span>
-                            <span style={{ background:'#F1F5F9', color:'#374151', fontFamily:'var(--font-heading)', fontWeight:600, fontSize:'11px', padding:'3px 10px', borderRadius:'20px' }}>{q.chapter_title}</span>
-                            {!q.is_active && <span style={{ background:'#FEF3C7', color:'#92400E', fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'11px', padding:'3px 10px', borderRadius:'20px' }}>Hidden</span>}
-                            <span style={{ marginLeft:'auto', background: answered > 0 ? '#D1FAE5' : '#F1F5F9', color: answered > 0 ? '#065F46' : '#94A3B8', fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'11px', padding:'3px 12px', borderRadius:'20px' }}>
-                              ✍️ {answered}/{students.length} answered
-                            </span>
-                          </div>
-                          <p style={{ fontFamily:'var(--font-body)', fontSize:'14px', color:'#374151', lineHeight:1.6 }}>{q.question}</p>
-                        </motion.div>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
+            {activeTab === 'questions' && <QuestionsContent/>}
+
+            {/* ── WRITING ── */}
+            {activeTab === 'writing' && <WritingContent/>}
           </>
         )}
       </div>
