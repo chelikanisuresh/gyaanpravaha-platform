@@ -439,6 +439,11 @@ export default function AnimatedDashboardHome({
       )}
 
       {/* ── Exam Mode card ── */}
+      {loaded && (
+        <div style={{ background: 'red', padding: '10px', color: 'white', borderRadius: '8px', marginBottom: '10px' }}>
+          DEBUG: loaded={String(loaded)} examActive={String(examActive)} examConfig.length={examConfig.length}
+        </div>
+      )}
       {loaded && examActive && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
           style={{ background: 'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius: '20px', padding: '20px 24px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', boxShadow: '0 4px 20px rgba(27,67,50,0.25)' }}
