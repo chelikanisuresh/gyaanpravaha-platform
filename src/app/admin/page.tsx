@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -40,7 +41,9 @@ function Counter({ target }: { target: number }) {
   return <>{val}</>
 }
 
-export default function AdminDashboard() {
+import { Suspense } from 'react'
+
+function AdminDashboardInner() {
   const router = useRouter()
   const [checking,  setChecking]  = useState(true)
   const [adminName, setAdminName] = useState('Admin')
@@ -51,7 +54,9 @@ export default function AdminDashboard() {
   const [classQuestions,   setClassQuestions]   = useState<ClassQuestion[]>([])
   const [questionAttempts, setQuestionAttempts] = useState<QuestionAttempt[]>([])
   const [selectedStudent,  setSelectedStudent]  = useState<Student | null>(null)
-  const [activeTab, setActiveTab] = useState<'overview'|'students'|'questions'>('overview')
+  const searchParams = useSearchParams()
+  const initTab = (searchParams.get('tab') as 'overview'|'students'|'questions') || 'overview'
+  const [activeTab, setActiveTab] = useState<'overview'|'students'|'questions'>(initTab)
 
   useEffect(() => {
     const check = async () => {
@@ -345,6 +350,10 @@ export default function AdminDashboard() {
                           <p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color:'#CBD5E1', marginTop:'2px' }}>last active</p>
                         </div>
                       </div>
+                      <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'4px', flexShrink:0 }}>
+                        <span style={{ fontSize:'14px' }}>{student.ai_quiz_enabled ? '✨' : '○'}</span>
+                        <p style={{ fontFamily:'var(--font-body)', fontSize:'9px', color: student.ai_quiz_enabled ? '#7C3AED' : '#CBD5E1' }}>AI Quiz</p>
+                      </div>
                       <span style={{ color:'#E2E8F0', fontSize:'20px', flexShrink:0 }}>›</span>
                     </motion.button>
                   )
@@ -396,4 +405,8 @@ export default function AdminDashboard() {
       </div>
     </AdminLayout>
   )
+}
+
+export default function AdminDashboard() {
+  return <Suspense><AdminDashboardInner /></Suspense>
 }

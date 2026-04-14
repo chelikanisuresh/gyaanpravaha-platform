@@ -9,10 +9,10 @@ import { useState } from 'react'
 interface Props { children: React.ReactNode; adminName?: string }
 
 const NAV_ITEMS = [
-  { label: 'Dashboard',  href: '/admin',                emoji: '🏠' },
-  { label: 'Students',   href: '/admin/students',       emoji: '🎓' },
-  { label: 'Questions',  href: '/admin/questions',      emoji: '📝' },
-  { label: 'Writing',    href: '/admin/writing',        emoji: '✍️' },
+  { label: 'Dashboard',  href: '/admin',                    emoji: '🏠' },
+  { label: 'Students',   href: '/admin?tab=students',       emoji: '🎓' },
+  { label: 'Questions',  href: '/admin/questions',          emoji: '📝' },
+  { label: 'Writing',    href: '/admin/writing',            emoji: '✍️' },
 ]
 
 const LOGO = (
@@ -74,7 +74,10 @@ export default function AdminLayout({ children, adminName = 'Admin' }: Props) {
       {/* Nav */}
       <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
         {NAV_ITEMS.map(item => {
-          const active = pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href))
+          const url    = new URL(item.href, 'http://x')
+          const active = pathname === url.pathname && (
+            !url.search || (typeof window !== 'undefined' && window.location.search === url.search)
+          ) || (item.href !== '/admin' && pathname?.startsWith(item.href))
           return (
             <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}
               style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '10px', marginBottom: '2px', textDecoration: 'none', background: active ? 'rgba(99,102,241,0.2)' : 'transparent', outline: active ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent', transition: 'all 0.15s' }}
