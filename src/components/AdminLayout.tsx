@@ -41,7 +41,7 @@ export default function AdminLayout({ children, adminName = 'Admin', onTabChange
     router.push('/admin/login')
   }
 
-  const SidebarContent = () => (
+  const sidebarContent = (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
       {/* Logo */}
@@ -80,7 +80,7 @@ export default function AdminLayout({ children, adminName = 'Admin', onTabChange
           return item.tab ? (
               <button key={item.label}
                 onClick={() => { onTabChange?.(item.tab!); setMobileOpen(false) }}
-                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '10px', marginBottom: '2px', textDecoration: 'none', background: active ? 'rgba(99,102,241,0.2)' : 'transparent', outline: active ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent', transition: 'all 0.15s', width: '100%', border: 'none', cursor: 'pointer' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '10px', marginBottom: '2px', background: active ? 'rgba(99,102,241,0.2)' : 'transparent', outline: active ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent', transition: 'all 0.15s', width: '100%', border: 'none', cursor: 'pointer', textAlign: 'left' }}
                 onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
                 onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}>
                 <span style={{ fontSize: '15px', width: '22px', textAlign: 'center' }}>{item.emoji}</span>
@@ -123,7 +123,7 @@ export default function AdminLayout({ children, adminName = 'Admin', onTabChange
 
       {/* Sidebar */}
       <div className="gp-admin-sidebar" style={{ width: '232px', minWidth: '232px', background: 'linear-gradient(180deg,#1E1B4B 0%,#312E81 100%)', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh', zIndex: 50 }}>
-        <SidebarContent/>
+        {sidebarContent}
       </div>
 
       {/* Mobile overlay */}
@@ -133,7 +133,7 @@ export default function AdminLayout({ children, adminName = 'Admin', onTabChange
             style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex' }}>
             <motion.div initial={{ x: -232 }} animate={{ x: 0 }} exit={{ x: -232 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               style={{ width: '232px', background: 'linear-gradient(180deg,#1E1B4B 0%,#312E81 100%)', height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <SidebarContent/>
+              {sidebarContent}
             </motion.div>
             <div style={{ flex: 1, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }} onClick={() => setMobileOpen(false)}/>
           </motion.div>
