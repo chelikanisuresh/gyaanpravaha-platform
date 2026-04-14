@@ -6,7 +6,6 @@ import { createClient } from '@/lib/supabase/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 
-// Tab-based nav items render on /admin, route-based nav items navigate to other pages
 const NAV_ITEMS = [
   { label: 'Dashboard', emoji: '🏠', tab: 'overview',  href: null },
   { label: 'Students',  emoji: '🎓', tab: 'students',  href: null },
@@ -28,9 +27,55 @@ interface Props {
   adminName?: string
 }
 
+// ── Sidebar nav — defined OUTSIDE AdminLayout so it never remounts ────────────
+function SidebarNav({
+  pathname, activeTab, setActiveTab, setMobileOpen,
+}: {
+  pathname: string | null
+  activeTab: string
+  setActiveTab: (t: string) => void
+  setMobileOpen: (v: boolean) => void
+}) {
+  return (
+    <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
+      {NAV_ITEMS.map(item => {
+        const isActive = item.tab
+          ? pathname === '/admin' && activeTab === item.tab
+          : !!(pathname?.startsWith(item.href ?? '__none__'))
+        const style: React.CSSProperties = {
+          display: 'flex', alignItems: 'center', gap: '10px',
+          padding: '9px 12px', borderRadius: '10px', marginBottom: '2px',
+          background: isActive ? 'rgba(99,102,241,0.2)' : 'transparent',
+          outline: isActive ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
+          transition: 'all 0.15s', width: '100%', border: 'none',
+          cursor: 'pointer', textAlign: 'left', textDecoration: 'none', color: 'inherit',
+        }
+        const inner = (
+          <>
+            <span style={{ fontSize: '15px', width: '22px', textAlign: 'center' }}>{item.emoji}</span>
+            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: isActive ? 700 : 500, fontSize: '13px', color: isActive ? 'white' : 'rgba(255,255,255,0.6)', flex: 1 }}>{item.label}</span>
+            {isActive && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#818CF8', flexShrink: 0 }}/>}
+          </>
+        )
+        return item.tab ? (
+          <button key={item.label} style={style}
+            onClick={() => { setActiveTab(item.tab!); setMobileOpen(false) }}>
+            {inner}
+          </button>
+        ) : (
+          <Link key={item.label} href={item.href!} style={style}
+            onClick={() => setMobileOpen(false)}>
+            {inner}
+          </Link>
+        )
+      })}
+    </nav>
+  )
+}
+
 export default function AdminLayout({ children, adminName = 'Admin' }: Props) {
-  const pathname   = usePathname()
-  const router     = useRouter()
+  const pathname  = usePathname()
+  const router    = useRouter()
   const [mobileOpen,  setMobileOpen]  = useState(false)
   const [activeTab,   setActiveTab]   = useState('overview')
   const initials = (adminName || 'A').slice(0, 2).toUpperCase()
@@ -40,49 +85,9 @@ export default function AdminLayout({ children, adminName = 'Admin' }: Props) {
     router.push('/admin/login')
   }
 
-  const NavItem = ({ item }: { item: typeof NAV_ITEMS[0] }) => {
-    const isActive = item.tab
-      ? pathname === '/admin' && activeTab === item.tab
-      : pathname?.startsWith(item.href ?? '__none__')
-
-    const style = {
-      display: 'flex', alignItems: 'center', gap: '10px',
-      padding: '9px 12px', borderRadius: '10px', marginBottom: '2px',
-      background: isActive ? 'rgba(99,102,241,0.2)' : 'transparent',
-      outline: isActive ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
-      transition: 'all 0.15s', width: '100%', border: 'none',
-      cursor: 'pointer', textAlign: 'left' as const, textDecoration: 'none',
-      color: 'inherit',
-    }
-
-    const content = (
-      <>
-        <span style={{ fontSize: '15px', width: '22px', textAlign: 'center' }}>{item.emoji}</span>
-        <span style={{ fontFamily: 'var(--font-heading)', fontWeight: isActive ? 700 : 500, fontSize: '13px', color: isActive ? 'white' : 'rgba(255,255,255,0.6)', flex: 1 }}>{item.label}</span>
-        {isActive && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#818CF8', flexShrink: 0 }}/>}
-      </>
-    )
-
-    if (item.tab) {
-      return (
-        <button
-          onClick={() => { setActiveTab(item.tab!); setMobileOpen(false) }}
-          style={style}>
-          {content}
-        </button>
-      )
-    }
-
-    return (
-      <Link href={item.href!} onClick={() => setMobileOpen(false)} style={style}>
-        {content}
-      </Link>
-    )
-  }
-
-  const Sidebar = () => (
+  // Inline sidebar JSX — not a component, so no remount issues
+  const sidebarJsx = (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Logo */}
       <div style={{ padding: '20px 18px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
           <div style={{ width: '36px', height: '36px', background: 'linear-gradient(135deg,rgba(255,255,255,0.15),rgba(255,255,255,0.05))', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.12)', flexShrink: 0 }}>
@@ -95,7 +100,6 @@ export default function AdminLayout({ children, adminName = 'Admin' }: Props) {
         </Link>
       </div>
 
-      {/* Admin card */}
       <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.06)', borderRadius: '12px', padding: '10px 12px', border: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '50%', background: 'linear-gradient(135deg,#4338CA,#6366F1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '13px', color: 'white' }}>
@@ -109,12 +113,13 @@ export default function AdminLayout({ children, adminName = 'Admin' }: Props) {
         </div>
       </div>
 
-      {/* Nav */}
-      <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
-        {NAV_ITEMS.map(item => <NavItem key={item.label} item={item} />)}
-      </nav>
+      <SidebarNav
+        pathname={pathname}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        setMobileOpen={setMobileOpen}
+      />
 
-      {/* Logout */}
       <div style={{ padding: '12px 10px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
         <button onClick={handleLogout}
           style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '10px', width: '100%', background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left' }}>
@@ -132,19 +137,17 @@ export default function AdminLayout({ children, adminName = 'Admin' }: Props) {
         @media(min-width:769px){ .gp-admin-mobile{display:none!important} }
       `}</style>
 
-      {/* Desktop sidebar */}
       <div className="gp-admin-sidebar" style={{ width: '232px', minWidth: '232px', background: 'linear-gradient(180deg,#1E1B4B 0%,#312E81 100%)', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh', zIndex: 50 }}>
-        <Sidebar/>
+        {sidebarJsx}
       </div>
 
-      {/* Mobile overlay */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex' }}>
             <motion.div initial={{ x: -232 }} animate={{ x: 0 }} exit={{ x: -232 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               style={{ width: '232px', background: 'linear-gradient(180deg,#1E1B4B 0%,#312E81 100%)', height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Sidebar/>
+              {sidebarJsx}
             </motion.div>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               style={{ flex: 1, background: 'rgba(0,0,0,0.5)' }} onClick={() => setMobileOpen(false)}/>
@@ -152,9 +155,7 @@ export default function AdminLayout({ children, adminName = 'Admin' }: Props) {
         )}
       </AnimatePresence>
 
-      {/* Main content */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Mobile top bar */}
         <div className="gp-admin-mobile" style={{ background: 'linear-gradient(135deg,#1E1B4B,#312E81)', padding: '12px 16px', alignItems: 'center', justifyContent: 'space-between', display: 'none', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <button onClick={() => setMobileOpen(true)} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', padding: '7px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -164,7 +165,6 @@ export default function AdminLayout({ children, adminName = 'Admin' }: Props) {
           <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: 'white' }}>Gyaanpravaha Admin</p>
           <div style={{ width: '32px' }}/>
         </div>
-
         <div style={{ padding: '28px 36px 60px' }}>
           {typeof children === 'function' ? children(activeTab, setActiveTab) : children}
         </div>
