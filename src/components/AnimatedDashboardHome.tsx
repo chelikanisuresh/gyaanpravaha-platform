@@ -403,6 +403,7 @@ export default function AnimatedDashboardHome({
       setExamConfig(examData ?? [])
       setExamActive((examData ?? []).length > 0)
       setExamResults(examResultsData ?? [])
+      console.log('[Exam] examData:', examData, 'active:', (examData ?? []).length > 0)
 
       setLoaded(true)
     }
