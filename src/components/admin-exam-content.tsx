@@ -89,6 +89,7 @@ export default function ExamContent() {
   const [configs,      setConfigs]      = useState<Record<string, ExamConfig>>({})
   const [loading,      setLoading]      = useState(true)
   const [saving,       setSaving]       = useState<string | null>(null)
+  const [saveSuccess,  setSaveSuccess]  = useState<string | null>(null)
   const [selectedTerm, setSelectedTerm] = useState('Unit Test 1')
   const [expandedSubj, setExpandedSubj] = useState<string | null>(null)
 
@@ -121,8 +122,15 @@ export default function ExamContent() {
   const saveSubject = async (subjectId: string) => {
     setSaving(subjectId)
     const supabase = createClient()
-    await supabase.from('exam_config')
+    const { error } = await supabase.from('exam_config')
       .upsert({ ...configs[subjectId], term: selectedTerm }, { onConflict: 'subject' })
+    if (error) {
+      console.error('Save error:', error)
+      alert(`Save failed: ${error.message}`)
+    } else {
+      setSaveSuccess(subjectId)
+      setTimeout(() => setSaveSuccess(null), 2000)
+    }
     setSaving(null)
   }
 
@@ -204,8 +212,8 @@ export default function ExamContent() {
 
                   {/* Save */}
                   <button onClick={() => saveSubject(subject.id)}
-                    style={{ background: '#F1F5F9', color: '#374151', border: 'none', borderRadius: '8px', padding: '7px 14px', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', cursor: 'pointer', flexShrink: 0 }}>
-                    {saving === subject.id ? 'Saving…' : 'Save'}
+                    style={{ background: saveSuccess === subject.id ? '#D1FAE5' : '#F1F5F9', color: saveSuccess === subject.id ? '#065F46' : '#374151', border: `1px solid ${saveSuccess === subject.id ? '#6EE7B7' : 'transparent'}`, borderRadius: '8px', padding: '7px 14px', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', cursor: 'pointer', flexShrink: 0, transition: 'all 0.2s' }}>
+                    {saving === subject.id ? 'Saving…' : saveSuccess === subject.id ? '✓ Saved' : 'Save'}
                   </button>
 
                   {/* Live toggle */}
