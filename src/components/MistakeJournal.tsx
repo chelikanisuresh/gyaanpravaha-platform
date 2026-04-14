@@ -64,8 +64,8 @@ async function fetchSectionContent(subject: string, chapterId: number, sectionId
 async function backfillMistakes(studentId: string) {
   try {
     const res = await fetch('/api/backfill-mistakes', { method: 'POST' })
-    const data = await res.json()
-    console.log('[MistakeJournal] backfill result:', data)
+    const text = await res.text()
+    console.log('[MistakeJournal] backfill status:', res.status, 'body:', text)
   } catch (e) {
     console.error('[MistakeJournal] backfill error:', e)
   }
@@ -233,8 +233,9 @@ function JournalEntry({
 }
 
 export default function MistakeJournal({ studentId }: { studentId: string }) {
-  const [entries,  setEntries]  = useState<MistakeEntry[]>([])
-  const [loading,  setLoading]  = useState(true)
+  const [entries,   setEntries]  = useState<MistakeEntry[]>([])
+  const [loading,   setLoading]  = useState(true)
+  const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
     if (!studentId) return
@@ -266,10 +267,11 @@ export default function MistakeJournal({ studentId }: { studentId: string }) {
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
       style={{ background: 'white', borderRadius: '20px', border: `1.5px solid ${pendingCount > 0 ? '#FCA5A5' : '#D8F3DC'}`, padding: '20px 24px', marginBottom: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
 
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: pendingCount > 0 ? '16px' : '0' }}>
+      {/* Header — clickable to collapse/expand */}
+      <button onClick={() => setCollapsed(c => !c)}
+        style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: collapsed ? '0' : pendingCount > 0 ? '16px' : '0' }}>
         <span style={{ fontSize: '20px' }}>📝</span>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, textAlign: 'left' }}>
           <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: pendingCount > 0 ? '#991B1B' : '#1B4332' }}>
             Mistake Journal
           </p>
@@ -279,16 +281,19 @@ export default function MistakeJournal({ studentId }: { studentId: string }) {
               : 'All mistakes cleared — great work! ✅'}
           </p>
         </div>
-        {!loading && pendingCount > 0 && (
-          <div style={{ background: '#FEE2E2', border: '1.5px solid #FCA5A5', borderRadius: '20px', padding: '4px 14px', flexShrink: 0 }}>
-            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '18px', color: '#991B1B' }}>{pendingCount}</span>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#DC2626', marginLeft: '4px' }}>pending</span>
-          </div>
-        )}
-      </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+          {!loading && pendingCount > 0 && (
+            <div style={{ background: '#FEE2E2', border: '1.5px solid #FCA5A5', borderRadius: '20px', padding: '4px 14px' }}>
+              <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: '18px', color: '#991B1B' }}>{pendingCount}</span>
+              <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#DC2626', marginLeft: '4px' }}>pending</span>
+            </div>
+          )}
+          <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 700 }}>{collapsed ? '▼' : '▲'}</span>
+        </div>
+      </button>
 
-      {/* Entries */}
-      {!loading && pendingCount > 0 && (
+      {/* Entries — hidden when collapsed */}
+      {!collapsed && !loading && pendingCount > 0 && (
         <AnimatePresence mode="popLayout">
           {entries.map(entry => (
             <JournalEntry key={entry.id} entry={entry} onResolved={handleResolved} />
