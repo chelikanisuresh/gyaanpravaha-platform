@@ -38,7 +38,7 @@ export default function ParentDashboardHome() {
   const [parentName,  setParentName]  = useState('Parent')
   const [children,    setChildren]    = useState<Child[]>([])
   const [activeChild, setActiveChild] = useState(0)
-  const [stats, setStats] = useState({ chaptersCompleted: 0, totalChapters: TOTAL_CHAPTERS, avgScore: null as number | null, quizzesTaken: 0 })
+  const [stats, setStats] = useState({ chaptersCompleted: 0, totalChapters: TOTAL_CHAPTERS, avgScore: null as number | null, quizzesTaken: 0, dueReviews: 0 })
   const [subjectProgress, setSubjectProgress] = useState<{ key: string; done: number; total: number; avg: number | null }[]>([])
   const [recentActivity, setRecentActivity]   = useState<{ emoji: string; text: string; time: string }[]>([])
   const [loading, setLoading] = useState(true)
@@ -89,7 +89,17 @@ export default function ParentDashboardHome() {
     const totalDone = subjectData.reduce((a, s) => a + s.done, 0)
     const allScores = quizzes?.map((q: any) => q.score) || []
     const avgScore  = allScores.length ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length) : null
-    setStats({ chaptersCompleted: totalDone, totalChapters: TOTAL_CHAPTERS, avgScore, quizzesTaken: quizzes?.length || 0 })
+    // Count chapters due for review (quiz done 7+ days ago, no recent attempt)
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    const latestByChapter: Record<string, Date> = {}
+    ;(quizzes || []).forEach((q: any) => {
+      const key = `${q.subject}-${q.chapter_id}`
+      const d = new Date(q.created_at)
+      if (!latestByChapter[key] || d > latestByChapter[key]) latestByChapter[key] = d
+    })
+    const dueReviews = Object.values(latestByChapter).filter(d => d <= sevenDaysAgo).length
+    setStats({ chaptersCompleted: totalDone, totalChapters: TOTAL_CHAPTERS, avgScore, quizzesTaken: quizzes?.length || 0, dueReviews })
 
     // Build recent activity
     const activity: { emoji: string; text: string; time: string }[] = []
@@ -167,7 +177,7 @@ export default function ParentDashboardHome() {
               <span style={{ fontSize: '18px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginLeft: '4px' }}>/ {stats.totalChapters} chapters</span>
             </p>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.55)' }}>
-              {stats.avgScore !== null ? `${stats.avgScore}% avg quiz score · ` : ''}{stats.quizzesTaken} quiz{stats.quizzesTaken !== 1 ? 'zes' : ''} taken
+              {stats.avgScore !== null ? `${stats.avgScore}% avg quiz score · ` : ''}{stats.quizzesTaken} quiz{stats.quizzesTaken !== 1 ? 'zes' : ''} taken{stats.dueReviews > 0 ? ` · 🔁 ${stats.dueReviews} chapter${stats.dueReviews > 1 ? 's' : ''} due for review` : ''}
             </p>
           </div>
           {/* Progress ring */}

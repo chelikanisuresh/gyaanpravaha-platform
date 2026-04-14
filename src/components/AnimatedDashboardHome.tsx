@@ -268,6 +268,7 @@ export default function AnimatedDashboardHome({
   const [avgScore,      setAvgScore]      = useState<number | null>(null)
   const [loaded,        setLoaded]        = useState(false)
   const [streak,        setStreak]        = useState(0)
+  const [dueReviews,    setDueReviews]    = useState<any[]>([])
 
   useEffect(() => {
     const load = async () => {
@@ -334,6 +335,55 @@ export default function AnimatedDashboardHome({
       }
       setStreak(streakCount)
 
+      // Spaced repetition — find chapters where quiz was done 7+ days ago
+      // and student hasn't done a review attempt since
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+
+      const { data: allQuizzes } = await supabase
+        .from('student_quiz_attempts')
+        .select('subject, chapter_id, score, created_at')
+        .eq('student_id', uid)
+        .order('created_at', { ascending: false })
+
+      // Get the FIRST (oldest) attempt per chapter — that's when they originally did it
+      const firstAttempts: Record<string, any> = {}
+      ;(allQuizzes || []).slice().reverse().forEach((r: any) => {
+        const key = `${r.subject}-${r.chapter_id}`
+        firstAttempts[key] = r
+      })
+
+      // Get the LATEST attempt per chapter — to check if they already reviewed recently
+      const latestAttempts: Record<string, any> = {}
+      ;(allQuizzes || []).forEach((r: any) => {
+        const key = `${r.subject}-${r.chapter_id}`
+        if (!latestAttempts[key]) latestAttempts[key] = r
+      })
+
+      // Due = first attempt was 7+ days ago AND latest attempt was also 7+ days ago
+      const due: any[] = []
+      Object.entries(firstAttempts).forEach(([key, first]: any) => {
+        const firstDate = new Date(first.created_at)
+        const latest    = latestAttempts[key]
+        const latestDate = new Date(latest.created_at)
+        if (firstDate <= sevenDaysAgo && latestDate <= sevenDaysAgo) {
+          const [subject, chapterId] = key.split('-')
+          const subjectInfo = SUBJECTS.find(s => s.id === subject)
+          due.push({
+            subject,
+            chapterId: Number(chapterId),
+            subjectLabel: subjectInfo?.label ?? subject,
+            subjectEmoji: subjectInfo?.emoji ?? '📚',
+            subjectColor: subjectInfo?.color ?? '#1B4332',
+            subjectLight: subjectInfo?.light ?? '#F0FDF4',
+            quizRoute:    subjectInfo?.quizRoute ?? 'quiz',
+            originalScore: first.score,
+            daysSince: Math.floor((Date.now() - latestDate.getTime()) / (1000 * 60 * 60 * 24)),
+          })
+        }
+      })
+      setDueReviews(due.slice(0, 5))  // max 5 at a time
+
       setLoaded(true)
     }
 
@@ -353,6 +403,40 @@ export default function AnimatedDashboardHome({
       <GreetingBanner name={name} totalCompleted={totalCompleted} totalChapters={totalChapters}/>
 
       <StatsRow totalCompleted={totalCompleted} avgScore={avgScore} streak={streak}/>
+
+      {/* ── Spaced Repetition: Due for Review ── */}
+      {dueReviews.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          style={{ background: 'white', borderRadius: '20px', border: '1.5px solid #FDE68A', padding: '20px 24px', marginBottom: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+            <span style={{ fontSize: '20px' }}>🔁</span>
+            <div>
+              <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '14px', color: '#92400E' }}>Time for a quick review!</p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: '#B45309', marginTop: '2px' }}>These chapters are ready for a 5-question refresh</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {dueReviews.map((item, i) => (
+              <motion.a key={i} href={`/student/${item.quizRoute}/${item.chapterId}`}
+                initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 + i * 0.05 }}
+                style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', background: item.subjectLight, border: `1px solid ${item.subjectColor}20`, textDecoration: 'none', cursor: 'pointer' }}>
+                <span style={{ fontSize: '18px' }}>{item.subjectEmoji}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '13px', color: item.subjectColor }}>
+                    {item.subjectLabel} — Chapter {item.chapterId}
+                  </p>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>
+                    {item.daysSince} days since last attempt · Original score {item.originalScore}%
+                  </p>
+                </div>
+                <div style={{ background: item.subjectColor, color: 'white', fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '12px', padding: '6px 14px', borderRadius: '8px', flexShrink: 0 }}>
+                  Review →
+                </div>
+              </motion.a>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Subject grid */}
       <motion.p
