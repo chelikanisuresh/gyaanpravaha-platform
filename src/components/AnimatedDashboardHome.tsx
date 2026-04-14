@@ -445,7 +445,7 @@ export default function AnimatedDashboardHome({
           <span style={{ fontSize: '28px', flexShrink: 0 }}>📋</span>
           <div style={{ flex: 1 }}>
             <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: '15px', color: 'white', marginBottom: '3px' }}>
-              {examConfig[0]?.term ?? 'Term'} Exam is Live!
+              {[...new Set(examConfig.map((c: any) => c.term))].join(' & ')} — Exam is Live!
             </p>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'rgba(255,255,255,0.75)' }}>
               Tap to start your exam — {examConfig.length} subject{examConfig.length > 1 ? 's' : ''} · {Math.max(...examConfig.map((c: any) => c.duration_mins))} minutes
