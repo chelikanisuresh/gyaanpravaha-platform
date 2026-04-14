@@ -63,8 +63,12 @@ async function fetchSectionContent(subject: string, chapterId: number, sectionId
 // Backfill past quiz attempts via server-side API
 async function backfillMistakes(studentId: string) {
   try {
-    await fetch('/api/backfill-mistakes', { method: 'POST' })
-  } catch { /* silent fail — backfill is best-effort */ }
+    const res = await fetch('/api/backfill-mistakes', { method: 'POST' })
+    const data = await res.json()
+    console.log('[MistakeJournal] backfill result:', data)
+  } catch (e) {
+    console.error('[MistakeJournal] backfill error:', e)
+  }
 }
 
 const SUBJECT_LABELS: Record<string, { label: string; emoji: string; color: string; light: string }> = {

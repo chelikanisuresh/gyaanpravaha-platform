@@ -93,11 +93,15 @@ export async function POST(req: NextRequest) {
     }
 
     if (toInsert.length > 0) {
-      await supabase.from('mistake_journal')
+      const { error: upsertErr } = await supabase.from('mistake_journal')
         .upsert(toInsert, { onConflict: 'student_id,subject,chapter_id,question_id', ignoreDuplicates: true })
+      if (upsertErr) {
+        console.error('Mistake journal upsert error:', upsertErr)
+        return NextResponse.json({ error: upsertErr.message, toInsert: toInsert.length }, { status: 500 })
+      }
     }
 
-    return NextResponse.json({ inserted: toInsert.length })
+    return NextResponse.json({ inserted: toInsert.length, found: attempts?.length ?? 0 })
   } catch (err) {
     console.error('Backfill error:', err)
     return NextResponse.json({ error: 'Backfill failed' }, { status: 500 })
