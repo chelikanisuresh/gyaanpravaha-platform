@@ -182,31 +182,15 @@ export function VoiceReaderPanel({
   useEffect(() => {
     const load = () => {
       const all = window.speechSynthesis.getVoices()
-      const eng = all.filter(v => v.lang.startsWith('en'))
-      
-      // Pick best voices — prefer natural/premium, one per locale
-      const pick = (lang: string, limit = 2) =>
-        eng.filter(v => v.lang === lang)
-           .sort((a, b) => {
-             // Prefer voices with 'natural' or 'premium' in name (Mac/iOS quality voices)
-             const aScore = (a.name.toLowerCase().includes('natural') || a.name.toLowerCase().includes('premium')) ? 1 : 0
-             const bScore = (b.name.toLowerCase().includes('natural') || b.name.toLowerCase().includes('premium')) ? 1 : 0
-             return bScore - aScore
-           })
-           .slice(0, limit)
-
-      const sorted = [
-        ...pick('en-IN', 2),
-        ...pick('en-GB', 2),
-        ...pick('en-US', 2),
-        ...pick('en-AU', 1),
-        ...pick('en-ZA', 1),
-      ].slice(0, 8)  // hard cap at 8
-
-      // Fallback: if none matched, just take first 6 English voices
-      const final = sorted.length > 0 ? sorted : eng.slice(0, 6)
-      setVoices(final)
-      if (!selectedVoice && final.length > 0) setSelectedVoice(final[0])
+      // Show all English voices — sorted Indian first, then GB, US, rest
+      const eng = all.filter(v => v.lang.startsWith('en')).sort((a, b) => {
+        const order = (lang: string) =>
+          lang === 'en-IN' ? 0 : lang === 'en-GB' ? 1 : lang === 'en-US' ? 2 : 3
+        return order(a.lang) - order(b.lang)
+      })
+      setVoices(eng)
+      // Only set default on first load — never overwrite student's selection
+      setSelectedVoice(prev => prev ?? (eng[0] || null))
     }
     load()
     window.speechSynthesis.onvoiceschanged = load
