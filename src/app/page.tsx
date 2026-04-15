@@ -249,15 +249,7 @@ export default function HomePage() {
         backdropFilter:'blur(10px)', zIndex:100,
       }}>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <div style={{ width:'38px', height:'38px', background:'#74C69D', borderRadius:'11px', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M4 10h12M10 4v12" stroke="#1B4332" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </div>
-          <div>
-            <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'17px', color:'var(--green-deepest)', lineHeight:1 }}>Gyaanpravaha</p>
-            <p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color:'var(--green-mid)', lineHeight:1, marginTop:'2px' }}>ज्ञानप्रवाह</p>
-          </div>
+          <img src="/gyaanpravaha-logo.svg" alt="Gyaanpravaha" style={{ height:'48px', width:'auto' }}/>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
           <Link href="/gk" className="btn-secondary" style={{ padding:'8px 18px', fontSize:'13px' }}>Learn for free</Link>
@@ -496,12 +488,7 @@ export default function HomePage() {
       {/* FOOTER */}
       <footer style={{ background:'var(--green-deepest)', padding:'44px 5%', display:'flex', flexDirection:'column', alignItems:'center', gap:'12px', textAlign:'center' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <div style={{ width:'34px', height:'34px', background:'#74C69D', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-              <path d="M4 10h12M10 4v12" stroke="#1B4332" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </div>
-          <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'17px', color:'white' }}>Gyaanpravaha</p>
+          <img src="/gyaanpravaha-logo.svg" alt="Gyaanpravaha" style={{ height:'44px', width:'auto', filter:'brightness(0) invert(1) opacity(0.85)' }}/>
         </div>
         <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'rgba(255,255,255,0.45)' }}>Learn it. Know it. Flow with it.</p>
         <p style={{ fontFamily:'var(--font-body)', fontSize:'12px', color:'rgba(255,255,255,0.28)' }}>© 2026 Gyaanpravaha · gyaanpravaha.in</p>
