@@ -344,6 +344,43 @@ export default function HomePage() {
         </div>
       </section>
 
+
+      {/* SUBJECTS */}
+      <section style={{ padding:'64px 5%', background:'white' }}>
+        <div style={{ maxWidth:'960px', margin:'0 auto' }}>
+          <Reveal>
+            <p style={{ textAlign:'center', fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', color:'var(--green-mid)', textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:'10px' }}>What's covered</p>
+            <h2 style={{ textAlign:'center', fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'clamp(24px,4vw,36px)', color:'var(--green-deepest)', marginBottom:'8px' }}>
+              All 9 subjects. Every chapter.
+            </h2>
+            <p style={{ textAlign:'center', fontFamily:'var(--font-body)', fontSize:'15px', color:'var(--gray-600)', marginBottom:'40px' }}>
+              Class 6 · Maharashtra State Board · English & Hindi Medium
+            </p>
+          </Reveal>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))', gap:'12px' }}>
+            {[
+              { emoji:'📖', label:'English',         chapters:8,  color:'#1B4332', bg:'#D8F3DC' },
+              { emoji:'🔢', label:'Mathematics',     chapters:11, color:'#1E3A5F', bg:'#DBEAFE' },
+              { emoji:'🔬', label:'Science',         chapters:9,  color:'#3B1F5E', bg:'#EDE9FE' },
+              { emoji:'🏛️', label:'History & Civics', chapters:6,  color:'#7C2D12', bg:'#FFEDD5' },
+              { emoji:'🌍', label:'Geography',       chapters:7,  color:'#064E3B', bg:'#ECFDF5' },
+              { emoji:'🕉️', label:'Sanskrit',        chapters:8,  color:'#78350F', bg:'#FEF3C7' },
+              { emoji:'💻', label:'ICT',             chapters:5,  color:'#1E40AF', bg:'#EFF6FF' },
+              { emoji:'📜', label:'मराठी',           chapters:17, color:'#831843', bg:'#FDF2F8' },
+              { emoji:'📚', label:'Rapid Reader',    chapters:19, color:'#065F46', bg:'#ECFDF5' },
+            ].map(({ emoji, label, chapters, color, bg }) => (
+              <Reveal key={label}>
+                <div className="card card-hover" style={{ padding:'20px', textAlign:'center', background:bg, border:`1px solid ${color}20` }}>
+                  <span style={{ fontSize:'28px', display:'block', marginBottom:'10px' }}>{emoji}</span>
+                  <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'15px', color, marginBottom:'4px' }}>{label}</p>
+                  <p style={{ fontFamily:'var(--font-body)', fontSize:'12px', color, opacity:0.7 }}>{chapters} chapters</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* HOW IT WORKS */}
       <section style={{ padding:'88px 5%', background:'var(--green-pale)' }}>
         <div style={{ maxWidth:'960px', margin:'0 auto' }}>
