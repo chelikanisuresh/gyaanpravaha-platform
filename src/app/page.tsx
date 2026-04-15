@@ -589,25 +589,26 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          <div className="hero-illo" style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'24px' }}>
+          <div className="hero-illo" style={{ display:'flex', justifyContent:'center' }}>
             <StudentIllustration />
-            {/* Trust badges */}
-            <div className="hero-anim" style={{ display:'flex', flexDirection:'column', gap:'10px', width:'100%', maxWidth:'340px' }}>
-              {[
-                { icon:'🔒', bold:'Parent sets the password', sub:"You control your child's access — always" },
-                { icon:'📵', bold:'No ads, no distractions', sub:'Pure learning — nothing else on the screen' },
-                { icon:'🎯', bold:"Your child's exact syllabus", sub:'Built chapter by chapter for their textbook' },
-              ].map(({ icon, bold, sub }) => (
-                <div key={bold} style={{ display:'flex', alignItems:'center', gap:'12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(116,198,157,0.2)', borderRadius:'14px', padding:'12px 16px', backdropFilter:'blur(4px)' }}>
-                  <span style={{ fontSize:'20px', flexShrink:0 }}>{icon}</span>
-                  <div>
-                    <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'13px', color:'white', lineHeight:1.2 }}>{bold}</p>
-                    <p style={{ fontFamily:'var(--font-body)', fontSize:'11px', color:'rgba(255,255,255,0.5)', marginTop:'2px' }}>{sub}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
+        </div>
+
+        {/* Trust badges — full width strip below hero grid */}
+        <div style={{ maxWidth:'1100px', margin:'48px auto 0', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'12px' }}>
+          {[
+            { icon:'🔒', bold:'Parent sets the password', sub:"You control your child's access — always" },
+            { icon:'📵', bold:'No ads, no distractions', sub:'Pure learning — nothing else on the screen' },
+            { icon:'🎯', bold:"Your child's exact syllabus", sub:'Built chapter by chapter for their textbook' },
+          ].map(({ icon, bold, sub }) => (
+            <div key={bold} style={{ display:'flex', alignItems:'center', gap:'12px', background:'rgba(255,255,255,0.07)', border:'1px solid rgba(116,198,157,0.25)', borderRadius:'16px', padding:'16px 20px', backdropFilter:'blur(4px)' }}>
+              <span style={{ fontSize:'24px', flexShrink:0 }}>{icon}</span>
+              <div>
+                <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'14px', color:'white', lineHeight:1.2 }}>{bold}</p>
+                <p style={{ fontFamily:'var(--font-body)', fontSize:'12px', color:'rgba(255,255,255,0.5)', marginTop:'3px' }}>{sub}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
