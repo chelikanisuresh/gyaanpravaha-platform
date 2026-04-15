@@ -353,9 +353,7 @@ export default function HomePage() {
             <h2 style={{ textAlign:'center', fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'clamp(24px,4vw,36px)', color:'var(--green-deepest)', marginBottom:'8px' }}>
               All 9 subjects. Every chapter.
             </h2>
-            <p style={{ textAlign:'center', fontFamily:'var(--font-body)', fontSize:'15px', color:'var(--gray-600)', marginBottom:'40px' }}>
-              Class 6 · Maharashtra State Board · English & Hindi Medium
-            </p>
+
           </Reveal>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))', gap:'12px' }}>
             {[
