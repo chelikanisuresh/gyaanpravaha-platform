@@ -249,7 +249,11 @@ export default function HomePage() {
         backdropFilter:'blur(10px)', zIndex:100,
       }}>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <img src="/gyaanpravaha-logo.svg" alt="Gyaanpravaha" style={{ height:'48px', width:'auto' }}/>
+          <img src="/gyaanpravaha-icon.svg" alt="Gyaanpravaha" style={{ height:'38px', width:'38px' }}/>
+          <div>
+            <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'17px', color:'var(--green-deepest)', lineHeight:1 }}>Gyaanpravaha</p>
+            <p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color:'var(--green-mid)', lineHeight:1, marginTop:'2px' }}>ज्ञानप्रवाह</p>
+          </div>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
           <Link href="/gk" className="btn-secondary" style={{ padding:'8px 18px', fontSize:'13px' }}>Learn for free</Link>
@@ -488,7 +492,8 @@ export default function HomePage() {
       {/* FOOTER */}
       <footer style={{ background:'var(--green-deepest)', padding:'44px 5%', display:'flex', flexDirection:'column', alignItems:'center', gap:'12px', textAlign:'center' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <img src="/gyaanpravaha-logo.svg" alt="Gyaanpravaha" style={{ height:'44px', width:'auto', filter:'brightness(0) invert(1) opacity(0.85)' }}/>
+          <img src="/gyaanpravaha-icon.svg" alt="Gyaanpravaha" style={{ height:'34px', width:'34px', filter:'brightness(0) invert(1) opacity(0.8)' }}/>
+          <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'17px', color:'white' }}>Gyaanpravaha</p>
         </div>
         <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'rgba(255,255,255,0.45)' }}>Learn it. Know it. Flow with it.</p>
         <p style={{ fontFamily:'var(--font-body)', fontSize:'12px', color:'rgba(255,255,255,0.28)' }}>© 2026 Gyaanpravaha · gyaanpravaha.in</p>
