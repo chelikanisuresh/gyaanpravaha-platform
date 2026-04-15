@@ -249,7 +249,15 @@ export default function HomePage() {
         backdropFilter:'blur(10px)', zIndex:100,
       }}>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <img src="/gyaanpravaha-icon.svg" alt="Gyaanpravaha" style={{ height:'38px', width:'38px' }}/>
+          <div style={{ width:'38px', height:'38px', borderRadius:'10px', background:'linear-gradient(135deg,#52B788,#74C69D)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow:'0 4px 12px rgba(82,183,136,0.3)' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5 C12 5 7 4 3 5.5 L3 17 C7 15.5 12 16.5 12 16.5 C12 16.5 17 15.5 21 17 L21 5.5 C17 4 12 5 12 5Z" fill="white" fillOpacity="0.9"/>
+              <line x1="12" y1="5" x2="12" y2="16.5" stroke="#1B4332" strokeWidth="0.8" strokeOpacity="0.4"/>
+              <ellipse cx="12" cy="21" rx="2.2" ry="3.2" fill="#1B4332" fillOpacity="0.95"/>
+              <ellipse cx="8.5" cy="21.5" rx="1.8" ry="2.6" fill="#1B4332" fillOpacity="0.75" transform="rotate(-28 8.5 21.5)"/>
+              <ellipse cx="15.5" cy="21.5" rx="1.8" ry="2.6" fill="#1B4332" fillOpacity="0.75" transform="rotate(28 15.5 21.5)"/>
+            </svg>
+          </div>
           <div>
             <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'17px', color:'var(--green-deepest)', lineHeight:1 }}>Gyaanpravaha</p>
             <p style={{ fontFamily:'var(--font-body)', fontSize:'10px', color:'var(--green-mid)', lineHeight:1, marginTop:'2px' }}>ज्ञानप्रवाह</p>
@@ -492,7 +500,15 @@ export default function HomePage() {
       {/* FOOTER */}
       <footer style={{ background:'var(--green-deepest)', padding:'44px 5%', display:'flex', flexDirection:'column', alignItems:'center', gap:'12px', textAlign:'center' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <img src="/gyaanpravaha-icon.svg" alt="Gyaanpravaha" style={{ height:'34px', width:'34px', filter:'brightness(0) invert(1) opacity(0.8)' }}/>
+          <div style={{ width:'34px', height:'34px', borderRadius:'9px', background:'linear-gradient(135deg,#52B788,#74C69D)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5 C12 5 7 4 3 5.5 L3 17 C7 15.5 12 16.5 12 16.5 C12 16.5 17 15.5 21 17 L21 5.5 C17 4 12 5 12 5Z" fill="white" fillOpacity="0.9"/>
+              <line x1="12" y1="5" x2="12" y2="16.5" stroke="#1B4332" strokeWidth="0.8" strokeOpacity="0.4"/>
+              <ellipse cx="12" cy="21" rx="2.2" ry="3.2" fill="#1B4332" fillOpacity="0.95"/>
+              <ellipse cx="8.5" cy="21.5" rx="1.8" ry="2.6" fill="#1B4332" fillOpacity="0.75" transform="rotate(-28 8.5 21.5)"/>
+              <ellipse cx="15.5" cy="21.5" rx="1.8" ry="2.6" fill="#1B4332" fillOpacity="0.75" transform="rotate(28 15.5 21.5)"/>
+            </svg>
+          </div>
           <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'17px', color:'white' }}>Gyaanpravaha</p>
         </div>
         <p style={{ fontFamily:'var(--font-body)', fontSize:'13px', color:'rgba(255,255,255,0.45)' }}>Learn it. Know it. Flow with it.</p>
