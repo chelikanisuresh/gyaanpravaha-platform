@@ -444,7 +444,7 @@ export default function GKPage() {
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/" className="btn-outline" style={{ padding: '11px 24px' }}>Learn more</Link>
-            <Link href="/register" className="btn-primary" style={{ padding: '11px 24px', fontWeight: 800 }}>Register now — ₹2,499/year</Link>
+            <Link href="/register" className="btn-primary" style={{ padding: '11px 24px', fontWeight: 800 }}>Register now — ₹4,999/year</Link>
           </div>
         </div>
       </div>
