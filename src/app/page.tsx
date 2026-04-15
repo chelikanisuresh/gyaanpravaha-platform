@@ -75,6 +75,286 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   )
 }
 
+
+// ── Product Preview Slider ─────────────────────────────────────────────────────
+const SLIDES = [
+  {
+    label: 'Student Dashboard',
+    tag: 'For students',
+    tagColor: '#74C69D',
+    color: '#1B4332',
+    accent: '#52B788',
+    description: 'All subjects at a glance with progress, streaks and next chapter to read.',
+    mockup: (
+      <div style={{ fontFamily:'var(--font-heading)', background:'#F0FDF4', borderRadius:'16px', padding:'20px', height:'100%' }}>
+        {/* Greeting */}
+        <div style={{ background:'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius:'12px', padding:'16px', marginBottom:'14px' }}>
+          <p style={{ fontSize:'11px', color:'#74C69D', fontWeight:700, marginBottom:'4px' }}>Good morning, Arjun! 👋</p>
+          <p style={{ fontSize:'18px', color:'white', fontWeight:900, lineHeight:1.2 }}>3 of 90 chapters done</p>
+          <div style={{ marginTop:'8px', height:'4px', background:'rgba(255,255,255,0.15)', borderRadius:'2px', overflow:'hidden' }}>
+            <div style={{ width:'8%', height:'100%', background:'#74C69D', borderRadius:'2px' }}/>
+          </div>
+        </div>
+        {/* Stats row */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'8px', marginBottom:'14px' }}>
+          {[['📚','3','Chapters'],['⭐','82%','Avg score'],['🔥','5','Day streak']].map(([e,v,l]) => (
+            <div key={l} style={{ background:'white', borderRadius:'10px', padding:'10px', textAlign:'center' }}>
+              <div style={{ fontSize:'16px', marginBottom:'2px' }}>{e}</div>
+              <div style={{ fontSize:'14px', fontWeight:900, color:'#1B4332', lineHeight:1 }}>{v}</div>
+              <div style={{ fontSize:'9px', color:'#9CA3AF', marginTop:'2px' }}>{l}</div>
+            </div>
+          ))}
+        </div>
+        {/* Subject grid */}
+        <p style={{ fontSize:'9px', color:'#9CA3AF', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:'8px' }}>Your subjects</p>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px' }}>
+          {[['📖','English','#1B4332','3/8'],['🔢','Maths','#1E3A5F','0/11'],['🔬','Science','#3B1F5E','0/9'],['🌍','Geography','#064E3B','0/7']].map(([e,l,c,p]) => (
+            <div key={l} style={{ background:'white', borderRadius:'8px', padding:'8px', display:'flex', alignItems:'center', gap:'6px' }}>
+              <span style={{ fontSize:'14px' }}>{e}</span>
+              <div>
+                <p style={{ fontSize:'10px', fontWeight:800, color:c, lineHeight:1 }}>{l}</p>
+                <p style={{ fontSize:'8px', color:'#9CA3AF', marginTop:'1px' }}>{p} chapters</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
+  {
+    label: 'Chapter Reader',
+    tag: 'Read & learn',
+    tagColor: '#60A5FA',
+    color: '#1E3A5F',
+    accent: '#3B82F6',
+    description: 'Every chapter in 7 easy sections. Read at your pace, listen with voice, confirm when ready.',
+    mockup: (
+      <div style={{ fontFamily:'var(--font-body)', background:'#F8FAFF', borderRadius:'16px', padding:'20px', height:'100%' }}>
+        {/* Header */}
+        <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'14px' }}>
+          <div style={{ width:'28px', height:'28px', borderRadius:'8px', background:'#1E3A5F', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px' }}>📖</div>
+          <div>
+            <p style={{ fontSize:'11px', fontWeight:800, color:'#1E3A5F', lineHeight:1 }}>Whistles and Shaving Bristles</p>
+            <p style={{ fontSize:'9px', color:'#9CA3AF' }}>Section 4 of 7 · English</p>
+          </div>
+        </div>
+        {/* Progress dots */}
+        <div style={{ display:'flex', gap:'4px', marginBottom:'14px' }}>
+          {[1,2,3,4,5,6,7].map(i => (
+            <div key={i} style={{ flex:1, height:'4px', borderRadius:'2px', background: i<=4 ? '#1E3A5F' : '#E2E8F0' }}/>
+          ))}
+        </div>
+        {/* Content */}
+        <div style={{ background:'white', borderRadius:'10px', padding:'12px', marginBottom:'10px' }}>
+          <p style={{ fontSize:'10px', color:'#374151', lineHeight:1.8 }}>
+            Mr Gillman was what people called an <span style={{ background:'#DBEAFE', borderRadius:'3px', padding:'0 3px', color:'#1E40AF', fontWeight:600 }}>efficiency expert</span>. He had an <span style={{ background:'#DBEAFE', borderRadius:'3px', padding:'0 3px', color:'#1E40AF', fontWeight:600 }}>eagle eye</span> for wasted movement. Every morning he timed himself shaving to see if he could do it faster than the day before...
+          </p>
+        </div>
+        {/* Voice bar */}
+        <div style={{ background:'#1E3A5F', borderRadius:'10px', padding:'10px 12px', display:'flex', alignItems:'center', gap:'8px' }}>
+          <div style={{ width:'24px', height:'24px', borderRadius:'50%', background:'#3B82F6', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'10px', color:'white' }}>▶</div>
+          <div style={{ flex:1 }}>
+            <div style={{ height:'3px', background:'rgba(255,255,255,0.2)', borderRadius:'2px', overflow:'hidden' }}>
+              <div style={{ width:'35%', height:'100%', background:'#60A5FA', borderRadius:'2px' }}/>
+            </div>
+          </div>
+          <p style={{ fontSize:'9px', color:'rgba(255,255,255,0.6)' }}>Reading aloud…</p>
+        </div>
+        {/* Mark read button */}
+        <div style={{ marginTop:'10px', background:'#1E3A5F', borderRadius:'8px', padding:'8px', textAlign:'center' }}>
+          <p style={{ fontSize:'10px', color:'white', fontWeight:700 }}>✓ Mark section as read</p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    label: 'Smart Quiz',
+    tag: 'Test yourself',
+    tagColor: '#A78BFA',
+    color: '#3B1F5E',
+    accent: '#8B5CF6',
+    description: 'Wrong answer? The concept is explained again instantly. No red marks — just better understanding.',
+    mockup: (
+      <div style={{ fontFamily:'var(--font-body)', background:'#F5F3FF', borderRadius:'16px', padding:'20px', height:'100%' }}>
+        {/* Header */}
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'12px' }}>
+          <p style={{ fontSize:'9px', fontWeight:700, color:'#6D28D9', textTransform:'uppercase', letterSpacing:'0.08em' }}>Science · Chapter 1</p>
+          <p style={{ fontSize:'9px', color:'#9CA3AF' }}>Q 3 of 14</p>
+        </div>
+        <div style={{ height:'3px', background:'#E5E7EB', borderRadius:'2px', marginBottom:'14px', overflow:'hidden' }}>
+          <div style={{ width:'21%', height:'100%', background:'#8B5CF6', borderRadius:'2px' }}/>
+        </div>
+        {/* Question */}
+        <div style={{ background:'white', borderRadius:'10px', padding:'12px', marginBottom:'10px' }}>
+          <p style={{ fontSize:'11px', fontWeight:700, color:'#1F2937', lineHeight:1.5 }}>
+            What property of a magnet allows it to attract iron objects even without touching them?
+          </p>
+        </div>
+        {/* Options */}
+        <div style={{ display:'flex', flexDirection:'column', gap:'6px' }}>
+          {[['A','Gravity','neutral'],['B','Magnetic field','correct'],['C','Electric charge','neutral'],['D','Friction','wrong']].map(([l,t,s]) => (
+            <div key={l} style={{ display:'flex', alignItems:'center', gap:'8px', padding:'8px 10px', borderRadius:'8px', background: s==='correct'?'#D1FAE5':s==='wrong'?'#FEE2E2':'white', border:`1px solid ${s==='correct'?'#10B981':s==='wrong'?'#EF4444':'#E5E7EB'}` }}>
+              <div style={{ width:'18px', height:'18px', borderRadius:'50%', background: s==='correct'?'#10B981':s==='wrong'?'#EF4444':'#F3F4F6', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'8px', fontWeight:800, color: s!=='neutral'?'white':'#9CA3AF', flexShrink:0 }}>{l}</div>
+              <p style={{ fontSize:'10px', color: s==='correct'?'#065F46':s==='wrong'?'#991B1B':'#374151', fontWeight: s!=='neutral'?700:400 }}>{t}</p>
+              {s==='correct' && <span style={{ marginLeft:'auto', fontSize:'9px', color:'#10B981' }}>✓ Correct!</span>}
+              {s==='wrong' && <span style={{ marginLeft:'auto', fontSize:'9px', color:'#EF4444' }}>✗</span>}
+            </div>
+          ))}
+        </div>
+        {/* Re-explanation */}
+        <div style={{ marginTop:'10px', background:'#FEE2E2', borderRadius:'8px', padding:'8px', border:'1px solid #EF4444' }}>
+          <p style={{ fontSize:'9px', fontWeight:700, color:'#991B1B', marginBottom:'2px' }}>✗ Not quite! Here is why:</p>
+          <p style={{ fontSize:'9px', color:'#991B1B', lineHeight:1.5 }}>A magnetic field is the invisible force around a magnet that pulls on iron objects without touching them.</p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    label: 'Parent Dashboard',
+    tag: 'For parents',
+    tagColor: '#FBBF24',
+    color: '#78350F',
+    accent: '#F59E0B',
+    description: 'Full visibility into progress, scores, exam results and mistakes — no surprises.',
+    mockup: (
+      <div style={{ fontFamily:'var(--font-body)', background:'#FFFBEB', borderRadius:'16px', padding:'20px', height:'100%' }}>
+        {/* Header */}
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'14px' }}>
+          <div>
+            <p style={{ fontSize:'11px', fontWeight:800, color:'#78350F' }}>Arjun&apos;s Progress</p>
+            <p style={{ fontSize:'9px', color:'#B45309' }}>Updated just now</p>
+          </div>
+          <div style={{ background:'#D1FAE5', borderRadius:'20px', padding:'4px 10px' }}>
+            <p style={{ fontSize:'9px', fontWeight:700, color:'#065F46' }}>● Active</p>
+          </div>
+        </div>
+        {/* Exam result */}
+        <div style={{ background:'linear-gradient(135deg,#1B4332,#2D6A4F)', borderRadius:'10px', padding:'12px', marginBottom:'10px', display:'flex', alignItems:'center', gap:'10px' }}>
+          <span style={{ fontSize:'16px' }}>📋</span>
+          <div style={{ flex:1 }}>
+            <p style={{ fontSize:'10px', fontWeight:700, color:'white' }}>Unit Test 1 Result</p>
+            <p style={{ fontSize:'9px', color:'rgba(255,255,255,0.6)' }}>Attempted 12 Apr 2026</p>
+          </div>
+          <div style={{ textAlign:'center' }}>
+            <p style={{ fontSize:'20px', fontWeight:900, color:'#74C69D', lineHeight:1 }}>78%</p>
+            <p style={{ fontSize:'8px', color:'rgba(255,255,255,0.5)' }}>Score</p>
+          </div>
+        </div>
+        {/* Subject progress */}
+        <p style={{ fontSize:'9px', fontWeight:700, color:'#92400E', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'8px' }}>Subject progress</p>
+        <div style={{ display:'flex', flexDirection:'column', gap:'6px' }}>
+          {[['📖','English','#1B4332',82,3,8],['🔢','Maths','#1E3A5F',0,0,11],['🔬','Science','#3B1F5E',0,0,9]].map(([e,l,c,score,done,total]) => (
+            <div key={l} style={{ background:'white', borderRadius:'8px', padding:'8px 10px', display:'flex', alignItems:'center', gap:'8px' }}>
+              <span style={{ fontSize:'12px' }}>{e}</span>
+              <div style={{ flex:1 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'3px' }}>
+                  <p style={{ fontSize:'9px', fontWeight:700, color:c }}>{l}</p>
+                  <p style={{ fontSize:'9px', color:'#9CA3AF' }}>{done}/{total}</p>
+                </div>
+                <div style={{ height:'3px', background:'#F1F5F9', borderRadius:'2px', overflow:'hidden' }}>
+                  <div style={{ width:`${(done/total)*100}%`, height:'100%', background:c, borderRadius:'2px' }}/>
+                </div>
+              </div>
+              {score > 0 && <p style={{ fontSize:'9px', fontWeight:700, color:c }}>{score}%</p>}
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
+]
+
+function ProductSlider() {
+  const [active, setActive] = useState(0)
+  const [animating, setAnimating] = useState(false)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setAnimating(true)
+      setTimeout(() => {
+        setActive(a => (a + 1) % SLIDES.length)
+        setAnimating(false)
+      }, 300)
+    }, 4000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const goTo = (i: number) => {
+    if (i === active) return
+    setAnimating(true)
+    setTimeout(() => { setActive(i); setAnimating(false) }, 300)
+  }
+
+  const slide = SLIDES[active]
+
+  return (
+    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'48px', alignItems:'center' }}>
+
+      {/* Left — text + nav */}
+      <div>
+        {/* Tab pills */}
+        <div style={{ display:'flex', flexWrap:'wrap', gap:'8px', marginBottom:'32px' }}>
+          {SLIDES.map((s, i) => (
+            <button key={s.label} onClick={() => goTo(i)}
+              style={{ padding:'7px 16px', borderRadius:'20px', border:`1.5px solid ${i === active ? s.tagColor : 'rgba(255,255,255,0.12)'}`, background: i === active ? `${s.tagColor}20` : 'transparent', color: i === active ? s.tagColor : 'rgba(255,255,255,0.4)', fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', cursor:'pointer', transition:'all 0.2s' }}>
+              {s.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Content */}
+        <div style={{ opacity: animating ? 0 : 1, transform: animating ? 'translateY(8px)' : 'translateY(0)', transition:'opacity 0.3s, transform 0.3s' }}>
+          <span style={{ display:'inline-block', background:`${slide.tagColor}25`, color:slide.tagColor, fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'11px', padding:'4px 12px', borderRadius:'20px', letterSpacing:'0.06em', marginBottom:'16px' }}>
+            {slide.tag}
+          </span>
+          <h3 style={{ fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'clamp(22px,3vw,32px)', color:'white', marginBottom:'14px', lineHeight:1.2 }}>
+            {slide.label}
+          </h3>
+          <p style={{ fontFamily:'var(--font-body)', fontSize:'15px', color:'rgba(255,255,255,0.6)', lineHeight:1.75 }}>
+            {slide.description}
+          </p>
+        </div>
+
+        {/* Progress dots */}
+        <div style={{ display:'flex', gap:'8px', marginTop:'32px' }}>
+          {SLIDES.map((_, i) => (
+            <button key={i} onClick={() => goTo(i)}
+              style={{ width: i === active ? '28px' : '8px', height:'8px', borderRadius:'4px', border:'none', background: i === active ? SLIDES[i].tagColor : 'rgba(255,255,255,0.2)', cursor:'pointer', transition:'all 0.3s', padding:0 }}/>
+          ))}
+        </div>
+      </div>
+
+      {/* Right — phone mockup */}
+      <div style={{ display:'flex', justifyContent:'center' }}>
+        <div style={{ width:'280px', background:'#111827', borderRadius:'32px', padding:'12px', boxShadow:'0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)', position:'relative' }}>
+          {/* Phone notch */}
+          <div style={{ width:'80px', height:'24px', background:'#111827', borderRadius:'0 0 14px 14px', position:'absolute', top:0, left:'50%', transform:'translateX(-50%)', zIndex:2, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <div style={{ width:'40px', height:'4px', background:'#1F2937', borderRadius:'2px' }}/>
+          </div>
+          {/* Screen */}
+          <div style={{ borderRadius:'22px', overflow:'hidden', background:'white', minHeight:'420px',
+            opacity: animating ? 0 : 1, transform: animating ? 'scale(0.97)' : 'scale(1)',
+            transition:'opacity 0.3s, transform 0.3s' }}>
+            {/* Status bar */}
+            <div style={{ background:slide.color, padding:'8px 16px 4px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <p style={{ fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'9px', color:'white' }}>9:41</p>
+              <p style={{ fontSize:'9px', color:'white' }}>●●● WiFi 🔋</p>
+            </div>
+            {/* Content */}
+            <div style={{ padding:'12px', minHeight:'388px' }}>
+              {slide.mockup}
+            </div>
+          </div>
+          {/* Home bar */}
+          <div style={{ height:'20px', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <div style={{ width:'60px', height:'4px', background:'rgba(255,255,255,0.15)', borderRadius:'2px' }}/>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function StudentIllustration() {
   return (
     <svg viewBox="0 0 320 320" width="100%" style={{ maxWidth: '380px' }} fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -347,6 +627,28 @@ export default function HomePage() {
         </div>
       </section>
 
+
+
+      {/* PRODUCT PREVIEW SLIDER */}
+      <section style={{ padding:'72px 5%', background:'#0D1F17', overflow:'hidden', position:'relative' }}>
+
+        {/* Background grid */}
+        <div style={{ position:'absolute', inset:0, backgroundImage:'linear-gradient(rgba(116,198,157,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(116,198,157,0.04) 1px, transparent 1px)', backgroundSize:'40px 40px', pointerEvents:'none' }}/>
+
+        <div style={{ maxWidth:'1100px', margin:'0 auto', position:'relative', zIndex:1 }}>
+          <Reveal>
+            <p style={{ textAlign:'center', fontFamily:'var(--font-heading)', fontWeight:700, fontSize:'12px', color:'#74C69D', textTransform:'uppercase', letterSpacing:'0.15em', marginBottom:'12px' }}>See it in action</p>
+            <h2 style={{ textAlign:'center', fontFamily:'var(--font-heading)', fontWeight:900, fontSize:'clamp(26px,4vw,40px)', color:'white', marginBottom:'16px', lineHeight:1.15 }}>
+              Built for how kids actually learn
+            </h2>
+            <p style={{ textAlign:'center', fontFamily:'var(--font-body)', fontSize:'16px', color:'rgba(255,255,255,0.5)', marginBottom:'52px', maxWidth:'480px', margin:'0 auto 52px' }}>
+              Every screen designed for an 11-year-old — clear, warm, and distraction-free.
+            </p>
+          </Reveal>
+
+          <ProductSlider />
+        </div>
+      </section>
 
       {/* SUBJECTS */}
       <section style={{ padding:'64px 5%', background:'white' }}>
