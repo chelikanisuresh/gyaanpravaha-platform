@@ -249,10 +249,9 @@ export default function HomePage() {
         backdropFilter:'blur(10px)', zIndex:100,
       }}>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <div style={{ width:'38px', height:'38px', background:'var(--green-dark)', borderRadius:'11px', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <svg width="22" height="22" viewBox="0 0 20 20" fill="none">
-              <path d="M6 8h8M10 4v8" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-              <circle cx="10" cy="8" r="1.2" fill="#74C69D"/>
+          <div style={{ width:'38px', height:'38px', background:'#74C69D', borderRadius:'11px', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M4 10h12M10 4v12" stroke="#1B4332" strokeWidth="2" strokeLinecap="round"/>
             </svg>
           </div>
           <div>
@@ -497,10 +496,9 @@ export default function HomePage() {
       {/* FOOTER */}
       <footer style={{ background:'var(--green-deepest)', padding:'44px 5%', display:'flex', flexDirection:'column', alignItems:'center', gap:'12px', textAlign:'center' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <div style={{ width:'34px', height:'34px', background:'rgba(255,255,255,0.1)', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-              <path d="M6 8h8M10 4v8" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-              <circle cx="10" cy="8" r="1.2" fill="#74C69D"/>
+          <div style={{ width:'34px', height:'34px', background:'#74C69D', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+              <path d="M4 10h12M10 4v12" stroke="#1B4332" strokeWidth="2" strokeLinecap="round"/>
             </svg>
           </div>
           <p style={{ fontFamily:'var(--font-heading)', fontWeight:800, fontSize:'17px', color:'white' }}>Gyaanpravaha</p>
