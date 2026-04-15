@@ -97,7 +97,7 @@ const SLIDES = [
         </div>
         {/* Stats row */}
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'8px', marginBottom:'14px' }}>
-          {[['📚','3','Chapters'],['⭐','82%','Avg score'],['🔥','5','Day streak']].map(([e,v,l]) => (
+          {([{e:'📚',v:'3',l:'Chapters'},{e:'⭐',v:'82%',l:'Avg score'},{e:'🔥',v:'5',l:'Day streak'}] as {e:string,v:string,l:string}[]).map(({e,v,l}) => (
             <div key={l} style={{ background:'white', borderRadius:'10px', padding:'10px', textAlign:'center' }}>
               <div style={{ fontSize:'16px', marginBottom:'2px' }}>{e}</div>
               <div style={{ fontSize:'14px', fontWeight:900, color:'#1B4332', lineHeight:1 }}>{v}</div>
@@ -243,7 +243,7 @@ const SLIDES = [
         {/* Subject progress */}
         <p style={{ fontSize:'9px', fontWeight:700, color:'#92400E', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'8px' }}>Subject progress</p>
         <div style={{ display:'flex', flexDirection:'column', gap:'6px' }}>
-          {[['📖','English','#1B4332',82,3,8],['🔢','Maths','#1E3A5F',0,0,11],['🔬','Science','#3B1F5E',0,0,9]].map(([e,l,c,score,done,total]) => (
+          {([{e:'📖',l:'English',c:'#1B4332',score:82,done:3,total:8},{e:'🔢',l:'Maths',c:'#1E3A5F',score:0,done:0,total:11},{e:'🔬',l:'Science',c:'#3B1F5E',score:0,done:0,total:9}] as {e:string,l:string,c:string,score:number,done:number,total:number}[]).map(({e,l,c,score,done,total}) => (
             <div key={l} style={{ background:'white', borderRadius:'8px', padding:'8px 10px', display:'flex', alignItems:'center', gap:'8px' }}>
               <span style={{ fontSize:'12px' }}>{e}</span>
               <div style={{ flex:1 }}>
