@@ -219,10 +219,13 @@ export default function GKPage() {
         position: 'sticky', top: 0, zIndex: 100,
       }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-          <div style={{ width: '34px', height: '34px', background: 'var(--green-dark)', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-              <path d="M6 8h8M10 4v8" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-              <circle cx="10" cy="8" r="1.2" fill="#74C69D"/>
+          <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'linear-gradient(135deg,#52B788,#74C69D)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(82,183,136,0.3)' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5 C12 5 7 4 3 5.5 L3 17 C7 15.5 12 16.5 12 16.5 C12 16.5 17 15.5 21 17 L21 5.5 C17 4 12 5 12 5Z" fill="white" fillOpacity="0.9"/>
+              <line x1="12" y1="5" x2="12" y2="16.5" stroke="#1B4332" strokeWidth="0.8" strokeOpacity="0.4"/>
+              <ellipse cx="12" cy="21" rx="2.2" ry="3.2" fill="#1B4332" fillOpacity="0.95"/>
+              <ellipse cx="8.5" cy="21.5" rx="1.8" ry="2.6" fill="#1B4332" fillOpacity="0.75" transform="rotate(-28 8.5 21.5)"/>
+              <ellipse cx="15.5" cy="21.5" rx="1.8" ry="2.6" fill="#1B4332" fillOpacity="0.75" transform="rotate(28 15.5 21.5)"/>
             </svg>
           </div>
           <div>
