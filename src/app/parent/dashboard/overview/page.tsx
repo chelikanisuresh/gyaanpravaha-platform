@@ -132,7 +132,7 @@ function OverviewInner() {
           {[
             { label: 'Total chapters done', value: loading ? '—' : `${totalDone}/${TOTAL_CHAPTERS}`, bg: '#EEF2FF', color: '#4338CA', sub: '#818CF8' },
             { label: 'Overall avg score',   value: loading ? '—' : overallAvg !== null ? `${overallAvg}%` : '—', bg: '#F0FDF4', color: '#0F766E', sub: '#34D399' },
-            { label: 'Subjects active',     value: loading ? '—' : `${subjects.filter(s=>s.done>0||s.quizzesTaken>0).length}/{SUBJECT_COUNT}`, bg: '#FEF3C7', color: '#92400E', sub: '#F59E0B' },
+            { label: 'Subjects active',     value: loading ? '—' : `${subjects.filter(s=>s.done>0||s.quizzesTaken>0).length}/${SUBJECT_COUNT}`, bg: '#FEF3C7', color: '#92400E', sub: '#F59E0B' },
           ].map(s => (
             <motion.div key={s.label} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
               style={{ background: s.bg, borderRadius: '16px', padding: '18px 20px' }}>
