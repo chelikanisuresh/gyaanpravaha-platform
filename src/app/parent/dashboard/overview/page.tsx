@@ -130,7 +130,7 @@ function OverviewInner() {
         {/* Summary stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px', marginBottom: '28px' }}>
           {[
-            { label: 'Total chapters done', value: loading ? '—' : `${totalDone}/{TOTAL_CHAPTERS}`, bg: '#EEF2FF', color: '#4338CA', sub: '#818CF8' },
+            { label: 'Total chapters done', value: loading ? '—' : `${totalDone}/${TOTAL_CHAPTERS}`, bg: '#EEF2FF', color: '#4338CA', sub: '#818CF8' },
             { label: 'Overall avg score',   value: loading ? '—' : overallAvg !== null ? `${overallAvg}%` : '—', bg: '#F0FDF4', color: '#0F766E', sub: '#34D399' },
             { label: 'Subjects active',     value: loading ? '—' : `${subjects.filter(s=>s.done>0||s.quizzesTaken>0).length}/{SUBJECT_COUNT}`, bg: '#FEF3C7', color: '#92400E', sub: '#F59E0B' },
           ].map(s => (
