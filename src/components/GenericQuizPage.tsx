@@ -51,12 +51,32 @@ function isCorrectMCQ(q: any, given: string) {
   if (!givenN) return false
   if (q.type === 'mcq') return givenN === normalise(q.answer)
   if (givenN === normalise(q.answer)) return true
+
+  // For single_word: accept if student's answer matches any meaningful word/phrase
+  // in the correct answer (min 4 chars to avoid matching stop words like "the","is")
   const rawTokens = q.answer.split(/[\s=;→,()×÷+\-:|]+/).filter((t: string) => t.trim())
-  const normTokens = rawTokens.map((t: string) => normalise(t))
-  if (normTokens.some((t: string) => t && t === givenN)) return true
+  const normTokens = rawTokens.map((t: string) => normalise(t)).filter((t: string) => t.length >= 4)
+
+  // Exact single token match
+  if (normTokens.some((t: string) => t === givenN)) return true
+
+  // Consecutive token pair match (e.g. "magneticinduction" matches "magnetic"+"induction")
   for (let i = 0; i < normTokens.length - 1; i++) {
     if (normTokens[i] + normTokens[i + 1] === givenN) return true
   }
+
+  // Student answer contains key term OR key term contains student answer (for partial matches)
+  // Only for single_word questions where stored answer is a long explanation
+  if (q.type === 'single_word' && givenN.length >= 4) {
+    const answerN = normalise(q.answer)
+    if (answerN.includes(givenN)) return true
+    // Check if any 2-3 consecutive tokens together are contained in givenN
+    for (let i = 0; i < normTokens.length - 1; i++) {
+      const pair = normTokens[i] + normTokens[i + 1]
+      if (pair.length >= 6 && givenN.includes(pair)) return true
+    }
+  }
+
   return false
 }
 function isAutoCorrect(q: any) { return q.type === 'sentence' || q.type === 'long_answer' }

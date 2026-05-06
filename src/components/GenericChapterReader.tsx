@@ -63,9 +63,10 @@ function renderWithSentenceHighlight(
   para: string,
   activeSentence: string,
   wordMap: Record<string, { meaning: string }>,
-  theme: ReaderTheme
+  theme: ReaderTheme,
+  seenWords?: Set<string>
 ): React.ReactNode {
-  if (!activeSentence) return renderWithTooltips(para, wordMap, theme)
+  if (!activeSentence) return renderWithTooltips(para, wordMap, theme, seenWords)
   
   // Normalise for comparison
   const norm = (s: string) => s.replace(/\s+/g, ' ').trim()
@@ -81,7 +82,7 @@ function renderWithSentenceHighlight(
   
   return (
     <>
-      {before && renderWithTooltips(before, wordMap, theme)}
+      {before && renderWithTooltips(before, wordMap, theme, seenWords)}
       <mark style={{
         background: `${theme.accent}55`,
         borderRadius: '4px',
@@ -91,20 +92,33 @@ function renderWithSentenceHighlight(
         boxShadow: `0 0 0 2px ${theme.accent}40`,
         transition: 'all 0.3s',
       }}>
-        {renderWithTooltips(match, wordMap, theme)}
+        {renderWithTooltips(match, wordMap, theme, seenWords)}
       </mark>
-      {after && renderWithTooltips(after, wordMap, theme)}
+      {after && renderWithTooltips(after, wordMap, theme, seenWords)}
     </>
   )
 }
 
-function renderWithTooltips(text: string, wordMap: Record<string, { meaning: string }>, theme: ReaderTheme): React.ReactNode {
+function renderWithTooltips(
+  text: string,
+  wordMap: Record<string, { meaning: string }>,
+  theme: ReaderTheme,
+  seenWords?: Set<string>
+): React.ReactNode {
   if (!wordMap || Object.keys(wordMap).length === 0) return text
+  const seen = seenWords ?? new Set<string>()
   const phrases = Object.keys(wordMap).sort((a, b) => b.length - a.length)
   const escaped = phrases.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
   const pattern = new RegExp(`\\b(${escaped.join('|')})\\b`, 'gi')
   const parts = text.split(pattern)
-  return <>{parts.map((part, i) => { const e = wordMap[part.toLowerCase()] || wordMap[part]; return e ? <TooltipWord key={i} word={part} meaning={e.meaning} theme={theme}/> : part })}</>
+  return <>{parts.map((part, i) => {
+    const key = part.toLowerCase()
+    const e = wordMap[key] || wordMap[part]
+    if (!e) return part
+    if (seen.has(key)) return part  // already shown — render as plain text
+    seen.add(key)
+    return <TooltipWord key={i} word={part} meaning={e.meaning} theme={theme}/>
+  })}</>
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -532,13 +546,13 @@ export default function GenericChapterReader({ config }: { config: ReaderConfig 
                 )}
 
                 <div style={{ background: 'white', borderRadius: '20px', border: '1.5px solid #F1F5F9', padding: '32px', marginBottom: '20px', boxShadow: `0 2px 12px ${theme.primary}08` }}>
-                  {currentSec.content.split('\n\n').map((para: string, i: number) => (
+                  {(() => { const seenWords = new Set<string>(); return currentSec.content.split('\n\n').map((para: string, i: number) => (
                     <p key={i} style={{ fontFamily: 'var(--font-body)', fontSize: '15.5px', color: '#374151', lineHeight: 2, marginBottom: '16px' }}>
                       {activeSentence
-                        ? renderWithSentenceHighlight(para, activeSentence, wordMap, theme)
-                        : renderWithTooltips(para, wordMap, theme)}
+                        ? renderWithSentenceHighlight(para, activeSentence, wordMap, theme, seenWords)
+                        : renderWithTooltips(para, wordMap, theme, seenWords)}
                     </p>
-                  ))}
+                  ))})()}
                 </div>
 
                 {minRead > 0 && !readGateMet && (
