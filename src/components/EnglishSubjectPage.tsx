@@ -139,6 +139,14 @@ function ChapterCard({ chapter, secsDone, score, isCompleted, isStarted, isCurre
               color: isCompleted ? '#4338CA' : isCurrent ? 'white' : '#64748B',
               border: isCompleted ? '1.5px solid #C7D2FE' : 'none',
             }}>{ctaLabel}</span>
+            {isCompleted && (
+              <Link
+                href={`/student/english-quiz/${chapter.id}`}
+                onClick={e => e.stopPropagation()}
+                style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: '11px', padding: '5px 12px', borderRadius: '8px', background: '#1B4332', color: 'white', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', textDecoration: 'none', display: 'block', textAlign: 'center' }}>
+                📝 Take Quiz
+              </Link>
+            )}
             {isCompleted && onFlashcards && (
               <button
                 onClick={e => { e.preventDefault(); e.stopPropagation(); onFlashcards() }}
